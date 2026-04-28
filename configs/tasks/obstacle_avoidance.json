@@ -1,0 +1,23 @@
+{
+  "task_name": "obstacle_avoidance",
+  "predicates": [
+    {
+      "name": "safe",
+      "type": "distance",
+      "source": "hazard_dist",
+      "threshold": 0.5,
+      "operator": ">"
+    }
+  ],
+  "specification": {
+    "type": "STL",
+    "formula": "G[0,49] safe"
+  },
+  "rollout": {
+    "horizon": 50,
+    "num_samples": 100
+  },
+  "calibration": {
+    "delta": 0.05
+  }
+}
