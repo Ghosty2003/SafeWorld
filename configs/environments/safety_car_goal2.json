@@ -1,0 +1,25 @@
+{
+  "env_id": "SafetyCarGoal2Gymnasium-v0",
+  "description": "Car robot variant - different dynamics",
+
+  "observation": {
+    "obs_dim": 72,
+    "layout": {
+      "velocimeter": [3, 6]
+    }
+  },
+
+  "ap_extraction": {
+    "hazard_dist": {
+      "source": "cost_signal",
+      "method": "offset_from_cost",
+      "cost_key": "cost_hazards",
+      "offset": 0.5
+    },
+    "velocity": {
+      "source": "observation",
+      "method": "l2_norm",
+      "obs_slice": [3, 6]
+    }
+  }
+}

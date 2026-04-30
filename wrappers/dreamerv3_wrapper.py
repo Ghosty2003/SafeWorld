@@ -69,7 +69,8 @@ from typing import Any
 
 import numpy as np
 
-from .base import WorldModelWrapper, RolloutConfig
+from configs.settings import RolloutConfig
+from .base import WorldModelWrapper
 
 logger = logging.getLogger(__name__)
 

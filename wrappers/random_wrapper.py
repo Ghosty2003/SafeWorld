@@ -15,7 +15,8 @@ Fidelity parameter controls trajectory safety:
 from __future__ import annotations
 
 import math
-from .base import WorldModelWrapper, RolloutConfig
+from configs.settings import RolloutConfig
+from .base import WorldModelWrapper
 
 
 def _pseudo_rng(seed: int, i: int) -> float:

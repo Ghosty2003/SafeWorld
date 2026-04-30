@@ -1,0 +1,82 @@
+{
+  "env_id": "SafetyPointGoal2Gymnasium-v0",
+  "description": "Hard variant - 8 hazards, larger hazard zones",
+
+  "env_kwargs": {
+    "num_hazards": 8,
+    "hazard_size": 0.4,
+    "num_vases": 4,
+    "robot_keepout": 0.3
+  },
+
+  "observation": {
+    "obs_dim": 60,
+    "layout": {
+      "accelerometer": [0,  3],
+      "velocimeter":   [3,  6],
+      "gyro":          [6,  9],
+      "magnetometer":  [9,  12],
+      "goal_lidar":    [12, 28],
+      "hazard_lidar":  [28, 44],
+      "vases_lidar":   [44, 60]
+    }
+  },
+
+  "action": {
+    "act_dim": 2,
+    "low": -1.0,
+    "high": 1.0
+  },
+
+  "ap_extraction": {
+    "hazard_dist": {
+      "source": "cost_signal",
+      "method": "offset_from_cost",
+      "cost_key": "cost_hazards",
+      "offset": 0.5,
+      "comment": "Same offset - cost is still binary 0/1 even with more hazards"
+    },
+    "velocity": {
+      "source": "observation",
+      "method": "l2_norm",
+      "obs_slice": [3, 6]
+    },
+    "goal_dist": {
+      "source": "observation",
+      "method": "lidar_to_dist",
+      "obs_slice": [12, 28],
+      "offset": 1.0
+    },
+    "near_obstacle": {
+      "source": "observation",
+      "method": "lidar_to_dist",
+      "obs_slice": [28, 44],
+      "offset": 0.5
+    },
+    "zone_a":    { "source": "unsupported", "default": -1.0 },
+    "zone_b":    { "source": "unsupported", "default": -1.0 },
+    "zone_c":    { "source": "unsupported", "default": -1.0 },
+    "carrying":  { "source": "unsupported", "default": -1.0 },
+    "near_human":{ "source": "unsupported", "default": -1.0 }
+  },
+
+  "supported_specs": [
+    "stl_hazard_avoidance",
+    "ltl_hazard_avoidance",
+    "stl_safe_goal_reach",
+    "ltl_safe_goal"
+  ],
+
+  "unsupported_specs": [
+    "stl_sequential_zones",
+    "ltl_sequential_goals",
+    "stl_bounded_patrol",
+    "ltl_patrol",
+    "stl_safe_dual_patrol",
+    "ltl_safe_patrol",
+    "ltl_conditional_speed",
+    "ltl_conditional_proximity",
+    "stl_full_mission",
+    "ltl_full_mission"
+  ]
+}

@@ -26,11 +26,15 @@ Also provides:
 from __future__ import annotations
 
 import logging
+import json
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Sequence
 
 from specs import get_spec_by_id, ALL_SPECS
+from specs.spec_calibrator import apply_env_config_to_spec, load_env_config 
+from configs.settings import build_rollout_config, load_settings_config, settings_path_for_model
 from core.stl_monitor import monitor_rollouts, MonitorResult, net_robustness
 from core.transfer_calibrator import (
     fit_conformal_error_budget,
@@ -549,30 +553,50 @@ def run_benchmark(
     return BenchmarkResult(results=results, wall_time=time.perf_counter() - t0)
 
 
+def _json_object_arg(value: str | None, flag_name: str) -> dict:
+    if value is None:
+        return {}
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"{flag_name} must be a valid JSON object: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise SystemExit(f"{flag_name} must be a JSON object.")
+    return parsed
+
+
 # ─── CLI entry point ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="SAFEWORLD verification pipeline")
+    # ② CLI 参数：加 --env-config 参数
+    parser.add_argument("--env-config", default=None,
+                        help="Path to environment config JSON for AP threshold overrides")
     parser.add_argument("--spec",    default="ltl_hazard_avoidance",
                         help="Specification ID (see specs/__init__.py for full list)")
     parser.add_argument("--task-config", default=None,
                         help="Path to a JSON task spec with predicates + formula")
+    parser.add_argument("--settings-config", default=None,
+                        help="Path to a JSON runtime settings file")
     parser.add_argument("--model",   default="random",
-                        choices=["random", "dreamerv3", "safety_point_goal"],
+                        choices=["random", "dreamerv3", "safety_point_goal", "simple_pointgoal2"],
                         help="World model to use")
-    parser.add_argument("--env-name", default="SafetyPointGoal1-v0",
+    parser.add_argument("--env-name", default=None,
                         help="Gymnasium environment name for env-backed wrappers")
     parser.add_argument("--horizon", type=int, default=None)
     parser.add_argument("--n",       type=int, default=None, help="Number of rollouts")
     parser.add_argument("--confidence-profile", default=None,
                         choices=["quick", "moderate", "high-confidence"],
                         help="Preset rollout counts: quick=20, moderate=100, high-confidence=1000")
-    parser.add_argument("--seed",    type=int, default=0)
+    parser.add_argument("--seed",    type=int, default=None)
+    parser.add_argument("--action-source", default=None,
+                        choices=["random", "env", "zeros", "adversarial"],
+                        help="Action sampling mode for rollout wrappers")
     parser.add_argument("--fidelity",type=float, default=0.75,
                         help="Model fidelity for random wrapper (0=unsafe, 1=safe)")
-    parser.add_argument("--c-hat",   type=float, default=0.08,
+    parser.add_argument("--c-hat",   type=float, default=None,
                         help="Model error budget ĉ_err")
     parser.add_argument("--auto-paired", action="store_true",
                         help="Use wrapper-provided paired model/environment rollouts when available")
@@ -580,39 +604,64 @@ if __name__ == "__main__":
                         help="Run all specs (SAFEWORLD-BENCH)")
     parser.add_argument("--checkpoint", default=None,
                         help="DreamerV3 checkpoint path")
+    parser.add_argument("--env-kwargs", default=None,
+                        help="JSON object passed to environment construction")
+    parser.add_argument("--reset-kwargs", default=None,
+                        help="JSON object passed to env.reset() for paired rollouts")
+    parser.add_argument("--stop-on-done", action="store_true",
+                        help="Stop model-only rollouts when done_probability exceeds threshold")
+    parser.add_argument("--done-threshold", type=float, default=None,
+                        help="done_probability threshold used with --stop-on-done")
     args = parser.parse_args()
 
     # Import wrappers here to avoid circular imports at module level
     from wrappers import (
         DreamerV3Wrapper,
         RandomWorldModelWrapper,
-        RolloutConfig,
         SafetyPointGoalWrapper,
+        SimplePointGoal2WorldModelWrapper,
     )
 
     task_spec = load_task_spec(args.task_config) if args.task_config else None
-    rollout_meta = apply_confidence_profile(
-        task_spec.get("rollout") if task_spec else None,
-        args.confidence_profile,
-        explicit_n=args.n,
+    settings_path = Path(args.settings_config) if args.settings_config else settings_path_for_model(args.model)
+    settings = load_settings_config(settings_path if settings_path.exists() else None)
+    env_config_path = (
+        args.env_config                                          # CLI 优先
+        or settings.get("environment", {}).get("config")        # settings JSON 次之
     )
+    env_config = load_env_config(env_config_path) if env_config_path else {}
+    roll_cfg = build_rollout_config(settings)
+    rollout_meta = apply_confidence_profile({}, args.confidence_profile, explicit_n=args.n)
     if args.horizon is not None:
         rollout_meta["horizon"] = args.horizon
-
-    roll_cfg = RolloutConfig(
-        horizon=int(rollout_meta.get("horizon", args.horizon or 50)),
-        n_rollouts=int(rollout_meta.get("n_rollouts", args.n or 20)),
-        seed=args.seed,
-        extra={
-            "fidelity": args.fidelity,
-            "spec_type": args.spec.replace("ltl_", "").replace("stl_", ""),
-            "env_name": args.env_name,
-        },
-    )
+    env_kwargs = _json_object_arg(args.env_kwargs, "--env-kwargs")
+    reset_kwargs = _json_object_arg(args.reset_kwargs, "--reset-kwargs")
+    if "horizon" in rollout_meta:
+        roll_cfg.horizon = int(rollout_meta["horizon"])
+    if "n_rollouts" in rollout_meta:
+        roll_cfg.n_rollouts = int(rollout_meta["n_rollouts"])
+    if args.seed is not None:
+        roll_cfg.seed = args.seed
+    if args.action_source is not None:
+        roll_cfg.action_source = args.action_source
+        roll_cfg.extra["action_source"] = args.action_source
+    roll_cfg.extra.setdefault("fidelity", args.fidelity)
+    roll_cfg.extra["spec_type"] = args.spec.replace("ltl_", "").replace("stl_", "")
+    if args.env_name is not None:
+        roll_cfg.extra["env_name"] = args.env_name
+    if env_kwargs:
+        roll_cfg.extra["env_kwargs"] = env_kwargs
+    if reset_kwargs:
+        roll_cfg.extra["reset_kwargs"] = reset_kwargs
+    if args.stop_on_done:
+        roll_cfg.extra["stop_on_done"] = True
+    if args.done_threshold is not None:
+        roll_cfg.extra["done_threshold"] = args.done_threshold
+    verification_settings = dict(settings.get("verification", {}))
     ver_cfg = VerifyConfig(
-        model_error_budget=args.c_hat,
+        model_error_budget=float(args.c_hat if args.c_hat is not None else verification_settings.get("model_error_budget", 0.08)),
         verbose=not args.benchmark,
-        auto_collect_paired_rollouts=args.auto_paired,
+        auto_collect_paired_rollouts=bool(args.auto_paired or verification_settings.get("auto_collect_paired_rollouts", False)),
     )
 
     if args.model == "dreamerv3":
@@ -620,7 +669,11 @@ if __name__ == "__main__":
         w.load(checkpoint_path=args.checkpoint)
     elif args.model == "safety_point_goal":
         w = SafetyPointGoalWrapper(roll_cfg)
-        w.load(env_name=args.env_name)
+        w.load(env_name=roll_cfg.extra.get("env_name", "SafetyPointGoal1-v0"))
+    elif args.model == "simple_pointgoal2":
+        roll_cfg.extra.setdefault("env_name", "SafetyPointGoal2Gymnasium-v0")
+        w = SimplePointGoal2WorldModelWrapper(roll_cfg)
+        w.load(checkpoint_path=args.checkpoint or None, env_name=roll_cfg.extra["env_name"])
     else:
         w = RandomWorldModelWrapper(roll_cfg)
         w.load()
@@ -637,5 +690,7 @@ if __name__ == "__main__":
             for s in ALL_SPECS:
                 print(f"  {s['id']}")
         else:
+            if env_config:
+                spec = apply_env_config_to_spec(spec, env_config)
             result = verify_from_wrapper(w, spec, roll_cfg, ver_cfg)
             print(result.summary())

@@ -42,7 +42,7 @@ def safety_point_goal_adapter(
     )
 
     goal_dist = _goal_distance(agent_pos, goal_pos, obs, info)
-    hazard_dist = _nearest_distance(agent_pos, hazards)
+    hazard_dist = _hazard_margin(agent_pos, hazards, info)
     near_obstacle = _near_obstacle_signal(agent_pos, hazards, obs, info)
     velocity = _velocity_magnitude(velocity_vec, prev_obs, obs, info)
 
@@ -89,14 +89,26 @@ def _near_obstacle_signal(agent_pos, hazards, obs: Any, info: dict[str, Any]) ->
     return 1.0
 
 
+def _hazard_margin(agent_pos, hazards, info: dict[str, Any]) -> float:
+    explicit = _scalar(info, ("hazard_dist", "hazard_distance"), default=None)
+    if explicit is not None:
+        return float(explicit)
+    cost = _scalar(info, ("cost_hazards", "cost"), default=None)
+    if cost is not None:
+        return 0.5 - float(cost)
+    return _nearest_distance(agent_pos, hazards)
+
+
 def _velocity_magnitude(velocity_vec, prev_obs: Any, obs: Any, info: dict[str, Any]) -> float:
     explicit = _scalar(info, ("speed", "velocity_mag"), default=None)
     if explicit is not None:
         return float(explicit)
     if velocity_vec is not None:
         return float(np.linalg.norm(np.asarray(velocity_vec, dtype=float)))
-    prev_arr = _as_array(prev_obs)
     curr_arr = _as_array(obs)
+    if curr_arr is not None and curr_arr.size >= 6:
+        return float(np.linalg.norm(curr_arr[3:6]))
+    prev_arr = _as_array(prev_obs)
     if prev_arr is not None and curr_arr is not None and prev_arr.size >= 2 and curr_arr.size >= 2:
         delta = curr_arr[:2] - prev_arr[:2]
         return float(np.linalg.norm(delta))

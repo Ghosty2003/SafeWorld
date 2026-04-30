@@ -24,35 +24,8 @@ AP key convention:
 from __future__ import annotations
 
 import abc
-from dataclasses import dataclass, field
-from typing import Any
 
-
-@dataclass
-class RolloutConfig:
-    """Parameters controlling how rollouts are sampled."""
-
-    horizon:      int  = 50
-    """Number of latent steps T per rollout."""
-
-    n_rollouts:   int  = 20
-    """Number of independent rollouts N."""
-
-    action_source: str = "random"
-    """
-    'random'  – uniform random actions (broad latent coverage).
-    'policy'  – use the model's own actor.
-    'zeros'   – zero actions (debugging).
-    """
-
-    seed:         int  = 0
-    """Random seed for reproducibility."""
-
-    device:       str  = "cpu"
-    """Torch device string ('cpu', 'cuda:0', etc.)."""
-
-    extra: dict[str, Any] = field(default_factory=dict)
-    """Wrapper-specific kwargs (e.g. env_name, checkpoint_path, use_decoder)."""
+from configs.settings import RolloutConfig
 
 
 class WorldModelWrapper(abc.ABC):

@@ -1,0 +1,34 @@
+{
+  "description": "Default runtime settings for helenant/simple_pointgoal2_worldmodel on SafetyPointGoal2.",
+
+  "model": {
+    "type": "simple_pointgoal2",
+    "checkpoint_path": null
+  },
+
+  "environment": {
+    "name": "SafetyPointGoal2Gymnasium-v0",
+    "wrapper": "SimplePointGoal2WorldModelWrapper",
+    "config": "SafeWord_V2/configs/environments/safety_point_goal2.json",
+    "kwargs": {},
+    "reset_kwargs": {}
+  },
+
+  "rollout": {
+    "horizon": 50,
+    "n_rollouts": 20,
+    "action_source": "random",
+    "seed": 0,
+    "device": "cpu"
+  },
+
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget": 0.08
+  },
+
+  "extra": {
+    "stop_on_done": false,
+    "done_threshold": 0.5
+  }
+}

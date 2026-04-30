@@ -4,7 +4,8 @@ import numpy as np
 
 from environment import EnvWrapper, rollout_env
 from environment.adapters import safety_point_goal_adapter
-from .base import RolloutConfig, WorldModelWrapper
+from configs.settings import RolloutConfig
+from .base import WorldModelWrapper
 
 
 class SafetyPointGoalWrapper(WorldModelWrapper):

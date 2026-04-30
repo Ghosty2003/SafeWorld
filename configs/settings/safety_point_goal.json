@@ -1,0 +1,24 @@
+{
+  "description": "Default runtime settings for an environment-backed SafetyPointGoal wrapper.",
+  "model": {
+    "type": "safety_point_goal"
+  },
+  "environment": {
+    "name": "SafetyPointGoal1-v0",
+    "wrapper": "SafetyPointGoalWrapper",
+    "kwargs": {},
+    "reset_kwargs": {}
+  },
+  "rollout": {
+    "horizon": 50,
+    "n_rollouts": 20,
+    "action_source": "random",
+    "seed": 0,
+    "device": "cpu"
+  },
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget": 0.08
+  },
+  "extra": {}
+}

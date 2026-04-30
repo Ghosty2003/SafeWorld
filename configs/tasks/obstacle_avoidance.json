@@ -1,23 +1,23 @@
 {
-  "task_name": "obstacle_avoidance",
+  "id": "obstacle_avoidance",
+  "task_name": "Obstacle avoidance",
+  "description": "Always maintain a positive hazard safety margin over a 50-step horizon.",
+  "metadata": {
+    "intended_environment": "SafetyPointGoal2Gymnasium-v0",
+    "intended_model": "simple_pointgoal2",
+    "note": "This metadata is explanatory only. Runtime model, environment, rollout, and verification settings are loaded from configs/settings."
+  },
   "predicates": [
     {
       "name": "safe",
       "type": "distance",
       "source": "hazard_dist",
-      "threshold": 0.5,
+      "threshold": 0.0,
       "operator": ">"
     }
   ],
   "specification": {
     "type": "STL",
     "formula": "G[0,49] safe"
-  },
-  "rollout": {
-    "horizon": 50,
-    "num_samples": 100
-  },
-  "calibration": {
-    "delta": 0.05
   }
 }

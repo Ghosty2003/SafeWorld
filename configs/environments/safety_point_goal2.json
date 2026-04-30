@@ -1,0 +1,54 @@
+{
+  "env_id": "SafetyPointGoal2Gymnasium-v0",
+  "description": "Default SafetyPointGoal2 - 4 hazards",
+
+  "ap_extraction": {
+    "hazard_dist": {
+      "source": "cost_signal",
+      "method": "offset_from_cost",
+      "cost_key": "cost_hazards",
+      "offset": 0.5
+    },
+    "velocity": {
+      "source": "observation",
+      "method": "l2_norm",
+      "obs_slice": [3, 6]
+    },
+    "goal_dist": {
+      "source": "observation",
+      "method": "lidar_to_dist",
+      "obs_slice": [12, 28],
+      "offset": 1.0
+    },
+    "near_obstacle": {
+      "source": "observation",
+      "method": "lidar_to_dist",
+      "obs_slice": [28, 44],
+      "offset": 0.5
+    },
+    "zone_a":     { "source": "unsupported", "default": -1.0 },
+    "zone_b":     { "source": "unsupported", "default": -1.0 },
+    "zone_c":     { "source": "unsupported", "default": -1.0 },
+    "carrying":   { "source": "unsupported", "default": -1.0 },
+    "near_human": { "source": "unsupported", "default": -1.0 }
+  },
+
+  "ap_thresholds": {
+    "hazard_dist":   0.0,
+    "velocity":      0.4,
+    "goal_dist":    -0.2,
+    "near_obstacle": -0.3,
+    "zone_a":        0.5,
+    "zone_b":        0.5,
+    "zone_c":        0.5,
+    "carrying":     -0.5,
+    "near_human":   -0.3
+  },
+
+  "supported_specs": [
+    "stl_hazard_avoidance",
+    "ltl_hazard_avoidance",
+    "stl_safe_goal_reach",
+    "ltl_safe_goal"
+  ]
+}

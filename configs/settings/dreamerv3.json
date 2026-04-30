@@ -1,0 +1,27 @@
+{
+  "description": "Template runtime settings for a DreamerV3 checkpoint.",
+  "model": {
+    "type": "dreamerv3",
+    "checkpoint_path": null
+  },
+  "environment": {
+    "name": "SafetyPointGoal1-v0",
+    "wrapper": "DreamerV3Wrapper",
+    "kwargs": {},
+    "reset_kwargs": {}
+  },
+  "rollout": {
+    "horizon": 50,
+    "n_rollouts": 20,
+    "action_source": "random",
+    "seed": 0,
+    "device": "cpu"
+  },
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget": 0.08
+  },
+  "extra": {
+    "ap_mode": "latent_dims"
+  }
+}
