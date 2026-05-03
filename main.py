@@ -48,6 +48,18 @@ from core.lppm import (
     fit_lppm,
     LPPMResult,
 )
+from core.cegar import (
+    CegarConfig,
+    CegarResult,
+    Predicate,
+    CEGAR_SAFE,
+    CEGAR_VIOLATION,
+    CEGAR_INCONCLUSIVE,
+    run_cegar,
+    run_oneshot,
+    derive_predicates_from_spec,
+)
+from core.soft_buchi import SoftBuchiResult, run_soft_buchi
 from utils.spec_analysis import analyze_spec_structure
 from utils.task_parser import apply_confidence_profile, evaluate_predicates, load_task_spec
 
@@ -102,6 +114,36 @@ class VerifyConfig:
     lppm_epochs:    int = 300
     """Number of training epochs for fit_lppm (if fit_lppm_params=True)."""
 
+    # Method selection (Algorithm 1)
+    method: str = "stl"
+    """
+    Verification method to use (Algorithm 1):
+      "stl"        — STL robustness + transfer + LPPM (default, current behaviour)
+      "cegar"      — CEGAR loop: predicate abstraction → product → SCC → refine
+      "oneshot"    — ONE-SHOT: K=1 CEGAR with spec-derived predicates (Section 4.6)
+      "soft_buchi" — Differentiable Büchi monitoring (Section 4.5)
+    """
+
+    # CEGAR / ONE-SHOT parameters
+    cegar_iterations:    int   = 5
+    """Maximum CEGAR refinement iterations (K in Algorithm 1)."""
+
+    cegar_delta_cex:     float = 0.05
+    """CP failure probability for the concretization check (δ in Remark 5.12)."""
+
+    cegar_initial_predicates: list = field(default_factory=list)
+    """
+    Initial predicates P₀ for CEGAR.  If empty and method="cegar", the
+    spec-derived predicates (same as ONE-SHOT) are used as the starting point.
+    """
+
+    # Soft Büchi parameters
+    soft_buchi_temperature: float = 0.1
+    """Sigmoid temperature T for soft AP evaluation (Eq. 3).  Lower → sharper."""
+
+    soft_buchi_epsilon: float = 0.5
+    """Acceptance threshold ε; score ≥ ε → VIOLATION."""
+
     # General
     verbose:        bool = True
     """Print progress and summary to stdout."""
@@ -112,9 +154,11 @@ class VerifyConfig:
 
 # ─── Verdict enum ─────────────────────────────────────────────────────────────
 
-WARRANT    = "WARRANT"
-STL_MARGIN = "STL_MARGIN"
-VIOLATION  = "VIOLATION"
+WARRANT      = "WARRANT"
+STL_MARGIN   = "STL_MARGIN"
+VIOLATION    = "VIOLATION"
+SAFE         = "SAFE"          # CEGAR/ONE-SHOT: no accepting cycle found
+INCONCLUSIVE = "INCONCLUSIVE"  # CEGAR: iteration limit reached, all cycles spurious
 
 
 # ─── Result dataclass ─────────────────────────────────────────────────────────
@@ -167,6 +211,12 @@ class VerificationResult:
 
     # LPPM training info (if fit_lppm_params=True)
     lppm_training: dict = field(default_factory=dict)
+
+    # CEGAR / ONE-SHOT result (populated when method="cegar" or "oneshot")
+    cegar_result: CegarResult | None = None
+
+    # Soft Büchi result (populated when method="soft_buchi")
+    soft_buchi_result: SoftBuchiResult | None = None
 
     # Witness trajectory (only when VIOLATION)
     witness_trajectory: list[dict] | None = None
@@ -227,6 +277,13 @@ class VerificationResult:
             f" Wall time:               {self.wall_time:.2f}s",
             f"{'─'*60}",
         ]
+        if self.cegar_result:
+            lines.append(f" CEGAR: {self.cegar_result.verdict}  "
+                         f"({self.cegar_result.iterations} iter, "
+                         f"{len(self.cegar_result.predicates)} predicates)")
+        if self.soft_buchi_result:
+            lines.append(f" Soft Büchi: a*={self.soft_buchi_result.acceptance_score:.4f}  "
+                         f"ε={self.soft_buchi_result.epsilon:.2f}")
         if self.verdict == VIOLATION:
             lines.append(f" ⚠ Witness rollout index: {self.monitor.witness_idx}")
         return "\n".join(lines)
@@ -342,8 +399,13 @@ def verify(
         print(f"        ĉ_err={c_hat_err:.4f}  ρ_net={transfer_res.rho_net:+.4f}  "
               f"transfers={transfer_res.transfers()}")
 
-    # ─── Early exit: VIOLATION (Algorithm 1, line 6) ─────────────────────────
-    if monitor_res.rho_star < 0:
+    # ─── Method dispatch (Algorithm 1) ───────────────────────────────────────
+    # Resolved early so the VIOLATION early-exit can be skipped for non-STL methods
+    # (CEGAR/ONESHOT/SOFT_BUCHI have their own violation semantics).
+    method = (cfg.method or "stl").lower()
+
+    # ─── Early exit: VIOLATION — STL method only (Algorithm 1, line 4) ───────
+    if monitor_res.rho_star < 0 and method == "stl":
         if cfg.verbose:
             print(f"  → VIOLATION (ρ*<0, witness rollout #{monitor_res.witness_idx})")
         return VerificationResult(
@@ -365,12 +427,112 @@ def verify(
             witness_trajectory=trajectories[monitor_res.witness_idx],
         )
 
+    # ── CEGAR path ────────────────────────────────────────────────────────────
+    if method in ("cegar", "oneshot"):
+        if cfg.verbose:
+            print(f"  [3/3] {'CEGAR' if method == 'cegar' else 'ONE-SHOT'}: "
+                  "building abstract system and searching for accepting cycles...")
+        if method == "oneshot":
+            cegar_res = run_oneshot(
+                trajectories=trajectories,
+                spec=spec,
+                verbose=cfg.verbose,
+                delta_cex=cfg.cegar_delta_cex,
+            )
+        else:
+            init_preds = list(cfg.cegar_initial_predicates) or derive_predicates_from_spec(spec)
+            cegar_cfg = CegarConfig(
+                max_iterations=cfg.cegar_iterations,
+                delta_cex=cfg.cegar_delta_cex,
+                initial_predicates=init_preds,
+                verbose=cfg.verbose,
+            )
+            cegar_res = run_cegar(trajectories=trajectories, spec=spec, config=cegar_cfg)
+
+        if cfg.verbose:
+            print(f"        CEGAR verdict: {cegar_res.verdict}  "
+                  f"({cegar_res.iterations} iter, {len(cegar_res.predicates)} predicates)")
+
+        # Map CEGAR verdict to unified VerificationResult verdict
+        if cegar_res.verdict == CEGAR_SAFE:
+            unified_verdict  = SAFE
+            guarantee_type   = "cegar_formal"
+            confidence       = max(0.0, 1.0 - cfg.delta_cp - cfg.delta_err)
+        elif cegar_res.verdict == CEGAR_VIOLATION:
+            unified_verdict  = VIOLATION
+            guarantee_type   = "cegar_concrete"
+            confidence       = max(0.0, 1.0 - cfg.cegar_delta_cex)
+        else:   # INCONCLUSIVE
+            unified_verdict  = INCONCLUSIVE
+            guarantee_type   = "none"
+            confidence       = 0.0
+
+        if cfg.verbose:
+            print(f"  → {unified_verdict} ({guarantee_type}, confidence={confidence:.3f})")
+
+        return VerificationResult(
+            verdict=unified_verdict,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            cegar_result=cegar_res,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=f"{method}",
+            support_level=analysis["support_level"],
+            support_note=cegar_res.detail,
+            wall_time=time.perf_counter() - t0,
+            guarantee_type=guarantee_type,
+            confidence=confidence,
+        )
+
+    # ── Soft Büchi path ────────────────────────────────────────────────────────
+    if method == "soft_buchi":
+        if cfg.verbose:
+            print(f"  [3/3] Soft Büchi: propagating soft occupancy weights "
+                  f"(T={cfg.soft_buchi_temperature}, ε={cfg.soft_buchi_epsilon})...")
+        sb_res = run_soft_buchi(
+            trajectories=trajectories,
+            spec=spec,
+            temperature=cfg.soft_buchi_temperature,
+            epsilon=cfg.soft_buchi_epsilon,
+        )
+        if cfg.verbose:
+            print(f"        a*={sb_res.acceptance_score:.4f}  verdict={sb_res.verdict}")
+
+        unified_verdict = VIOLATION if sb_res.verdict == "VIOLATION" else STL_MARGIN
+        if cfg.verbose:
+            print(f"  → {unified_verdict}")
+
+        return VerificationResult(
+            verdict=unified_verdict,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            soft_buchi_result=sb_res,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode="soft_buchi",
+            support_level=analysis["support_level"],
+            support_note=f"Soft Büchi acceptance score: {sb_res.acceptance_score:.4f}",
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+        )
+
+    # ── STL path (default) ────────────────────────────────────────────────────
     if analysis["verification_mode"] == "finite_stl":
         # Strict path: all N rollouts satisfied with margin > ĉ_err
         if transfer_res.transfers():
             verdict        = WARRANT
             guarantee_type = "strict"
-            confidence     = max(0.0, 1.0 - cfg.delta_err)
+            confidence     = transfer_res.effective_confidence()
         # Conformal path (Theorem 5.5): (1-δ_cp) fraction satisfied with margin > ĉ_err
         elif transfer_res.transfers_cp():
             verdict        = WARRANT
@@ -456,7 +618,7 @@ def verify(
     # Determine transfer guarantee type before checking LPPM
     if transfer_res.transfers():
         guarantee_type = "strict"
-        confidence     = max(0.0, 1.0 - cfg.delta_err)
+        confidence     = transfer_res.effective_confidence()
         transfer_ok    = True
     elif transfer_res.transfers_cp():
         guarantee_type = "conformal"
@@ -670,6 +832,15 @@ if __name__ == "__main__":
                         help="Stop model-only rollouts when done_probability exceeds threshold")
     parser.add_argument("--done-threshold", type=float, default=None,
                         help="done_probability threshold used with --stop-on-done")
+    parser.add_argument("--method", default="stl",
+                        choices=["stl", "cegar", "oneshot", "soft_buchi"],
+                        help="Verification method (Algorithm 1): stl (default) | cegar | oneshot | soft_buchi")
+    parser.add_argument("--cegar-iters", type=int, default=5,
+                        help="Maximum CEGAR refinement iterations K (default 5)")
+    parser.add_argument("--soft-buchi-temp", type=float, default=0.1,
+                        help="Soft Büchi sigmoid temperature T (default 0.1)")
+    parser.add_argument("--soft-buchi-eps", type=float, default=0.5,
+                        help="Soft Büchi acceptance threshold ε (default 0.5)")
     args = parser.parse_args()
 
     # Import wrappers here to avoid circular imports at module level
@@ -721,6 +892,10 @@ if __name__ == "__main__":
         model_error_budget=float(args.c_hat if args.c_hat is not None else verification_settings.get("model_error_budget", 0.08)),
         verbose=not args.benchmark,
         auto_collect_paired_rollouts=bool(args.auto_paired or verification_settings.get("auto_collect_paired_rollouts", False)),
+        method=args.method,
+        cegar_iterations=args.cegar_iters,
+        soft_buchi_temperature=args.soft_buchi_temp,
+        soft_buchi_epsilon=args.soft_buchi_eps,
     )
 
     if args.model == "dreamerv3":

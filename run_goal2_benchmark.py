@@ -165,6 +165,10 @@ def run_benchmark(
     c_hat:      float = 0.08,
     spec_filter: str | None = None,
     verbose:    bool = True,
+    method:     str = "stl",
+    cegar_iterations: int = 5,
+    soft_buchi_temperature: float = 0.1,
+    soft_buchi_epsilon: float = 0.5,
 ) -> list[dict[str, Any]]:
 
     env_config = load_env_config(ENV_CONFIG_PATH)
@@ -190,6 +194,10 @@ def run_benchmark(
         delta_err=delta_err,
         model_error_budget=c_hat,
         verbose=False,
+        method=method,
+        cegar_iterations=cegar_iterations,
+        soft_buchi_temperature=soft_buchi_temperature,
+        soft_buchi_epsilon=soft_buchi_epsilon,
     )
 
     all_results: list[dict[str, Any]] = []
@@ -328,6 +336,12 @@ def main() -> None:
     parser.add_argument("--c-hat",    type=float, default=0.08,  help="model error budget ĉ_err")
     parser.add_argument("--spec",     default=None,              help="run a single spec only")
     parser.add_argument("--output",   default=None,              help="save JSON results to this path")
+    parser.add_argument("--method",   default="stl",
+                        choices=["stl", "cegar", "oneshot", "soft_buchi"],
+                        help="verification method (default: stl)")
+    parser.add_argument("--cegar-iters", type=int, default=5,   help="CEGAR max iterations (default 5)")
+    parser.add_argument("--soft-buchi-temp", type=float, default=0.1, help="soft Büchi temperature (default 0.1)")
+    parser.add_argument("--soft-buchi-eps",  type=float, default=0.5, help="soft Büchi threshold ε (default 0.5)")
     args = parser.parse_args()
 
     results = run_benchmark(
@@ -338,6 +352,10 @@ def main() -> None:
         c_hat       = args.c_hat,
         spec_filter = args.spec,
         verbose     = True,
+        method      = args.method,
+        cegar_iterations        = args.cegar_iters,
+        soft_buchi_temperature  = args.soft_buchi_temp,
+        soft_buchi_epsilon      = args.soft_buchi_eps,
     )
 
     print_summary(results)

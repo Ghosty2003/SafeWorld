@@ -220,12 +220,11 @@ class TransferResult:
 
     def effective_confidence(self) -> float:
         """
-        Confidence level of the strongest applicable guarantee.
-        Strict path charges only δ_err; conformal path charges δ_cp + δ_err.
+        PAC-CP confidence: Pr[real rollout satisfies φ] ≥ 1 - δ_cp - δ_err.
+        Both strict and conformal paths give the same guarantee level; the
+        strict path is simply a special case where q̂_δ = ρ* (all N rollouts pass).
         """
-        if self.transfers():
-            return max(0.0, 1.0 - self.delta_err)
-        if self.transfers_cp():
+        if self.transfers() or self.transfers_cp():
             return max(0.0, 1.0 - self.delta_cp - self.delta_err)
         return 0.0
 
