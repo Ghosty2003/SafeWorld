@@ -125,9 +125,16 @@ class VerificationResult:
     Complete output of the SAFEWORLD verification pipeline (Algorithm 1).
 
     Verdict logic:
-        WARRANT    – ρ_net > 0  AND  p̂_γ ≥ warrant_threshold
-        STL_MARGIN – ρ_net > 0  BUT  p̂_γ < warrant_threshold  (graceful degradation)
+        WARRANT    – transfer guarantee holds (strict or conformal) AND p̂_γ ≥ threshold
+        STL_MARGIN – ρ* > 0 but no transfer guarantee (ρ_net ≤ 0 and ρ_net_cp ≤ 0)
         VIOLATION  – ρ* < 0  (witnessing rollout available)
+
+    Guarantee types (inspect via `guarantee_type`):
+        "strict"    – ρ_net > 0: all N rollouts satisfied spec with margin > ĉ_err.
+                      Confidence ≥ 1 - δ_err.
+        "conformal" – ρ_net_cp > 0: (1-δ_cp) fraction satisfied with margin > ĉ_err.
+                      Confidence ≥ 1 - δ_cp - δ_err  (Theorem 5.5).
+        "none"      – no transfer guarantee achieved.
     """
 
     verdict:    str    # WARRANT | STL_MARGIN | VIOLATION
@@ -152,6 +159,12 @@ class VerificationResult:
     support_note: str = ""
     wall_time:  float = 0.0   # seconds
 
+    # Which guarantee path produced the WARRANT/STL_MARGIN verdict
+    guarantee_type: str = "none"   # "strict" | "conformal" | "none"
+
+    # Effective statistical confidence of the verdict (0.0 if VIOLATION or no transfer)
+    confidence: float = 0.0
+
     # LPPM training info (if fit_lppm_params=True)
     lppm_training: dict = field(default_factory=dict)
 
@@ -169,6 +182,14 @@ class VerificationResult:
         return self.transfer.rho_net
 
     @property
+    def rho_net_cp(self) -> float:
+        return self.transfer.rho_net_cp
+
+    @property
+    def q_hat(self) -> float:
+        return self.transfer.q_hat
+
+    @property
     def p_hat(self) -> float:
         return self.lppm.p_hat_gamma if self.lppm else 0.0
 
@@ -184,13 +205,17 @@ class VerificationResult:
             f"{'─'*60}",
             f" SAFEWORLD Verification: {self.spec_name} (Level {self.level}, {self.mp_class})",
             f"{'─'*60}",
-            f" Verdict:     {self.verdict}",
-            f" Task level:  {self.task_level or 'n/a'}",
-            f" Mode:        {self.verification_mode or 'n/a'}",
-            f" Support:     {self.support_level or 'n/a'}",
-            f" ρ* (worst STL margin):   {self.rho_star:+.4f}",
+            f" Verdict:        {self.verdict}",
+            f" Guarantee:      {self.guarantee_type}",
+            f" Confidence:     {self.confidence:.3f}",
+            f" Task level:     {self.task_level or 'n/a'}",
+            f" Mode:           {self.verification_mode or 'n/a'}",
+            f" Support:        {self.support_level or 'n/a'}",
+            f" ρ* (worst-case margin):  {self.rho_star:+.4f}",
+            f" q̂_δ (CP quantile):       {self.q_hat:+.4f}",
             f" ĉ_err (model error):      {self.c_hat_err:.4f}",
-            f" ρ_net = ρ* - ĉ_err:       {self.rho_net:+.4f}",
+            f" ρ_net = ρ* - ĉ_err:       {self.rho_net:+.4f}  [strict]",
+            f" ρ_net_cp = q̂_δ - ĉ_err:  {self.rho_net_cp:+.4f}  [conformal, Theorem 5.5]",
         ]
         if self.lppm:
             lines += [
@@ -335,14 +360,29 @@ def verify(
             support_level=analysis["support_level"],
             support_note=analysis["support_note"],
             wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
             witness_trajectory=trajectories[monitor_res.witness_idx],
         )
 
     if analysis["verification_mode"] == "finite_stl":
-        verdict = WARRANT if transfer_res.rho_net > 0 else STL_MARGIN
+        # Strict path: all N rollouts satisfied with margin > ĉ_err
+        if transfer_res.transfers():
+            verdict        = WARRANT
+            guarantee_type = "strict"
+            confidence     = max(0.0, 1.0 - cfg.delta_err)
+        # Conformal path (Theorem 5.5): (1-δ_cp) fraction satisfied with margin > ĉ_err
+        elif transfer_res.transfers_cp():
+            verdict        = WARRANT
+            guarantee_type = "conformal"
+            confidence     = transfer_res.effective_confidence()
+        else:
+            verdict        = STL_MARGIN
+            guarantee_type = "none"
+            confidence     = 0.0
         if cfg.verbose:
             print("  [3/3] LPPM: skipped for bounded STL task.")
-            print(f"  → {verdict}")
+            print(f"  → {verdict} ({guarantee_type}, confidence={confidence:.3f})")
         return VerificationResult(
             verdict=verdict,
             monitor=monitor_res,
@@ -357,6 +397,8 @@ def verify(
             support_level=analysis["support_level"],
             support_note=analysis["support_note"],
             wall_time=time.perf_counter() - t0,
+            guarantee_type=guarantee_type,
+            confidence=confidence,
         )
 
     # ─── Step 3: LPPM Certificate (Section 4.3, Theorem 5.5) ─────────────────
@@ -411,15 +453,29 @@ def verify(
               f"warranted={lppm_res.is_warranted()}")
 
     # ─── Verdict (Algorithm 1, lines 10-11) ──────────────────────────────────
-    if transfer_res.rho_net > 0 and lppm_res.is_warranted():
-        verdict = WARRANT
-    elif transfer_res.rho_net > 0:
-        verdict = STL_MARGIN   # graceful degradation
+    # Determine transfer guarantee type before checking LPPM
+    if transfer_res.transfers():
+        guarantee_type = "strict"
+        confidence     = max(0.0, 1.0 - cfg.delta_err)
+        transfer_ok    = True
+    elif transfer_res.transfers_cp():
+        guarantee_type = "conformal"
+        confidence     = transfer_res.effective_confidence()
+        transfer_ok    = True
     else:
-        verdict = STL_MARGIN   # ρ_net ≤ 0, but no explicit violation witness
+        guarantee_type = "none"
+        confidence     = 0.0
+        transfer_ok    = False
+
+    if transfer_ok and lppm_res.is_warranted():
+        verdict = WARRANT
+    elif transfer_ok:
+        verdict = STL_MARGIN   # transfer holds but LPPM p̂_γ < threshold
+    else:
+        verdict = STL_MARGIN   # no transfer guarantee, no explicit violation
 
     if cfg.verbose:
-        print(f"  → {verdict}")
+        print(f"  → {verdict} ({guarantee_type}, confidence={confidence:.3f})")
 
     return VerificationResult(
         verdict=verdict,
@@ -435,6 +491,8 @@ def verify(
         support_level=support_level,
         support_note=support_note,
         wall_time=time.perf_counter() - t0,
+        guarantee_type=guarantee_type,
+        confidence=confidence,
         lppm_training=training_info,
     )
 
@@ -581,7 +639,7 @@ if __name__ == "__main__":
     parser.add_argument("--settings-config", default=None,
                         help="Path to a JSON runtime settings file")
     parser.add_argument("--model",   default="random",
-                        choices=["random", "dreamerv3", "safety_point_goal", "simple_pointgoal2"],
+                        choices=["random", "dreamerv3", "safety_point_goal", "simple_pointgoal2", "goal2_dreamer"],
                         help="World model to use")
     parser.add_argument("--env-name", default=None,
                         help="Gymnasium environment name for env-backed wrappers")
@@ -617,6 +675,7 @@ if __name__ == "__main__":
     # Import wrappers here to avoid circular imports at module level
     from wrappers import (
         DreamerV3Wrapper,
+        Goal2WorldModelWrapper,
         RandomWorldModelWrapper,
         SafetyPointGoalWrapper,
         SimplePointGoal2WorldModelWrapper,
@@ -674,6 +733,11 @@ if __name__ == "__main__":
         roll_cfg.extra.setdefault("env_name", "SafetyPointGoal2Gymnasium-v0")
         w = SimplePointGoal2WorldModelWrapper(roll_cfg)
         w.load(checkpoint_path=args.checkpoint or None, env_name=roll_cfg.extra["env_name"])
+    elif args.model == "goal2_dreamer":
+        w = Goal2WorldModelWrapper(roll_cfg)
+        ckpt = args.checkpoint or settings.get("model", {}).get("checkpoint_path")
+        mdir = settings.get("model", {}).get("model_dir")
+        w.load(checkpoint_path=ckpt, model_dir=mdir, env_config=env_config)
     else:
         w = RandomWorldModelWrapper(roll_cfg)
         w.load()

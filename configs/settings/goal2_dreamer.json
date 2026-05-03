@@ -1,0 +1,38 @@
+{
+  "description": "Runtime settings for the Goal2 DreamerV3-style world model (aux-decoder RSSM).",
+
+  "model": {
+    "type":            "goal2_dreamer",
+    "checkpoint_path": "/home/chenmg93@netid.washington.edu/.cache/huggingface/hub/models--FanZhangg--dreamv3-learned2/snapshots/397ff8a28b9a0369defb46a6ad1808ba4ef18b9e/ckpt_0500000.pt",
+    "model_dir":       "/home/chenmg93@netid.washington.edu/dreamerv3/SafeWorld-Benchmark-main/SafeWorld-Benchmark-main/training/dreamer_world_model",
+    "device":          "cpu",
+    "comment":         "500 000-step checkpoint from FanZhangg/dreamv3-learned2 on HuggingFace"
+  },
+
+  "environment": {
+    "name":    "SafetyPointGoal2Gymnasium-v0",
+    "config":  "configs/environments/goal2.json",
+    "wrapper": "Goal2WorldModelWrapper",
+    "kwargs":  {},
+    "reset_kwargs": {}
+  },
+
+  "rollout": {
+    "horizon":        50,
+    "n_rollouts":     30,
+    "action_source":  "random",
+    "seed":           42,
+    "device":         "cpu"
+  },
+
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget":           0.08
+  },
+
+  "extra": {
+    "ap_mode":           "aux_decoder",
+    "closed_loop_replay": false,
+    "comment":            "ap_mode=aux_decoder uses the 6-head decoder; closed_loop_replay feeds model obs back in decode_and_replay"
+  }
+}

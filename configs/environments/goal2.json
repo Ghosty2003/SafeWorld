@@ -1,0 +1,107 @@
+{
+  "env_id": "SafetyPointGoal2Gymnasium-v0",
+  "description": "Goal2DreamerWrapper environment config — aux-decoder APs from latent RSSM.",
+
+  "latent_mode": "feat",
+  "_latent_mode_note": "h_only (paper-faithful): aux decoder receives cat(h, zeros) so only the continuous deterministic h_t drives threshold predicates. Set to 'feat' for full cat(h,z) — better AP accuracy but z is categorical.",
+
+  "model_arch": {
+    "obs_dim":       60,
+    "act_dim":       2,
+    "deter_dim":     512,
+    "stoch_dim":     32,
+    "stoch_classes": 32,
+    "enc_hidden":    [512, 512, 512],
+    "dec_hidden":    [512, 512, 512],
+    "aux_keys": [
+      "cost", "speed", "goal_distance",
+      "nearest_hazard_distance", "nearest_vase_distance", "human_distance"
+    ]
+  },
+
+  "ap_extraction": {
+    "hazard_dist": {
+      "source":  "aux_decoder",
+      "head":    "nearest_hazard_distance",
+      "method":  "threshold_subtract",
+      "comment": "signed dist = decoder_output - hazard_safe_dist  (>0 clear, <0 inside hazard)"
+    },
+    "goal_dist": {
+      "source":  "aux_decoder",
+      "head":    "goal_distance",
+      "method":  "threshold_subtract",
+      "comment": "signed dist = decoder_output - goal_reach_radius  (<0 inside goal, triggers reward)"
+    },
+    "near_obstacle": {
+      "source":  "aux_decoder",
+      "head":    "nearest_vase_distance",
+      "method":  "threshold_subtract",
+      "comment": "signed dist = decoder_output - obstacle_safe_dist  (>0 clear, <0 too close)"
+    },
+    "near_human": {
+      "source":  "aux_decoder",
+      "head":    "human_distance",
+      "method":  "threshold_subtract_inverted",
+      "comment": "signed proximity = human_near_threshold - decoder_output  (>0 human nearby)"
+    },
+    "velocity": {
+      "source":  "aux_decoder",
+      "head":    "speed",
+      "method":  "direct"
+    },
+    "zone_a":   { "source": "unsupported", "default": -1.0 },
+    "zone_b":   { "source": "unsupported", "default": -1.0 },
+    "zone_c":   { "source": "unsupported", "default": -1.0 },
+    "carrying": { "source": "unsupported", "default":  0.0 }
+  },
+
+  "ap_thresholds": {
+    "_sources": "see comments — values taken directly from SafeWorld-Benchmark-main training code",
+
+    "hazard_safe_dist":     0.20,
+    "_hazard_note":         "task.hazards.size read at runtime by ap_extractors.py:52; SafetyPointGoal2 default is 0.20",
+
+    "goal_reach_radius":    0.30,
+    "_goal_note":           "task.goal.size from env; zone-based tasks use radius=0.30 (level3.py, level8.py)",
+
+    "obstacle_safe_dist":   0.30,
+    "_obstacle_note":       "near_obs_threshold default in ap_extractors.py:71 — all E2 task configs use 0.30",
+
+    "human_near_threshold": 1.00,
+    "_human_note":          "near_human was a PLACEHOLDER in training (returns None); no ground-truth threshold exists. Human pos=[0,2], adjust this value to your use case",
+
+    "hazard_dist":    0.0,
+    "goal_dist":      0.0,
+    "near_obstacle":  0.0,
+    "near_human":     0.0,
+    "velocity":       0.35,
+    "_velocity_note": "fast_threshold for E2 point-agent tasks (ap_extractors.py:65, level1.py:31, level2.py:31)"
+  },
+
+  "obs_normalisation": {
+    "enabled":   false,
+    "load_from": "checkpoint",
+    "comment":   "ckpt_0500000.pt has no obs_mean/obs_std keys — disabled. Set enabled=true and add obs_mean/obs_std arrays here if you normalise inputs at inference time."
+  },
+
+  "button_zones": {
+    "enabled": false,
+    "button1": { "pos": [1.5,  0.0], "radius": 0.3 },
+    "button2": { "pos": [-1.5, 0.0], "radius": 0.3 },
+    "comment":  "Set enabled=true and adjust positions to activate CarryingTracker"
+  },
+
+  "supported_specs": [
+    "stl_hazard_avoidance",
+    "ltl_hazard_avoidance",
+    "stl_safe_goal_reach",
+    "ltl_safe_goal",
+    "stl_velocity_limit"
+  ],
+
+  "unsupported_specs": [
+    "ltl_carrying_task",
+    "ltl_zone_sequence",
+    "stl_zone_coverage"
+  ]
+}

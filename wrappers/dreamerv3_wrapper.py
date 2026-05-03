@@ -334,6 +334,7 @@ class DreamerV3Wrapper(WorldModelWrapper):
         self._stoch_cls  : int | None = None
         self._stats      : dict | None = None   # populated in "stats" ap_mode
         self._proj_cache : dict = {}             # projection matrix cache
+        self._env        : Any = None            # lazy Gymnasium env for replay
 
         # Public: raw (N, T, D) latent array from last sample_rollouts() call
         self.last_z_array: np.ndarray | None = None
@@ -625,6 +626,171 @@ class DreamerV3Wrapper(WorldModelWrapper):
         self.last_z_array = model_z
         return list(zip(model_trajs, env_trajs))
 
+    def decode_and_replay(
+        self,
+        config: RolloutConfig | None = None,
+        closed_loop: bool = False,
+    ) -> list[list]:
+        """
+        Imagine N rollouts in RSSM latent space, decode latent → obs, replay
+        the same actions in the real simulator, and return per-step comparisons.
+
+        Decoder path
+        ------------
+        When a real DreamerV3 checkpoint is loaded, model.dec reconstructs the
+        raw observation from the RSSM features (deter + stoch) at each step.
+        In simulation mode (no checkpoint), model_obs is None.
+
+        closed_loop
+        -----------
+        False (default): the model re-imagines from the real env obs each step
+                         → measures single-step prediction accuracy.
+        True:            the model continues from its own last latent state
+                         → measures cumulative imagination drift.
+        """
+        from .base import ReplayStep
+
+        cfg = config or self.config
+
+        if self._sim_mode or self._agent is None:
+            raise NotImplementedError(
+                "DreamerV3Wrapper.decode_and_replay() requires a loaded DreamerV3 "
+                "checkpoint and a registered Gymnasium environment."
+            )
+
+        import jax
+        import jax.numpy as jnp
+        import ninjax as nj
+
+        model      = self._agent.model
+        params     = self._agent.params
+        T          = cfg.horizon
+        deter_dim  = self._deter_dim
+        stoch_k    = self._stoch_k
+        stoch_cls  = self._stoch_cls
+        act_space  = self._agent.act_space
+        ap_mode    = cfg.extra.get("ap_mode", "projection")
+        hazard_sigma = cfg.extra.get("hazard_sigma", 1.5)
+        goal_sigma   = cfg.extra.get("goal_sigma", 1.0)
+        use_stoch    = cfg.extra.get("use_stoch", True)
+
+        # ── JIT-compiled imagination ──────────────────────────────────────────
+        def _imagine_fn(carry, actions):
+            _, feat, _ = model.dyn.imagine(carry, actions, T, False)
+            return feat
+
+        imagine_jit = jax.jit(nj.pure(_imagine_fn))
+
+        # ── JIT-compiled decoder ──────────────────────────────────────────────
+        def _decode_fn(dec_carry, feat, is_first):
+            _, _, recons = model.dec(dec_carry, feat, is_first, training=False)
+            return recons
+
+        decode_jit = jax.jit(nj.pure(_decode_fn))
+
+        carry0 = dict(
+            deter=jax.device_put(np.zeros([1, deter_dim], dtype=np.float32)),
+            stoch=jax.device_put(np.zeros([1, stoch_k, stoch_cls], dtype=np.float32)),
+        )
+
+        # Resolve env
+        env_name = cfg.extra.get("env_name", "SafetyPointGoal2Gymnasium-v0")
+        if self._env is None:
+            import gymnasium as gym
+            self._env = gym.make(env_name)
+
+        rng_global = np.random.default_rng(cfg.seed)
+        all_rollouts: list[list[ReplayStep]] = []
+
+        for i in range(cfg.n_rollouts):
+            seed_i   = int(rng_global.integers(0, 2**31))
+            seed_jax = jax.device_put(np.array([seed_i, seed_i], dtype=np.uint32))
+            rng_i    = np.random.default_rng(seed_i)
+
+            # ── build action array (1, T, *shape) for imagination ─────────────
+            actions_np: dict[str, np.ndarray] = {}
+            for k, sp in act_space.items():
+                if sp.discrete:
+                    classes = int(np.asarray(sp.classes).flatten()[0])
+                    actions_np[k] = rng_i.integers(
+                        0, classes, size=(1, T, *sp.shape), dtype=np.int32
+                    )
+                else:
+                    actions_np[k] = rng_i.uniform(
+                        -1.0, 1.0, (1, T, *sp.shape)
+                    ).astype(np.float32)
+            actions_jax = {k: jax.device_put(v) for k, v in actions_np.items()}
+
+            # ── imagination: latent trajectory ────────────────────────────────
+            _, feat_host = imagine_jit(params, carry0, actions_jax, seed=seed_jax)
+            z_array = _feat_to_numpy(feat_host, T, use_stoch)   # (T, D)
+
+            # ── decode latent → obs ───────────────────────────────────────────
+            dec_carry0 = nj.pure(model.dec.initial)(params, 1)
+            dec_carry0 = jax.device_put(dec_carry0)
+            is_first   = jax.device_put(np.zeros([1, T], dtype=bool))
+            try:
+                _, recons_host = decode_jit(params, dec_carry0, feat_host, is_first)
+                recons_host    = jax.device_get(recons_host)
+                # DreamerV3 vector obs key is typically 'vector'
+                obs_key        = "vector" if "vector" in recons_host else next(iter(recons_host))
+                decoded_obs    = np.asarray(recons_host[obs_key][0])  # (T, obs_dim)
+            except Exception:
+                decoded_obs = None
+
+            # ── env replay with the same action sequence ──────────────────────
+            reset_kwargs = cfg.extra.get("reset_kwargs", {})
+            env_obs, env_info = self._env.reset(**reset_kwargs)
+            prev_obs = env_obs
+            steps: list[ReplayStep] = []
+
+            for t in range(T):
+                # action for this step: shape (*sp.shape,) numpy
+                action_t = {k: v[0, t] for k, v in actions_np.items()}
+                # for simple continuous act spaces collapse to 1-D array
+                action_arr = np.concatenate(
+                    [v.reshape(-1) for v in action_t.values()], axis=0
+                ).astype(np.float32)
+
+                env_obs, _, terminated, truncated, env_info = self._env.step(
+                    action_t if len(action_t) > 1 else action_arr
+                )
+                env_obs_arr  = np.asarray(env_obs, dtype=np.float32).reshape(-1)
+                from environment.adapters import safety_point_goal_adapter as _spa
+                env_semantic = _spa(env_obs, info=env_info, prev_obs=prev_obs)
+
+                # latent → semantic APs
+                z_t          = z_array[t]
+                model_semantic = _projection_aps(z_t, self._proj_cache) \
+                    if ap_mode == "projection" \
+                    else _stats_aps(z_t,
+                                    self._stats["hazard_dim"], self._stats["goal_dim"],
+                                    self._stats["hazard_thr"], self._stats["goal_thr"])
+
+                model_obs_t = decoded_obs[t] if decoded_obs is not None else None
+                obs_rmse = (
+                    float(np.sqrt(np.mean((model_obs_t - env_obs_arr) ** 2)))
+                    if model_obs_t is not None else None
+                )
+
+                steps.append(ReplayStep(
+                    t              = t,
+                    action         = action_arr,
+                    model_obs      = model_obs_t,
+                    env_obs        = env_obs_arr,
+                    model_semantic = model_semantic,
+                    env_semantic   = env_semantic,
+                    obs_rmse       = obs_rmse,
+                ))
+
+                prev_obs = env_obs
+                if terminated or truncated:
+                    break
+
+            all_rollouts.append(steps)
+
+        return all_rollouts
+
     def ap_keys(self) -> list[str]:
         return [
             "hazard_dist", "goal_dist",
@@ -635,4 +801,7 @@ class DreamerV3Wrapper(WorldModelWrapper):
     def close(self) -> None:
         self._agent      = None
         self._dv3_config = None
+        if self._env is not None:
+            self._env.close()
+            self._env = None
         logger.debug("DreamerV3Wrapper: resources released.")

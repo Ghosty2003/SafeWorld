@@ -62,7 +62,7 @@ def extract_objectives(formula: dict[str, Any]) -> dict[str, Any]:
         if _is_invariant(clause):
             objectives["safety"].append(_atom_name(clause["child"]))
         elif _is_reachability(clause):
-            objectives["guarantee"].append(_atom_name(clause["child"]))
+            objectives["guarantee"].extend(_extract_atom_names(clause["child"]))
         elif _is_recurrence(clause):
             objectives["recurrence"].append(_atom_name(clause["child"]["child"]))
         elif _is_persistence(clause):
@@ -135,7 +135,8 @@ def _is_invariant(node: dict[str, Any]) -> bool:
 
 
 def _is_reachability(node: dict[str, Any]) -> bool:
-    return node["type"] == "eventually" and node["child"]["type"] == "atom"
+    # F(atom) or F(compound) — but not F(G(…)) which is Persistence
+    return node["type"] == "eventually" and not _is_persistence(node)
 
 
 def _is_recurrence(node: dict[str, Any]) -> bool:
@@ -181,6 +182,18 @@ def _atom_name(node: dict[str, Any]) -> str:
     if node["type"] != "atom":
         raise ValueError(f"Expected atom node, got {node['type']}")
     return str(node["dim"])
+
+
+def _extract_atom_names(node: dict[str, Any]) -> list[str]:
+    """Recursively collect every atom dim referenced in a formula subtree."""
+    if node["type"] == "atom":
+        return [str(node["dim"])]
+    names: list[str] = []
+    for key in ("child", "left", "right"):
+        child = node.get(key)
+        if child is not None:
+            names.extend(_extract_atom_names(child))
+    return names
 
 
 def _is_simple_atom_formula(formula: dict[str, Any]) -> bool:

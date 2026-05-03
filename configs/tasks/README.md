@@ -44,9 +44,44 @@ built-in spec in `specs/`.
 - `predicates`: named scalar predicates computed from wrapper trajectory
   state dictionaries.
 - `predicates[].source`: key already emitted by a wrapper, such as
-  `hazard_dist`, `velocity`, or `goal_dist`.
+  `hazard_dist`, `velocity`, `goal_dist`, or `carrying`.
 - `specification.type`: `STL` or `LTL`.
 - `specification.formula`: formula string over predicate names.
+
+## AP Source Reference
+
+The following AP keys are emitted by `safety_point_goal_adapter`:
+
+| Key | Typical range | Notes |
+|---|---|---|
+| `hazard_dist` | `[-0.5, 1.0]` | Positive = clear of hazards. From `cost_hazards` or direct lidar. |
+| `goal_dist` | `[0, ∞)` | Euclidean distance to goal. Lower is closer. |
+| `velocity` | `[0, ∞)` | Speed magnitude in m/s. |
+| `near_obstacle` | `[-0.5, 1.0]` | Signed clearance to nearest obstacle. |
+| `carrying` | `0.0` or `1.0` | **Stateful** — requires `CarryingTracker`. See below. |
+| `zone_a`, `zone_b`, `zone_c` | `0.0` or `1.0` | Zone membership; `0.0` when environment does not expose position. |
+| `near_human` | `0.0` or `1.0` | Human proximity; `0.0` when not supported. |
+
+### Using `carrying` in a task
+
+`carrying` is `0.0` by default because SafetyPointGoal environments do not
+emit it.  To make it live, the environment config must have a `button_zones`
+block and the wrapper must create a `CarryingTracker`:
+
+```python
+from environment.adapters import CarryingTracker
+
+zones = env_config.get("button_zones", {})
+tracker = CarryingTracker.from_config(zones) if zones else None
+
+# Inside rollout loop:
+state = safety_point_goal_adapter(obs, info=info, tracker=tracker)
+# state["carrying"] == 1.0 after entering button1, 0.0 after button2
+```
+
+Without a tracker, tasks that reference `carrying` will silently evaluate
+`carrying = 0.0` every step, making `carrying`-triggered conditions
+permanently false (degenerate verification).
 
 ## Contributor Workflow
 
@@ -56,4 +91,6 @@ When adding a new model/environment pair:
 2. Add or update the corresponding wrapper in `wrappers/`.
 3. Ensure the wrapper emits AP keys used by task predicates.
 4. Add task JSON files only for task formulas and predicate definitions.
-5. Document any model-specific AP semantics in the wrapper or settings README.
+5. If a task uses `carrying`, add a `button_zones` block to the relevant
+   `configs/environments/*.json` and wire up `CarryingTracker` in the wrapper.
+6. Document any model-specific AP semantics in the wrapper or settings README.

@@ -170,39 +170,78 @@ def calibrate_robustness_quantile(
 class TransferResult:
     """
     Complete output of the Transfer Calibrator.
-    Implements the net-robustness transfer logic from Section 4.2 and Corollary 5.2.
+
+    Two guarantee paths (Theorem 5.5 / Corollary 5.2):
+
+    Strict path (transfers()):
+        ρ_net = ρ* - ĉ_err > 0
+        Every sampled rollout satisfied the spec with margin ≥ ĉ_err.
+        Confidence: 1 - δ_err  (no δ_cp charge — worst-case over all rollouts).
+
+    Conformal path (transfers_cp()):
+        ρ_net_cp = q̂_δ - ĉ_err > 0
+        A (1-δ_cp) fraction of rollouts satisfied the spec with margin ≥ ĉ_err.
+        Confidence: 1 - δ_cp - δ_err  (Theorem 5.5 PAC-CP guarantee).
+
+    The strict path is the special case δ_cp → 0 (q̂_0 = ρ*).
     """
 
     # raw inputs
     rho_star:    float   # ρ* = min_i ρ(φ, τ^M_i, 0)
     c_hat_err:   float   # ĉ_err = conformal model-error upper bound
-    q_hat:       float   # q̂_δ  = conformal robustness lower quantile
-    delta_cp:    float   # coverage failure prob for model-side bound
-    delta_err:   float   # coverage failure prob for error bound
+    q_hat:       float   # q̂_δ  = (1-δ_cp) quantile of per-rollout robustness
+    delta_cp:    float   # coverage failure prob for model-side CP bound
+    delta_err:   float   # coverage failure prob for error budget
 
-    # derived
-    rho_net:     float   # ρ_net = ρ* - ĉ_err  (Equation 2)
-    confidence:  float   # 1 - δ_cp - δ_err  (Corollary 5.2 guarantee)
+    # derived — strict path
+    rho_net:     float   # ρ_net    = ρ* - ĉ_err  (Equation 2)
+    confidence:  float   # 1 - δ_cp - δ_err
+
+    # derived — conformal path (Theorem 5.5)
+    rho_net_cp:  float   # ρ_net_cp = q̂_δ - ĉ_err
 
     # per-AP error budget breakdown (optional)
     per_ap_distortion: dict[str, float] | None = None
 
     def transfers(self) -> bool:
         """
-        True iff ρ_net > 0, meaning the model-side verification result
-        transfers to the matched environment rollout with the stated confidence.
-        (Corollary 5.2 / Theorem 5.1)
+        Strict transfer: ρ_net > 0.
+        All N rollouts satisfied the spec with margin > ĉ_err.
+        Confidence ~ 1 - δ_err.
         """
         return self.rho_net > 0
 
+    def transfers_cp(self) -> bool:
+        """
+        Conformal transfer (Theorem 5.5): ρ_net_cp > 0.
+        With probability ≥ 1 - δ_cp - δ_err, a fresh environment rollout satisfies the spec.
+        """
+        return self.rho_net_cp > 0
+
+    def effective_confidence(self) -> float:
+        """
+        Confidence level of the strongest applicable guarantee.
+        Strict path charges only δ_err; conformal path charges δ_cp + δ_err.
+        """
+        if self.transfers():
+            return max(0.0, 1.0 - self.delta_err)
+        if self.transfers_cp():
+            return max(0.0, 1.0 - self.delta_cp - self.delta_err)
+        return 0.0
+
     def summary(self) -> str:
-        status = "TRANSFERS ✓" if self.transfers() else "INSUFFICIENT MARGIN ✗"
+        if self.transfers():
+            status = "TRANSFERS (strict) ✓"
+        elif self.transfers_cp():
+            status = "TRANSFERS (conformal) ✓"
+        else:
+            status = "INSUFFICIENT MARGIN ✗"
         return (
             f"[TransferCalibrator] {status}\n"
-            f"  ρ*={self.rho_star:.4f}  ĉ_err={self.c_hat_err:.4f}  "
-            f"ρ_net={self.rho_net:.4f}\n"
-            f"  q̂_δ={self.q_hat:.4f}  "
-            f"confidence={self.confidence:.3f}  "
+            f"  ρ*={self.rho_star:.4f}  q̂_δ={self.q_hat:.4f}  ĉ_err={self.c_hat_err:.4f}\n"
+            f"  ρ_net={self.rho_net:+.4f} (strict)   "
+            f"ρ_net_cp={self.rho_net_cp:+.4f} (conformal)\n"
+            f"  confidence={self.effective_confidence():.3f}  "
             f"(δ_cp={self.delta_cp}, δ_err={self.delta_err})"
         )
 
@@ -232,6 +271,7 @@ def transfer_verdict(
     rho_net    = rho_star - c_hat_err
     confidence = max(0.0, 1.0 - delta_cp - delta_err)
     q_hat      = calibrate_robustness_quantile(margins, delta_cp) if margins else rho_star
+    rho_net_cp = q_hat - c_hat_err
 
     return TransferResult(
         rho_star=rho_star,
@@ -241,6 +281,7 @@ def transfer_verdict(
         delta_err=delta_err,
         rho_net=rho_net,
         confidence=confidence,
+        rho_net_cp=rho_net_cp,
     )
 
 

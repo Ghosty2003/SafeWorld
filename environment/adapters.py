@@ -6,12 +6,98 @@ from typing import Any
 import numpy as np
 
 
+class CarryingTracker:
+    """
+    Stateful pick-and-place carrying signal.
+
+    Enters carrying=1.0 when the agent steps inside button_1's radius,
+    drops to carrying=0.0 when it steps inside button_2's radius, and
+    holds its previous value otherwise.  Create once per episode (or call
+    reset() at episode boundaries) and pass into safety_point_goal_adapter
+    on every step.
+
+    Example
+    -------
+    config = {"button1_pos": [1, 2], "button2_pos": [-1, -2], "button_radius": 0.3}
+    tracker = CarryingTracker.from_config(config)
+    state = safety_point_goal_adapter(obs, info=info, tracker=tracker)
+    """
+
+    def __init__(
+        self,
+        button1_pos: np.ndarray,
+        button2_pos: np.ndarray,
+        button_radius: float,
+    ) -> None:
+        self._b1 = np.asarray(button1_pos, dtype=float).reshape(-1)[:2]
+        self._b2 = np.asarray(button2_pos, dtype=float).reshape(-1)[:2]
+        self._r = float(button_radius)
+        self._carrying = 0.0
+
+    @classmethod
+    def from_config(cls, config: dict) -> CarryingTracker:
+        return cls(
+            button1_pos=config["button1_pos"],
+            button2_pos=config["button2_pos"],
+            button_radius=config["button_radius"],
+        )
+
+    def reset(self) -> None:
+        """Reset to no-carrying state at the start of a new episode."""
+        self._carrying = 0.0
+
+    def update(self, agent_pos) -> float:
+        """
+        Update carrying state from a single agent position and return the new value.
+
+        Parameters
+        ----------
+        agent_pos : array-like, shape (2,) or longer — only the first two elements are used.
+
+        Returns
+        -------
+        0.0 or 1.0
+        """
+        pos = np.asarray(agent_pos, dtype=float).reshape(-1)[:2]
+        if np.linalg.norm(pos - self._b1) < self._r:
+            self._carrying = 1.0
+        elif np.linalg.norm(pos - self._b2) < self._r:
+            self._carrying = 0.0
+        return self._carrying
+
+    def update_batch(self, agent_positions) -> np.ndarray:
+        """
+        Vectorised variant for N agents simultaneously.
+
+        Parameters
+        ----------
+        agent_positions : array-like, shape (N, 2+)
+
+        Returns
+        -------
+        np.ndarray of shape (N,) with 0.0 / 1.0 values.
+        The tracker's own scalar state is NOT modified by this call.
+        """
+        pos = np.asarray(agent_positions, dtype=float)[:, :2]          # (N, 2)
+        in_b1 = np.linalg.norm(pos - self._b1, axis=1) < self._r      # (N,) bool
+        in_b2 = np.linalg.norm(pos - self._b2, axis=1) < self._r      # (N,) bool
+        carrying = np.full(len(pos), self._carrying)
+        carrying[in_b2] = 0.0
+        carrying[in_b1] = 1.0                                           # b1 wins if both true
+        return carrying.astype(float)
+
+    @property
+    def carrying(self) -> float:
+        return self._carrying
+
+
 def safety_point_goal_adapter(
     obs: Any,
     *,
     info: dict[str, Any] | None = None,
     prev_obs: Any = None,
     action: Any = None,
+    tracker: CarryingTracker | None = None,
 ) -> dict[str, float]:
     """
     Convert a SafetyPointGoal-style observation into the semantic state dict used
@@ -21,12 +107,20 @@ def safety_point_goal_adapter(
     expose slightly different observation/info layouts. It prefers `info` when
     available, then falls back to dict observations, and finally to coarse array
     heuristics when only a flat vector is available.
+
+    Parameters
+    ----------
+    tracker : CarryingTracker, optional
+        If provided, carrying is derived from agent position using the tracker's
+        stateful button-zone logic.  If None, carrying falls back to info["carrying"]
+        (or 0.0 when absent).
     """
     info = info or {}
 
     agent_pos = (
         _extract_vector(info, ("agent_pos", "robot_pos", "position"))
         or _extract_vector(obs, ("agent_pos", "robot_pos", "position"))
+        or _obs_xy(obs)
     )
     goal_pos = (
         _extract_vector(info, ("goal_pos", "goal_position"))
@@ -46,6 +140,11 @@ def safety_point_goal_adapter(
     near_obstacle = _near_obstacle_signal(agent_pos, hazards, obs, info)
     velocity = _velocity_magnitude(velocity_vec, prev_obs, obs, info)
 
+    if tracker is not None and agent_pos is not None:
+        carrying = tracker.update(agent_pos)
+    else:
+        carrying = float(_scalar(info, ("carrying",), default=0.0))
+
     state = {
         "hazard_dist": hazard_dist,
         "goal_dist": goal_dist,
@@ -55,9 +154,17 @@ def safety_point_goal_adapter(
         "zone_a": float(_scalar(info, ("zone_a",), default=0.0)),
         "zone_b": float(_scalar(info, ("zone_b",), default=0.0)),
         "zone_c": float(_scalar(info, ("zone_c",), default=0.0)),
-        "carrying": float(_scalar(info, ("carrying",), default=0.0)),
+        "carrying": carrying,
     }
     return state
+
+
+def _obs_xy(obs: Any):
+    """Extract the first two elements of a flat obs array as agent xy."""
+    arr = _as_array(obs)
+    if arr is not None and arr.size >= 2:
+        return arr[:2]
+    return None
 
 
 def _goal_distance(agent_pos, goal_pos, obs: Any, info: dict[str, Any]) -> float:

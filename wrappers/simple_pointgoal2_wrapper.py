@@ -264,6 +264,84 @@ class SimplePointGoal2WorldModelWrapper(WorldModelWrapper):
             pairs.append((model_traj, env_traj))
         return pairs
 
+    def decode_and_replay(
+        self,
+        config: RolloutConfig | None = None,
+        closed_loop: bool = False,
+    ) -> list[list]:
+        """
+        Run N rollouts, replay the exact same actions in the real simulator,
+        and return per-step ReplayStep records.
+
+        This model is obs-space based: predict(obs, action) → next_obs directly,
+        so decode is free — model_obs IS the decoder output.
+
+        Parameters
+        ----------
+        closed_loop : False (default) — feed real env obs to model each step;
+                      measures one-step prediction accuracy.
+                      True — feed model's own next_obs back; measures drift.
+        """
+        from .base import ReplayStep
+
+        cfg = config or self.config
+        self._ensure_loaded()
+        self._ensure_env()
+        assert self.env is not None
+
+        all_rollouts: list[list[ReplayStep]] = []
+
+        for i in range(cfg.n_rollouts):
+            rng       = np.random.default_rng(cfg.seed + i)
+            obs, info = self.env.reset(**cfg.extra.get("reset_kwargs", {}))
+            obs_arr   = self._flatten_obs(obs)
+            model_obs_arr = obs_arr.copy()   # model starts from same initial obs
+            prev_obs  = obs
+            steps: list[ReplayStep] = []
+
+            for t in range(cfg.horizon):
+                action = self._sample_action(rng)
+
+                # ── model side: predict in obs space ─────────────────────────
+                pred           = self.predict(model_obs_arr, action)
+                model_next_obs = np.asarray(pred["next_obs"], dtype=np.float32)
+                model_semantic = self._model_state(model_next_obs, pred)
+
+                # ── env side: real simulator step ─────────────────────────────
+                obs, _, terminated, truncated, info = self.env.step(action)
+                env_obs_arr  = self._flatten_obs(obs)
+                env_semantic = safety_point_goal_adapter(
+                    obs, info=info, prev_obs=prev_obs, action=action
+                )
+
+                # ── per-step obs error ────────────────────────────────────────
+                obs_rmse = float(
+                    np.sqrt(np.mean((model_next_obs - env_obs_arr) ** 2))
+                )
+
+                steps.append(ReplayStep(
+                    t              = t,
+                    action         = np.asarray(action, dtype=np.float32),
+                    model_obs      = model_next_obs,
+                    env_obs        = env_obs_arr,
+                    model_semantic = model_semantic,
+                    env_semantic   = env_semantic,
+                    obs_rmse       = obs_rmse,
+                ))
+
+                prev_obs = obs
+                if closed_loop:
+                    model_obs_arr = model_next_obs   # drift mode
+                else:
+                    model_obs_arr = env_obs_arr      # open-loop: ground truth each step
+
+                if terminated or truncated:
+                    break
+
+            all_rollouts.append(steps)
+
+        return all_rollouts
+
     def ap_keys(self) -> list[str]:
         return [
             "hazard_dist",

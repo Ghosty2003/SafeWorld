@@ -24,8 +24,48 @@ AP key convention:
 from __future__ import annotations
 
 import abc
+from dataclasses import dataclass, field
+
+import numpy as np
 
 from configs.settings import RolloutConfig
+
+
+@dataclass
+class ReplayStep:
+    """
+    One step of a decode-and-replay comparison.
+
+    model_obs   : The world model's predicted observation at this step.
+                  For obs-space models (SimplePointGoal2) this is the direct
+                  decoder output (next_obs).
+                  For latent-space models (DreamerV3) this is the RSSM decoder
+                  output; None when the decoder is unavailable (simulation mode).
+    env_obs     : The real simulator observation after applying the same action.
+    action      : The action executed at this step.
+    obs_rmse    : sqrt(mean((model_obs - env_obs)^2)) across obs dimensions.
+                  None when model_obs is unavailable.
+    ap_errors   : Absolute difference |model_semantic[k] - env_semantic[k]| per AP.
+    """
+
+    t:               int
+    action:          np.ndarray
+    model_obs:       np.ndarray | None
+    env_obs:         np.ndarray
+    model_semantic:  dict[str, float]
+    env_semantic:    dict[str, float]
+    obs_rmse:        float | None
+    ap_errors:       dict[str, float] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.ap_errors:
+            keys = set(self.model_semantic) & set(self.env_semantic)
+            self.ap_errors = {
+                k: abs(self.model_semantic[k] - self.env_semantic[k]) for k in keys
+            }
+
+    def max_ap_error(self) -> float:
+        return max(self.ap_errors.values()) if self.ap_errors else 0.0
 
 
 class WorldModelWrapper(abc.ABC):
@@ -76,6 +116,31 @@ class WorldModelWrapper(abc.ABC):
         """
         raise NotImplementedError(
             f"{type(self).__name__} does not implement paired environment rollouts."
+        )
+
+    def decode_and_replay(
+        self,
+        config: RolloutConfig | None = None,
+        closed_loop: bool = False,
+    ) -> list[list[ReplayStep]]:
+        """
+        Run model rollouts, replay the exact same actions in the real simulator,
+        and return per-step comparison records.
+
+        Parameters
+        ----------
+        config      : rollout configuration (uses self.config if None).
+        closed_loop : if True, feed the model's own predicted obs back as input
+                      for the next step — measures cumulative drift.
+                      If False (default), feed the real env obs back each step —
+                      measures per-step prediction accuracy.
+
+        Returns
+        -------
+        List of N rollouts; each rollout is a list of ReplayStep records.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not implement decode_and_replay."
         )
 
     def close(self) -> None:
