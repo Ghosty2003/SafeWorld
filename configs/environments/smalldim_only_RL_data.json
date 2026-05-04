@@ -1,0 +1,75 @@
+{
+  "env_id": "SafetyPointButton1-v0",
+  "description": "PointButton1 DreamerV3 — small model (deter=512) trained on online RL data only (no offline replay).",
+
+  "checkpoint_path": "/home/chenmg93@netid.washington.edu/dreamerv3/SafeWord_V2/models/smalldim_only_RL_data.pt",
+
+  "latent_mode": "h_only",
+  "_latent_mode_note": "Only h (deter) is used for AP extraction — no aux decoder in this checkpoint.",
+
+  "model_arch": {
+    "obs_dim":        76,
+    "act_dim":        2,
+    "deter_dim":      512,
+    "stoch_flat":     256,
+    "stoch_k":        32,
+    "stoch_classes":  8,
+    "embed_dim":      256,
+    "_arch_note":     "Derived from agent_state_dict._wm.* weight shapes. No aux decoder — AP extraction uses latent stats from h."
+  },
+
+  "ap_extraction": {
+    "hazard_dist": {
+      "source":  "latent_stats",
+      "method":  "variance_dim_0",
+      "comment": "Top-variance h dimension. Positive = safe distance to hazard (signed margin)."
+    },
+    "goal_dist": {
+      "source":  "latent_stats",
+      "method":  "variance_dim_1",
+      "comment": "2nd-variance h dimension. Positive = at/near goal button (signed margin)."
+    },
+    "velocity":      { "source": "unsupported", "default": 0.0 },
+    "near_obstacle": { "source": "unsupported", "default": 0.0 },
+    "near_human":    { "source": "unsupported", "default": 0.0 },
+    "zone_a":        { "source": "unsupported", "default": -1.0 },
+    "zone_b":        { "source": "unsupported", "default": -1.0 },
+    "zone_c":        { "source": "unsupported", "default": -1.0 },
+    "carrying":      { "source": "unsupported", "default": 0.0 }
+  },
+
+  "ap_thresholds": {
+    "_sources": "pointbutton_ap_wrapper.py DEFAULT_THRESHOLDS + safety_gymnasium button_level1.py",
+
+    "hazard_safe_dist":  0.20,
+    "near_hazard_dist":  0.45,
+    "button_radius":     0.35,
+    "gremlin_safe_dist": 0.20,
+    "speed_threshold":   0.80,
+
+    "hazard_sigma":  1.5,
+    "goal_sigma":    1.0
+  },
+
+  "obs_normalisation": {
+    "enabled":   false,
+    "comment":   "No obs_mean/obs_std in checkpoint — normalisation disabled."
+  },
+
+  "supported_specs": [
+    "stl_hazard_avoidance",
+    "ltl_hazard_avoidance",
+    "stl_safe_goal_reach",
+    "ltl_safe_goal"
+  ],
+  "partial_specs": [],
+  "unsupported_specs": [
+    "stl_speed_limit", "ltl_speed_limit",
+    "stl_sequential_zones", "ltl_sequential_goals", "ltl_three_stage",
+    "stl_obstacle_response", "ltl_hazard_response",
+    "stl_bounded_patrol", "ltl_patrol", "stl_safe_dual_patrol", "ltl_dual_patrol",
+    "ltl_safe_reactive_goal", "ltl_safe_patrol",
+    "ltl_human_caution", "ltl_conditional_speed", "ltl_conditional_proximity",
+    "ltl_full_mission", "stl_full_mission"
+  ]
+}

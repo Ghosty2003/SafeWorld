@@ -62,10 +62,10 @@
     "_hazard_note":         "task.hazards.size read at runtime by ap_extractors.py:52; SafetyPointGoal2 default is 0.20",
 
     "goal_reach_radius":    0.30,
-    "_goal_note":           "task.goal.size from env; zone-based tasks use radius=0.30 (level3.py, level8.py)",
+    "_goal_note":           "task.goal.size from env; SafetyPointGoal2 default is 0.30",
 
     "obstacle_safe_dist":   0.30,
-    "_obstacle_note":       "near_obs_threshold default in ap_extractors.py:71 — all E2 task configs use 0.30",
+    "_obstacle_note":       "near_obs_threshold from ap_extractors.py:71 — hardcoded 0.30 for all E2 task configs",
 
     "human_near_threshold": 1.00,
     "_human_note":          "near_human was a PLACEHOLDER in training (returns None); no ground-truth threshold exists. Human pos=[0,2], adjust this value to your use case",

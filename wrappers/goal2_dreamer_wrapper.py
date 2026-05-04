@@ -325,6 +325,48 @@ class Goal2WorldModelWrapper(WorldModelWrapper):
 
     # ── action sampling ───────────────────────────────────────────────────────
 
+    def _load_oracle_episodes(self, level_filter: str | None = None) -> list[dict[str, np.ndarray]]:
+        """Load obs+action sequences from satisfied success-bucket episode JSONs.
+
+        Only loads episodes where satisfied=True (agent actually completed the
+        task), skipping near_success episodes where the task was not fulfilled.
+
+        Parameters
+        ----------
+        level_filter : e.g. "L2" — only load episodes whose directory name
+                       contains this string.  None loads everything.
+        """
+        import json as _json
+        episodes_dir = Path(
+            self.config.extra.get(
+                "oracle_episodes_dir",
+                "/home/fanz23@netid.washington.edu/Desktop/SafeWorld-Benchmark"
+                "/datasets/goal2_master/safeworld-goal2-master/episodes",
+            )
+        )
+        filter_str = level_filter or self.config.extra.get("oracle_level_filter")
+        seen_ids: set[str] = set()
+        episodes: list[dict[str, np.ndarray]] = []
+        for ep_file in sorted(episodes_dir.rglob("*success*.json")):
+            if filter_str and filter_str not in str(ep_file):
+                continue
+            try:
+                ep = _json.loads(ep_file.read_text(encoding="utf-8"))
+                # skip episodes where the agent didn't actually satisfy the spec
+                if not ep.get("satisfied", True):
+                    continue
+                ep_id = ep.get("episode_id", str(ep_file))
+                if ep_id in seen_ids:
+                    continue
+                seen_ids.add(ep_id)
+                acts = np.array(ep["action"], dtype=np.float32)
+                obs  = np.array(ep["obs"],    dtype=np.float32)
+                if len(acts) > 0 and len(obs) > 0:
+                    episodes.append({"obs": obs, "action": acts})
+            except Exception:
+                continue
+        return episodes
+
     def _sample_action(self, rng: np.random.Generator) -> np.ndarray:
         act_dim = self.model.cfg.act_dim
         return rng.uniform(-1.0, 1.0, size=act_dim).astype(np.float32)
@@ -338,22 +380,89 @@ class Goal2WorldModelWrapper(WorldModelWrapper):
         self,
         config: RolloutConfig | None = None,
     ) -> list[list[dict[str, float]]]:
-        """Sample N pure-imagination rollouts using the RSSM prior."""
+        """Sample N rollouts and extract AP signals.
+
+        oracle mode (action_source == "oracle"):
+            Replays obs+action from real success episodes through the RSSM
+            posterior (encode real obs at every step) so h_t captures the
+            true world state.  This is the only mode that gives meaningful
+            AP values for STL verification.
+
+        random mode:
+            Pure RSSM prior imagination from (h=0, z=0) with uniform-random
+            actions.  AP values are effectively uninformative baselines.
+        """
         self._ensure_loaded()
         cfg = config or self.config
 
+        action_source = cfg.extra.get("action_source", getattr(cfg, "action_source", "random"))
+
+        if action_source == "oracle":
+            return self._sample_rollouts_oracle(cfg)
+
+        # ── random / prior imagination ────────────────────────────────────────
         trajectories: list[list[dict[str, float]]] = []
         for i in range(cfg.n_rollouts):
             rng  = np.random.default_rng(cfg.seed + i)
             h, z = self._init_rssm_state()
             traj: list[dict[str, float]] = []
-
             with torch.no_grad():
                 for _ in range(cfg.horizon):
-                    feat   = self._feat(h, z)
-                    aps    = self._decode_aps(feat)
+                    feat = self._feat(h, z)
+                    aps  = self._decode_aps(feat)
                     action = self._sample_action(rng)
-                    h, z   = self._rssm_imagine_step(h, z, self._action_tensor(action))
+                    h, z = self._rssm_imagine_step(h, z, self._action_tensor(action))
+                    traj.append(aps)
+            trajectories.append(traj)
+        return trajectories
+
+    def _sample_rollouts_oracle(
+        self,
+        cfg: RolloutConfig,
+    ) -> list[list[dict[str, float]]]:
+        """
+        Oracle posterior rollouts: encode the real obs at every step via
+        RSSM posterior so h_t has full knowledge of the world state.
+        AP signals are then decoded from the posterior feature.
+
+        Each rollout uses one deduplicated episode (cycling if n_rollouts >
+        number of unique episodes).  The trajectory is truncated to
+        min(horizon, episode_length) steps.
+        """
+        episodes = self._load_oracle_episodes(
+            level_filter=cfg.extra.get("oracle_level_filter")
+        )
+        if not episodes:
+            # Fallback: load all episodes if level filter yields nothing (e.g. L7 has no data)
+            episodes = self._load_oracle_episodes(level_filter=None)
+        if not episodes:
+            raise RuntimeError(
+                "action_source='oracle' but no success-bucket episode JSONs found. "
+                "Check oracle_episodes_dir in config.extra."
+            )
+
+        trajectories: list[list[dict[str, float]]] = []
+        for i in range(cfg.n_rollouts):
+            ep      = episodes[i % len(episodes)]
+            ep_obs  = ep["obs"]      # (T, 60)
+            ep_acts = ep["action"]   # (T, 2)
+            T       = min(cfg.horizon, len(ep_acts), len(ep_obs))
+
+            h, z = self._init_rssm_state()
+            traj: list[dict[str, float]] = []
+
+            with torch.no_grad():
+                for t in range(T):
+                    obs_t = torch.tensor(
+                        ep_obs[t][None], dtype=torch.float32, device=self.device
+                    )
+                    act_t = self._action_tensor(ep_acts[t])
+
+                    # Posterior: encode real obs → update (h, z)
+                    h, z = self._rssm_encode_step(h, z, act_t, obs_t)
+
+                    feat = self._feat(h, z)
+                    aps  = self._decode_aps(feat)
                     traj.append(aps)
 
             trajectories.append(traj)
@@ -366,10 +475,21 @@ class Goal2WorldModelWrapper(WorldModelWrapper):
         """
         Run imagination rollouts and replay the same actions in the real env.
         Used for conformal transfer calibration.
+
+        Supports oracle action_source the same way as sample_rollouts().
         """
         self._ensure_loaded()
         self._ensure_env()
         cfg = config or self.config
+
+        action_source = cfg.extra.get("action_source", getattr(cfg, "action_source", "random"))
+        oracle_actions: list[np.ndarray] | None = None
+        if action_source == "oracle":
+            oracle_actions = self._load_oracle_actions()
+            if not oracle_actions:
+                raise RuntimeError(
+                    "action_source='oracle' but no success-bucket episode JSONs found."
+                )
 
         pairs: list[tuple[list[dict[str, float]], list[dict[str, float]]]] = []
         for i in range(cfg.n_rollouts):
@@ -379,12 +499,19 @@ class Goal2WorldModelWrapper(WorldModelWrapper):
                 self._tracker.reset()
             prev_obs = obs
 
+            ep_actions: np.ndarray | None = None
+            if oracle_actions is not None:
+                ep_actions = oracle_actions[i % len(oracle_actions)]
+
             h, z = self._init_rssm_state()
             model_traj: list[dict[str, float]] = []
             env_traj:   list[dict[str, float]] = []
 
-            for _ in range(cfg.horizon):
-                action = self._sample_action(rng)
+            for t in range(cfg.horizon):
+                if ep_actions is not None and t < len(ep_actions):
+                    action = ep_actions[t]
+                else:
+                    action = self._sample_action(rng)
 
                 with torch.no_grad():
                     feat      = self._feat(h, z)

@@ -50,6 +50,9 @@ MODEL_DIR = (
     "SafeWorld-Benchmark-main/SafeWorld-Benchmark-main/"
     "training/dreamer_world_model"
 )
+ORACLE_EPISODES_DIR = (
+    "/home/chenmg93@netid.washington.edu/Downloads/SafeWorld-Benchmark-main/datasets/goal2_master/episodes"
+)
 ENV_CONFIG_PATH = "configs/environments/goal2.json"
 
 # APs this wrapper provides with real (non-trivial) values
@@ -165,10 +168,6 @@ def run_benchmark(
     c_hat:      float = 0.08,
     spec_filter: str | None = None,
     verbose:    bool = True,
-    method:     str = "stl",
-    cegar_iterations: int = 5,
-    soft_buchi_temperature: float = 0.1,
-    soft_buchi_epsilon: float = 0.5,
 ) -> list[dict[str, Any]]:
 
     env_config = load_env_config(ENV_CONFIG_PATH)
@@ -176,9 +175,11 @@ def run_benchmark(
     roll_cfg = RolloutConfig(
         horizon=horizon, n_rollouts=n_rollouts, seed=seed,
         extra={
-            "checkpoint_path": CHECKPOINT,
-            "model_dir":       MODEL_DIR,
-            "device":          device,
+            "checkpoint_path":    CHECKPOINT,
+            "model_dir":          MODEL_DIR,
+            "device":             device,
+            "action_source":      "oracle",
+            "oracle_episodes_dir": ORACLE_EPISODES_DIR,
         },
     )
 
@@ -194,19 +195,34 @@ def run_benchmark(
         delta_err=delta_err,
         model_error_budget=c_hat,
         verbose=False,
-        method=method,
-        cegar_iterations=cegar_iterations,
-        soft_buchi_temperature=soft_buchi_temperature,
-        soft_buchi_epsilon=soft_buchi_epsilon,
     )
 
     all_results: list[dict[str, Any]] = []
+
+    # level → dataset directory name mapping
+    LEVEL_DIR: dict[int, str] = {
+        1: "L1", 2: "L2", 3: "L3", 4: "L4",
+        5: "L5", 6: "L6", 7: "L7", 8: "L8",
+    }
 
     for level, spec_ids in sorted(LEVEL_SPECS.items()):
         if verbose:
             print(f"{'─'*70}")
             print(f"  L{level}  {LEVEL_DESCRIPTIONS[level]}")
             print(f"{'─'*70}")
+
+        # Build a per-level RolloutConfig that filters oracle episodes to this level
+        level_roll_cfg = RolloutConfig(
+            horizon=horizon, n_rollouts=n_rollouts, seed=seed,
+            extra={
+                "checkpoint_path":     CHECKPOINT,
+                "model_dir":           MODEL_DIR,
+                "device":              device,
+                "action_source":       "oracle",
+                "oracle_episodes_dir": ORACLE_EPISODES_DIR,
+                "oracle_level_filter": LEVEL_DIR.get(level, f"L{level}"),
+            },
+        )
 
         for spec_id in spec_ids:
             if spec_filter and spec_id != spec_filter:
@@ -243,7 +259,7 @@ def run_benchmark(
 
             try:
                 t0 = time.perf_counter()
-                trajs = wrapper.sample_rollouts(roll_cfg)
+                trajs = wrapper.sample_rollouts(level_roll_cfg)
                 result = verify(trajs, spec, ver_cfg)
                 elapsed = time.perf_counter() - t0
 
@@ -336,12 +352,6 @@ def main() -> None:
     parser.add_argument("--c-hat",    type=float, default=0.08,  help="model error budget ĉ_err")
     parser.add_argument("--spec",     default=None,              help="run a single spec only")
     parser.add_argument("--output",   default=None,              help="save JSON results to this path")
-    parser.add_argument("--method",   default="stl",
-                        choices=["stl", "cegar", "oneshot", "soft_buchi"],
-                        help="verification method (default: stl)")
-    parser.add_argument("--cegar-iters", type=int, default=5,   help="CEGAR max iterations (default 5)")
-    parser.add_argument("--soft-buchi-temp", type=float, default=0.1, help="soft Büchi temperature (default 0.1)")
-    parser.add_argument("--soft-buchi-eps",  type=float, default=0.5, help="soft Büchi threshold ε (default 0.5)")
     args = parser.parse_args()
 
     results = run_benchmark(
@@ -352,10 +362,6 @@ def main() -> None:
         c_hat       = args.c_hat,
         spec_filter = args.spec,
         verbose     = True,
-        method      = args.method,
-        cegar_iterations        = args.cegar_iters,
-        soft_buchi_temperature  = args.soft_buchi_temp,
-        soft_buchi_epsilon      = args.soft_buchi_eps,
     )
 
     print_summary(results)

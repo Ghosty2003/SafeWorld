@@ -47,6 +47,10 @@ def lor(*args) -> dict:
         result = {"type": "or", "left": result, "right": a}
     return result
 
+def implies(left: dict, right: dict) -> dict:
+    """Implication: left → right  (ρ = max(-ρ_left, ρ_right))"""
+    return {"type": "implies", "left": left, "right": right}
+
 def G(a: int, b: int, child: dict) -> dict:
     """Always  □[a,b] child"""
     return {"type": "always", "a": a, "b": b, "child": child}
@@ -193,6 +197,53 @@ STL_SPECS: list[dict] = [
         "description": "Full mission: always avoid hazards, reach zone A then B in sequence, "
                        "patrol zone C, and respond to obstacles. Uses □, ♢, U operators.",
         "aps":         ["hazard_dist", "zone_a", "zone_b", "zone_c", "velocity", "near_obstacle"],
+    },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Human-task specs (teammate extension)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # φ₁: Whenever near obstacle (vase_distance < 0.5), agent must slow down
+    #     to velocity < 0.35 within 15 steps.
+    #     STL: □[0,35] (near_obstacle → ♢[0,15] velocity < 0.35)
+    {
+        "id":          "stl_obstacle_response_human_task",
+        "level":       4,
+        "name":        "Obstacle response (human task)",
+        "mp_class":    "Response",
+        "formula":     G(0, 35, implies(
+                           atom("nearest_vase_distance", 0.5, "<"),
+                           F(0, 15, atom("speed", 0.35, "<")),
+                       )),
+        "horizon":     50,
+        "description": (
+            "Whenever the agent is within 0.5 units of an obstacle "
+            "(nearest_vase_distance < 0.5), it must slow to speed < 0.35 "
+            "within the next 15 steps: □[0,35](near_obs → ♢[0,15](speed<0.35))."
+        ),
+        "aps":         ["nearest_vase_distance", "speed"],
+    },
+
+    # φ₂: Whenever near human (human_distance < 1.0), agent must slow to
+    #     the stricter threshold velocity < 0.15 within 15 steps.
+    #     STL: □[0,35] (near_human → ♢[0,15] velocity < 0.15)
+    {
+        "id":          "stl_human_proximity_response",
+        "level":       4,
+        "name":        "Human proximity response",
+        "mp_class":    "Response",
+        "formula":     G(0, 35, implies(
+                           atom("human_distance", 1.0, "<"),
+                           F(0, 15, atom("speed", 0.15, "<")),
+                       )),
+        "horizon":     50,
+        "description": (
+            "Whenever the agent is within 1.0 unit of the human "
+            "(human_distance < 1.0), it must slow to speed < 0.15 "
+            "within the next 15 steps: □[0,35](near_human → ♢[0,15](speed<0.15)). "
+            "Stricter threshold than obstacle response."
+        ),
+        "aps":         ["human_distance", "speed"],
     },
 ]
 
