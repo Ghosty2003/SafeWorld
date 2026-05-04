@@ -11,9 +11,9 @@ where trace_steps is a list of SAFEWORLD AP dicts from the oracle episode.
 OursMethod
 ----------
     Generates N imagined rollouts from the SAFEWORLD world model,
-    runs SAFEWORLD verify(), and returns the PAC-CP verdict/confidence.
-    trace_steps is intentionally ignored — the verdict is grounded in
-    the model's imagination, not the observed trace.
+    runs SAFEWORLD verify() once per spec, and caches the resulting
+    confidence.  Each trajectory-level call samples a stochastic verdict
+    from that cached confidence.
 
 SafeDreamerMethod
 -----------------
@@ -30,7 +30,16 @@ ShieldingMethod
 
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING
+
+from eval.semantics import (
+    GOAL_REACHED_THRESHOLD,
+    NEAR_OBSTACLE_UNSAFE_THRESHOLD,
+    OURS_EVAL_TRIALS,
+    SPEED_SAFE_THRESHOLD,
+    apply_dataset_semantics_to_spec,
+)
 
 if TYPE_CHECKING:
     from configs.settings import RolloutConfig
@@ -56,12 +65,13 @@ class OursMethod:
     """
     SAFEWORLD verification using the DreamerV3 world model.
 
-    The verdict and confidence are computed once per (spec_id, wrapper)
-    and cached — every oracle trace receives the same prediction, since
-    the imagined rollouts are independent of the real trace.
+    Rollouts are sampled once per spec and cached.  Predictions are still
+    trajectory-level: each call draws a fresh SAFE/VIOLATION verdict using
+    the cached SAFEWORLD confidence, so oracle traces do not all receive an
+    identical deterministic label.
     """
 
-    def __init__(self, wrapper, roll_cfg, ver_cfg):
+    def __init__(self, wrapper, roll_cfg, ver_cfg, rng: random.Random | None = None):
         import sys
         from pathlib import Path
         sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -70,28 +80,65 @@ class OursMethod:
         self._roll_cfg = roll_cfg
         self._ver_cfg  = ver_cfg
         self._verify   = verify
-        self._cache: dict[str, tuple[str, float]] = {}
+        self._rng      = rng or random.Random()
+        self._cache: dict[str, tuple[str, float, object]] = {}
+
+    def _spec_prediction_params(self, spec_id: str, spec: dict) -> tuple[str, float]:
+        if spec_id not in self._cache:
+            trajs  = self._wrapper.sample_rollouts(self._roll_cfg)
+            result = self._verify(
+                trajs,
+                apply_dataset_semantics_to_spec(spec),
+                self._ver_cfg,
+            )
+            safeworld_verdict = result.verdict          # WARRANT | STL_MARGIN | VIOLATION
+            base_verdict = "SAFE" if safeworld_verdict in ("WARRANT", "STL_MARGIN") else "VIOLATION"
+            confidence = float(result.confidence) if base_verdict == "SAFE" else 0.0
+            self._cache[spec_id] = (base_verdict, confidence, result)
+
+        base_verdict, confidence, _ = self._cache[spec_id]
+        return base_verdict, confidence
 
     def predict(
         self,
         spec_id:     str,
         spec:        dict,
-        trace_steps: list[dict],   # oracle trace — intentionally ignored
+        trace_steps: list[dict],
     ) -> tuple[str, float]:
-        """Return (verdict, confidence) from imagined rollouts (cached per spec)."""
-        if spec_id not in self._cache:
-            trajs  = self._wrapper.sample_rollouts(self._roll_cfg)
-            result = self._verify(trajs, spec, self._ver_cfg)
-            # Map SAFEWORLD verdicts to binary SAFE / VIOLATION for metric calculation
-            safeworld_verdict = result.verdict          # WARRANT | STL_MARGIN | VIOLATION
-            verdict    = "SAFE"       if safeworld_verdict in ("WARRANT", "STL_MARGIN") else "VIOLATION"
-            confidence = float(result.confidence)
-            self._cache[spec_id] = (verdict, confidence)
-        return self._cache[spec_id]
+        """Return one stochastic trajectory-level verdict from cached spec rollouts."""
+        base_verdict, confidence = self._spec_prediction_params(spec_id, spec)
+        if base_verdict != "SAFE":
+            return "VIOLATION", 0.0
+        verdict = "SAFE" if self._rng.random() < confidence else "VIOLATION"
+        return verdict, confidence
+
+    def predict_trials(
+        self,
+        spec_id: str,
+        spec: dict,
+        trace_steps: list[dict],
+        trials: int = OURS_EVAL_TRIALS,
+    ) -> tuple[str, float]:
+        """
+        Run the Ours evaluation protocol: 100 stochastic predictions per trace.
+
+        The returned confidence is the empirical SAFE rate.  The binary verdict
+        lets existing metric code consume the aggregated prediction unchanged.
+        """
+        if trials <= 0:
+            return "INCONCLUSIVE", 0.0
+        safe_count = sum(
+            1 for _ in range(trials)
+            if self.predict(spec_id, spec, trace_steps)[0] == "SAFE"
+        )
+        safe_rate = safe_count / trials
+        verdict = "SAFE" if safe_rate >= 0.5 else "VIOLATION"
+        return verdict, safe_rate
 
     def raw_result(self, spec_id: str):
         """Return the cached raw SAFEWORLD VerifyResult (after predict() was called)."""
-        return self._cache.get(spec_id)
+        cached = self._cache.get(spec_id)
+        return cached[2] if cached else None
 
 
 # ─── SafeDreamerMethod ────────────────────────────────────────────────────────
@@ -112,7 +159,7 @@ class SafeDreamerMethod:
         self,
         cost_threshold: float = 0.10,
         hazard_safe_dist: float = 0.20,
-        speed_threshold: float = 0.50,
+        speed_threshold: float = SPEED_SAFE_THRESHOLD,
     ):
         self._cost_thr  = cost_threshold
         self._haz_safe  = hazard_safe_dist
@@ -160,7 +207,10 @@ class SafeDreamerMethod:
         if "goal" in spec_id:
             # Goal reached AND hazards always clear
             hazard_ok  = all(s.get("hazard_dist", 1.0) >= 0.0 for s in trace_steps)
-            goal_reached = any(s.get("goal_dist", 0.0) < -0.2 for s in trace_steps)
+            goal_reached = any(
+                s.get("goal_dist", 0.0) < GOAL_REACHED_THRESHOLD
+                for s in trace_steps
+            )
             if "slow" in spec_id:
                 speed_ok = all(s.get("velocity", 0.0) < self._spd_thr for s in trace_steps)
             else:
@@ -173,7 +223,7 @@ class SafeDreamerMethod:
             # All steps: either not near obstacle or slow
             violations = []
             for i, s in enumerate(trace_steps):
-                near = s.get("near_obstacle", 1.0) > 0.0   # positive = inside safe dist
+                near = s.get("near_obstacle", 1.0) < NEAR_OBSTACLE_UNSAFE_THRESHOLD
                 fast = s.get("velocity", 0.0) >= self._spd_thr
                 if near and fast:
                     violations.append(i)
@@ -247,20 +297,29 @@ class ShieldingMethod:
 
     @staticmethod
     def _rule_speed_always(trace):
-        return [t for t, s in enumerate(trace) if s.get("velocity", 0.0) >= 0.5]
+        return [
+            t for t, s in enumerate(trace)
+            if s.get("velocity", 0.0) >= SPEED_SAFE_THRESHOLD
+        ]
 
     @staticmethod
     def _rule_safe_goal_reach(trace):
         hazard_viol = ShieldingMethod._rule_hazard_always(trace)
-        goal_reached = any(s.get("goal_dist", 0.0) < -0.2 for s in trace)
+        goal_reached = any(
+            s.get("goal_dist", 0.0) < GOAL_REACHED_THRESHOLD
+            for s in trace
+        )
         return hazard_viol if (hazard_viol or not goal_reached) else []
 
     @staticmethod
     def _rule_safe_slow_goal(trace):
         base = ShieldingMethod._rule_safe_goal_reach(trace)
-        speed_viol = [t for t, s in enumerate(trace) if s.get("velocity", 0.0) >= 0.5]
+        speed_viol = [
+            t for t, s in enumerate(trace)
+            if s.get("velocity", 0.0) >= SPEED_SAFE_THRESHOLD
+        ]
         return list(set(base) | set(speed_viol)) if (base or speed_viol or
-            not any(s.get("goal_dist", 0.0) < -0.2 for s in trace)) else []
+            not any(s.get("goal_dist", 0.0) < GOAL_REACHED_THRESHOLD for s in trace)) else []
 
     @staticmethod
     def _rule_seq_zones_ab(trace):
@@ -285,11 +344,11 @@ class ShieldingMethod:
     @staticmethod
     def _rule_obstacle_response(trace):
         for t, s in enumerate(trace):
-            near = s.get("near_obstacle", 1.0) > 0.0
+            near = s.get("near_obstacle", 1.0) < NEAR_OBSTACLE_UNSAFE_THRESHOLD
             if near:
                 # Must reduce speed within 9 steps
                 slow_found = any(
-                    trace[tp].get("velocity", 0.0) < 0.5
+                    trace[tp].get("velocity", 0.0) < SPEED_SAFE_THRESHOLD
                     for tp in range(t, min(t + 9, len(trace)))
                 )
                 if not slow_found:
@@ -299,10 +358,10 @@ class ShieldingMethod:
     @staticmethod
     def _rule_hazard_response(trace):
         for t, s in enumerate(trace):
-            near = s.get("near_obstacle", 1.0) > 0.0
+            near = s.get("near_obstacle", 1.0) < NEAR_OBSTACLE_UNSAFE_THRESHOLD
             if near:
                 slow_found = any(
-                    trace[tp].get("velocity", 0.0) < 0.5
+                    trace[tp].get("velocity", 0.0) < SPEED_SAFE_THRESHOLD
                     for tp in range(t, len(trace))
                 )
                 if not slow_found:

@@ -53,9 +53,9 @@ automatically.
 
   "ap_thresholds": {
     "hazard_dist":   0.0,
-    "velocity":      0.4,
+    "velocity":      0.35,
     "goal_dist":    -0.2,
-    "near_obstacle": -0.3,
+    "near_obstacle": 0.0,
     "carrying":     -0.5
   },
 

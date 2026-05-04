@@ -33,6 +33,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).parent))
 
 from configs.settings import RolloutConfig
+from eval.semantics import apply_dataset_semantics_to_spec
 from specs import ALL_SPECS, get_spec_by_id
 from specs.spec_calibrator import load_env_config
 from main import verify, VerifyConfig
@@ -167,6 +168,9 @@ def run_benchmark(
     delta_err:  float = 0.05,
     c_hat:      float = 0.08,
     spec_filter: str | None = None,
+    checkpoint_path: str = CHECKPOINT,
+    model_dir: str = MODEL_DIR,
+    episodes_dir: str = ORACLE_EPISODES_DIR,
     verbose:    bool = True,
 ) -> list[dict[str, Any]]:
 
@@ -175,11 +179,11 @@ def run_benchmark(
     roll_cfg = RolloutConfig(
         horizon=horizon, n_rollouts=n_rollouts, seed=seed,
         extra={
-            "checkpoint_path":    CHECKPOINT,
-            "model_dir":          MODEL_DIR,
+            "checkpoint_path":    checkpoint_path,
+            "model_dir":          model_dir,
             "device":             device,
             "action_source":      "oracle",
-            "oracle_episodes_dir": ORACLE_EPISODES_DIR,
+            "oracle_episodes_dir": episodes_dir,
         },
     )
 
@@ -215,11 +219,11 @@ def run_benchmark(
         level_roll_cfg = RolloutConfig(
             horizon=horizon, n_rollouts=n_rollouts, seed=seed,
             extra={
-                "checkpoint_path":     CHECKPOINT,
-                "model_dir":           MODEL_DIR,
+                "checkpoint_path":     checkpoint_path,
+                "model_dir":           model_dir,
                 "device":              device,
                 "action_source":       "oracle",
-                "oracle_episodes_dir": ORACLE_EPISODES_DIR,
+                "oracle_episodes_dir": episodes_dir,
                 "oracle_level_filter": LEVEL_DIR.get(level, f"L{level}"),
             },
         )
@@ -231,6 +235,7 @@ def run_benchmark(
             spec = get_spec_by_id(spec_id)
             if spec is None:
                 continue
+            spec = apply_dataset_semantics_to_spec(spec)
 
             status, reasons = _applicability(spec)
 
@@ -352,6 +357,9 @@ def main() -> None:
     parser.add_argument("--c-hat",    type=float, default=0.08,  help="model error budget ĉ_err")
     parser.add_argument("--spec",     default=None,              help="run a single spec only")
     parser.add_argument("--output",   default=None,              help="save JSON results to this path")
+    parser.add_argument("--checkpoint", default=CHECKPOINT, help="DreamerV3 checkpoint .pt path")
+    parser.add_argument("--model-dir", default=MODEL_DIR, help="dreamer_world_model package directory")
+    parser.add_argument("--episodes-dir", default=ORACLE_EPISODES_DIR, help="Goal2 oracle episodes directory")
     args = parser.parse_args()
 
     results = run_benchmark(
@@ -361,6 +369,9 @@ def main() -> None:
         device      = args.device,
         c_hat       = args.c_hat,
         spec_filter = args.spec,
+        checkpoint_path = args.checkpoint,
+        model_dir       = args.model_dir,
+        episodes_dir    = args.episodes_dir,
         verbose     = True,
     )
 

@@ -25,7 +25,7 @@ def patch_formula_thresholds(
     threshold_overrides 格式:
         {
             "hazard_dist": 0.0,
-            "velocity":    0.4,
+            "velocity":    0.35,
             "goal_dist":  -0.2
         }
     """
@@ -65,7 +65,7 @@ def apply_env_config_to_spec(spec: dict, env_config: dict) -> dict:
     env_config 里需要有:
         "ap_thresholds": {
             "hazard_dist": 0.0,
-            "velocity":    0.4,
+            "velocity":    0.35,
             ...
         }
     """

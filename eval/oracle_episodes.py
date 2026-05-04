@@ -26,6 +26,8 @@ import os
 from pathlib import Path
 from typing import Any
 
+from eval.semantics import apply_dataset_semantics_to_spec
+
 # ─── AP-extraction constants (Goal2 environment, matches goal2.json) ──────────
 
 HAZARD_SAFE_DIST  = 0.20   # hazard_dist   = dist − 0.20
@@ -96,7 +98,8 @@ def oracle_true_safe(
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from core.stl_monitor import compute_robustness
-    rho = compute_robustness(spec["formula"], trace)
+    aligned_spec = apply_dataset_semantics_to_spec(spec)
+    rho = compute_robustness(aligned_spec["formula"], trace)
     return rho > 0.0
 
 
