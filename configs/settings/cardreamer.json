@@ -1,0 +1,88 @@
+{
+  "description": "Runtime settings for CarDreamer carla_four_lane DreamerV3 checkpoint.",
+  "model": {
+    "type": "cardreamer",
+    "checkpoint_path": "/home/bot/CarDreamer/logdir/carla_four_lane/checkpoint.ckpt",
+    "config_path": null
+  },
+  "wrapper": {
+    "bbox_inflate_px": 0,
+    "color_tol": 40,
+    "bgr_observations": false,
+    "use_replay_start": true,
+    "replay_burn_in_steps": 3,
+    "replay_pool_multiplier": 5
+  },
+  "rollout": {
+    "horizon": 50,
+    "n_rollouts": 20,
+    "action_source": "actor",
+    "seed": 0,
+    "device": "cpu"
+  },
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget": 0.08
+  },
+  "specs": {
+    "evaluatable_model_only": [
+      "stl_hazard_avoidance"
+    ],
+    "inconclusive_velocity_required": [
+      "stl_speed_limit",
+      "stl_obstacle_response"
+    ],
+    "unsupported_semantic_mismatch": [
+      "stl_safe_goal_reach"
+    ],
+    "unsupported_zone_ap_absent": [
+      "stl_sequential_zones",
+      "stl_bounded_patrol",
+      "stl_safe_dual_patrol",
+      "stl_full_mission"
+    ],
+    "notes": {
+      "velocity_not_available": "velocity=UNCERTAIN_SENTINEL always. Reward head output is composite total_reward (tent function of speed, range [-3..+23]). Anti-conservative for L1 speed_limit: at v > desired_speed, r_speed DECREASES, so max(0,reward)/scale UNDER-estimates velocity and emits false SAFE.",
+      "safe_goal_reach_mismatch": "stl_safe_goal_reach requires F(goal_dist < -0.2), i.e. goal_dist must go negative (agent arrives inside goal radius). In carla_four_lane, the BLUE pixels in birdeye_wpt are planned-path waypoints continuously repainted ~2.75m ahead of the ego. goal_dist = dist_to_nearest_waypoint is always ~2.75m > 0, so F(goal_dist < -0.2) is never satisfied. The spec was designed for point-goal tasks (SafetyGym) with a fixed destination; carla_four_lane is path-following with no discrete destination visible in the BEV. Confirmed by diag: all 18 VIOL rollouts have goal_min > +1.0; ρ* = -0.2 - 2.750 = -2.950 exactly.",
+      "sentinel_f_operator_risk": "SENTINEL=-999.0 fed into F(x < threshold) appears as trivially satisfied (+998.8 robustness). Always run spec-AP-aware sentinel gate before STL computation. The 2 false-SAT rollouts in stl_safe_goal_reach were caused by goal_dist=SENTINEL leaking into the F operator.",
+      "only_evaluatable": "Only stl_hazard_avoidance (L1 Safety, uses hazard_dist only) is reliably evaluatable model-side without CARLA. hazard_dist has 0 sentinels, correct semantics, confirmed channel order RGB. Vehicle detection uses _C_GREEN=[0,255,0] only — other vehicles in carla_four_lane birdeye_wpt are rendered pure green. _C_BUTTER and _C_ALUMIN were removed after causing false detections on road markings (yellow lane lines) and road texture (gray pavement)."
+    }
+  },
+  "smoke_test_checklist": {
+    "step1_channel_order": [
+      "from wrappers.cardreamer_wrapper import CarDreamerWrapper, verify_channel_order_multi",
+      "w = CarDreamerWrapper(); w.load()",
+      "imgs = w.decode_sample(n=5, horizon=10)",
+      "flat = [imgs[i][j] for i in range(5) for j in range(10)]",
+      "report = verify_channel_order_multi(flat)",
+      "print(report['recommendation'], report['note'])"
+    ],
+    "step2_replay_burn_in": [
+      "# Confirm replay pool loaded and burn-in is working",
+      "# load() prints a warning if replay buffer not found",
+      "# If warning appears, check path: /home/bot/CarDreamer/logdir/carla_four_lane/replay/"
+    ],
+    "step3_ap_extraction": [
+      "rollouts = w.sample_rollouts()",
+      "from wrappers.cardreamer_wrapper import has_uncertain_aps",
+      "# ALL rollouts have velocity=UNCERTAIN_SENTINEL; has_uncertain_aps() always True",
+      "# Run STL eval only on specs NOT using velocity: stl_hazard_avoidance, stl_safe_goal_reach",
+      "for r in rollouts: assert all(s['velocity'] == -999.0 for s in r)"
+    ],
+    "step4_inconclusive_rate": [
+      "# For velocity-free specs, check INCONCLUSIVE rate from CV failures only",
+      "# hazard_dist and goal_dist can still be UNCERTAIN_SENTINEL if no pixels detected",
+      "# Expected: INCONCLUSIVE_perception rate < 20% for stl_hazard_avoidance"
+    ]
+  },
+  "notes": [
+    "action_source=actor: trained deployment policy (primary safety result).",
+    "action_source=random: uniform random actions for coverage only.",
+    "bgr_observations: run decode_sample + verify_channel_order_multi to determine; do NOT guess.",
+    "bbox_inflate_px (delta_bbox): 0=no inflation; scan 0-8 for FVR/FSR curve in paper.",
+    "use_replay_start=true: rollouts start from replay buffer (deployment distribution, Def 3.9).",
+    "replay_burn_in_steps=3: RSSM is warmed for 3 real (obs, action) steps before imagination.",
+    "auto_collect_paired_rollouts requires live CARLA server at localhost:2000.",
+    "velocity_not_available: see specs.notes.velocity_not_available for detailed reasoning."
+  ]
+}

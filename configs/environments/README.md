@@ -134,8 +134,6 @@ rather than a meaningful verification result.
 
 ## Files in This Folder
 
-| File | Environment | Notes |
-|---|---|---|
-| `safety_point_goal2.json` | `SafetyPointGoal2Gymnasium-v0` | Default 4-hazard layout. |
-| `safety_point_goal2_hard.json` | `SafetyPointGoal2Gymnasium-v0` | 8 hazards, larger zones; passes `env_kwargs` to `gym.make()`. |
-| `safety_car_goal2.json` | `SafetyCarGoal2Gymnasium-v0` | Car robot variant; only velocity and hazard APs defined. |
+No built-in environment configs ship by default. Add one per the schema above
+when wiring up a new model/environment pair (see
+`configs/settings/README.md` Contributor Notes).

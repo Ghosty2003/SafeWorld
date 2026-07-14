@@ -681,6 +681,7 @@ def verify_from_wrapper(
     -------
     VerificationResult.
     """
+    t0   = time.perf_counter()
     vcfg = verify_config or VerifyConfig()
     if vcfg.auto_collect_paired_rollouts:
         paired = wrapper.sample_paired_rollouts(rollout_config)
@@ -701,7 +702,78 @@ def verify_from_wrapper(
     for w in warnings_list:
         logger.warning(w)
 
-    return verify(trajectories, spec, vcfg)
+    # Spec-AP-aware SENTINEL gate.
+    # UNCERTAIN_SENTINEL = -999.0 fed into STL operators produces wrong results:
+    #   G(x < thr)  : -999 << thr  → appears "violated" (over-conservative)
+    #   F(x < thr)  : -999 << thr  → appears "satisfied" (anti-conservative)
+    # Only gate on APs actually used by this spec (not all declared APs).
+    # All trajectories tainted → INCONCLUSIVE_perception, skip STL computation.
+    _SENTINEL = -999.0
+    spec_aps  = set(required_keys)
+    tainted   = [
+        i for i, traj in enumerate(trajectories)
+        if any(
+            step.get(k, 0.0) == _SENTINEL
+            for step in traj
+            for k in spec_aps
+            if k in step
+        )
+    ]
+    if tainted:
+        n_clean = len(trajectories) - len(tainted)
+        if n_clean == 0:
+            if vcfg.verbose:
+                print(f"  → INCONCLUSIVE_perception: all {len(trajectories)} rollouts have "
+                      f"UNCERTAIN_SENTINEL in spec APs {sorted(spec_aps)}. "
+                      f"AP extraction failed or spec requires unavailable signal.")
+            # Return a degenerate result rather than polluting the pipeline.
+            from core.stl_monitor import MonitorResult
+            from core.transfer_calibrator import TransferResult
+            dummy_monitor = MonitorResult(
+                margins=[0.0] * len(trajectories),
+                rho_star=0.0, witness_idx=0,
+                n_satisfied=0, n_rollouts=len(trajectories),
+                mean_margin=0.0,
+            )
+            dummy_transfer = TransferResult(
+                rho_net=0.0, rho_net_cp=0.0,
+                q_hat=0.0, c_hat_err=vcfg.model_error_budget,
+                delta_cp=vcfg.delta_cp, delta_err=vcfg.delta_err,
+            )
+            analysis = spec.get("analysis") or analyze_spec_structure(spec)
+            return VerificationResult(
+                verdict=INCONCLUSIVE,
+                monitor=dummy_monitor,
+                transfer=dummy_transfer,
+                lppm=None,
+                spec_id=spec.get("id", ""),
+                spec_name=spec.get("name", ""),
+                mp_class=analysis["mp_class"],
+                level=spec.get("level", 0),
+                verification_mode="inconclusive_perception",
+                support_note=(
+                    f"All rollouts contain UNCERTAIN_SENTINEL in spec APs "
+                    f"{sorted(spec_aps)}. Either the AP cannot be extracted from "
+                    f"this model's outputs (e.g. velocity from CarDreamer reward), "
+                    f"or the spec semantics do not match this environment."
+                ),
+                wall_time=time.perf_counter() - t0 if 't0' in dir() else 0.0,
+                guarantee_type="none",
+                confidence=0.0,
+            )
+        else:
+            logger.warning(
+                f"verify_from_wrapper: {len(tainted)}/{len(trajectories)} rollouts have "
+                f"UNCERTAIN_SENTINEL in spec APs {sorted(spec_aps)} and are excluded. "
+                f"Using {n_clean} clean rollouts."
+            )
+            trajectories = [t for i, t in enumerate(trajectories) if i not in set(tainted)]
+
+    result = verify(trajectories, spec, vcfg)
+    # verify() times only monitoring+calibration; report the full pipeline
+    # including rollout sampling (imagine+decode+CV), which dominates.
+    result.wall_time = time.perf_counter() - t0
+    return result
 
 
 # ─── run_benchmark() ─────────────────────────────────────────────────────────
@@ -801,7 +873,7 @@ if __name__ == "__main__":
     parser.add_argument("--settings-config", default=None,
                         help="Path to a JSON runtime settings file")
     parser.add_argument("--model",   default="random",
-                        choices=["random", "dreamerv3", "safety_point_goal", "simple_pointgoal2", "goal2_dreamer"],
+                        choices=["random", "dreamerv3", "cardreamer"],
                         help="World model to use")
     parser.add_argument("--env-name", default=None,
                         help="Gymnasium environment name for env-backed wrappers")
@@ -845,11 +917,9 @@ if __name__ == "__main__":
 
     # Import wrappers here to avoid circular imports at module level
     from wrappers import (
+        CarDreamerWrapper,
         DreamerV3Wrapper,
-        Goal2WorldModelWrapper,
         RandomWorldModelWrapper,
-        SafetyPointGoalWrapper,
-        SimplePointGoal2WorldModelWrapper,
     )
 
     task_spec = load_task_spec(args.task_config) if args.task_config else None
@@ -901,18 +971,13 @@ if __name__ == "__main__":
     if args.model == "dreamerv3":
         w = DreamerV3Wrapper(roll_cfg)
         w.load(checkpoint_path=args.checkpoint)
-    elif args.model == "safety_point_goal":
-        w = SafetyPointGoalWrapper(roll_cfg)
-        w.load(env_name=roll_cfg.extra.get("env_name", "SafetyPointGoal1-v0"))
-    elif args.model == "simple_pointgoal2":
-        roll_cfg.extra.setdefault("env_name", "SafetyPointGoal2Gymnasium-v0")
-        w = SimplePointGoal2WorldModelWrapper(roll_cfg)
-        w.load(checkpoint_path=args.checkpoint or None, env_name=roll_cfg.extra["env_name"])
-    elif args.model == "goal2_dreamer":
-        w = Goal2WorldModelWrapper(roll_cfg)
-        ckpt = args.checkpoint or settings.get("model", {}).get("checkpoint_path")
-        mdir = settings.get("model", {}).get("model_dir")
-        w.load(checkpoint_path=ckpt, model_dir=mdir, env_config=env_config)
+    elif args.model == "cardreamer":
+        wrapper_kwargs = settings.get("wrapper", {})
+        ckpt = args.checkpoint or settings.get("model", {}).get("checkpoint_path") or \
+               "/home/bot/CarDreamer/logdir/carla_four_lane/checkpoint.ckpt"
+        cfg_path = settings.get("model", {}).get("config_path")
+        w = CarDreamerWrapper(roll_cfg, **wrapper_kwargs)
+        w.load(checkpoint_path=ckpt, config_path=cfg_path)
     else:
         w = RandomWorldModelWrapper(roll_cfg)
         w.load()

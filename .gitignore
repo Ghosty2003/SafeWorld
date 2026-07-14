@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+
+# experiment artifacts — do not upload
+*.npz
+VERIFICATION_CARDREAMER.md
+verified_checkpoints/
+*.log
+.DS_Store

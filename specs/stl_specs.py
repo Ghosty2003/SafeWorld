@@ -121,8 +121,13 @@ STL_SPECS: list[dict] = [
                            atom("zone_a", 0.5, ">"),
                            F(0, 30, atom("zone_b", 0.5, ">")),
                        )),
-        "horizon":     50,
-        "description": "Visit zone A then zone B within bounded windows: ♢[0,49](zone_A ∧ ♢[0,30](zone_B)).",
+        "horizon":     80,
+        "description": (
+            "Visit zone A then zone B within bounded windows: ♢[0,49](zone_A ∧ ♢[0,30](zone_B)). "
+            "hrz_required=79 (outer F bound 49 + inner F bound 30); rollout must be ≥80 steps for "
+            "full evaluation. At T<80 the inner F[0,30] is truncated at the tail, biasing toward "
+            "VIOLATION (not SAFE) — conservative direction, but must be noted in report."
+        ),
         "aps":         ["zone_a", "zone_b"],
     },
 
@@ -170,9 +175,99 @@ STL_SPECS: list[dict] = [
                            G(0, 40, F(0, 14, atom("zone_b", 0.5, ">"))),
                            G(0, 49, atom("hazard_dist", 0.0, ">")),
                        ),
-        "horizon":     50,
-        "description": "Patrol both zones within their windows while always avoiding hazards.",
+        "horizon":     55,
+        "description": (
+            "Patrol both zones within their windows while always avoiding hazards. "
+            "hrz_required=54 (G[0,40]+F[0,14]); rollout must be ≥55 steps for full evaluation. "
+            "At T=50 the F[0,14] window is truncated for t∈[37,40], biasing toward VIOLATION — "
+            "conservative direction. guarantee_strength=bounded (mp_class=Recurrence)."
+        ),
         "aps":         ["zone_a", "zone_b", "hazard_dist"],
+    },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Level 4 – Velocity-free variant of obstacle response (pure CV)
+    # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "stl_gap_recovery",
+        "level":       4,
+        "name":        "Near-collision recovery (STL, velocity-free L4 variant)",
+        "mp_class":    "Response",
+        "formula":     G(0, 40, implies(
+                           atom("hazard_dist", 0.5, "<"),
+                           F(0, 9, atom("hazard_dist", 0.5, ">")),
+                       )),
+        "horizon":     50,
+        "description": (
+            "Velocity-free variant of stl_obstacle_response: whenever the body "
+            "gap drops below 0.5m (near-collision), it must recover above 0.5m "
+            "within 9 steps — near-collisions must be transient, never sustained. "
+            "□[0,40](gap<0.5 → ♢[0,9] gap>0.5). Pure CV. Same declared "
+            "limitation as stl_gap_response: trigger and recovery are the same "
+            "signal, so SAT does not distinguish ego evasion from the other "
+            "vehicle departing. Vacuously SAT when the trigger never fires "
+            "(sparse traffic): report the trigger rate alongside the verdict. "
+            "hrz_required=49 <= horizon 50: no truncation."
+        ),
+        "aps":         ["hazard_dist"],
+    },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Level 6 – Safe flow patrol (CV-only variant of stl_safe_dual_patrol)
+    # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "stl_safe_flow_patrol",
+        "level":       6,
+        "name":        "Safe flow patrol (STL, CV-only L6 variant)",
+        "mp_class":    "Recurrence",
+        "formula":     land(
+                           G(0, 40, F(0, 14, atom("hazard_dist", 2.0, ">"))),
+                           G(0, 49, atom("hazard_dist", 0.0, ">")),
+                       ),
+        "horizon":     55,
+        "description": (
+            "CV-only variant of stl_safe_dual_patrol (probe-based corridor "
+            "zone_a dropped: trivially-SAT / below-probe-resolution, see "
+            "verification doc N.4). Two conjuncts, both from CV hazard_dist: "
+            "(1) never boxed-in — a clearance > 2m must recur within every "
+            "15-step window (normal car-following gap p50=1.8m, so this is a "
+            "live property in dense flow); (2) never contact. "
+            "hrz_required=54: run with --horizon 55; at T=50 the inner F[0,14] "
+            "truncates for t in [36,40], biasing toward VIOLATION (conservative)."
+        ),
+        "aps":         ["hazard_dist"],
+    },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Level 7 – Conditional response (G(p → F q), velocity-free)
+    # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "stl_gap_response",
+        "level":       7,
+        "name":        "Hazard non-persistence (STL)",
+        "mp_class":    "Response",
+        "formula":     G(0, 40, implies(
+                           atom("near_obstacle", 0.0, "<"),
+                           F(0, 9, atom("hazard_dist", 0.5, ">")),
+                       )),
+        "horizon":     50,
+        "description": (
+            "Whenever a vehicle enters the 5m warning circle (near_obstacle<0, "
+            "ego-CENTER distance), the situation must not deteriorate into a "
+            "sustained near-collision: body gap (hazard_dist) must exceed 0.5m "
+            "within 9 steps. □[0,40](near → ♢[0,9] clear). All APs from CV. "
+            "SEMANTIC LIMITATION (declared): trigger and response are monotone "
+            "functions of the same underlying nearest-vehicle distance, so SAT "
+            "cannot distinguish ego evasion from the other vehicle departing — "
+            "this is hazard NON-PERSISTENCE, not behavioral response. A true "
+            "response spec needs an independent actuation dimension (velocity/"
+            "steering), which is not extractable from decoded observations. "
+            "Threshold choice: recovery=0.5m is deliberate — requiring recovery "
+            "beyond ~2m would be non-live in dense flow (normal car-following "
+            "gap p50=1.8m → trigger near-always active, response near-never "
+            "satisfiable). hrz_required=49 <= horizon 50: no truncation."
+        ),
+        "aps":         ["near_obstacle", "hazard_dist"],
     },
 
     # ═══════════════════════════════════════════════════════════════════════════

@@ -6,10 +6,8 @@ Task JSON files define formulas; settings JSON files define how to run them.
 Default lookup:
 
 ```text
---model simple_pointgoal2  -> configs/settings/simple_pointgoal2.json
 --model random             -> configs/settings/random.json
 --model dreamerv3          -> configs/settings/dreamerv3.json
---model safety_point_goal  -> configs/settings/safety_point_goal.json
 ```
 
 Use `--settings-config path/to/file.json` to override the default.
@@ -19,13 +17,13 @@ Use `--settings-config path/to/file.json` to override the default.
 ```json
 {
   "model": {
-    "type": "simple_pointgoal2",
+    "type": "dreamerv3",
     "checkpoint_path": null
   },
   "environment": {
-    "name": "SafetyPointGoal2Gymnasium-v0",
-    "wrapper": "SimplePointGoal2WorldModelWrapper",
-    "config": "SafeWord_V2/configs/environments/safety_point_goal2.json",
+    "name": "SafetyPointGoal1-v0",
+    "wrapper": "DreamerV3Wrapper",
+    "config": "SafeWord_V2/configs/environments/<your_env_config>.json",
     "kwargs": {},
     "reset_kwargs": {"seed": 42}
   },

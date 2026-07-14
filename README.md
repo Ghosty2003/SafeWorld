@@ -26,20 +26,22 @@ CLI flag (e.g. --env-config, --seed)        ← highest
 
 ```bash
 python SafeWord_V2/main.py \
-  --model simple_pointgoal2 \
+  --model dreamerv3 \
+  --checkpoint /path/to/dreamerv3_logdir \
   --spec stl_hazard_avoidance \
   --auto-paired
 ```
 
-Loads runtime defaults from `SafeWord_V2/configs/settings/simple_pointgoal2.json`.
+Loads runtime defaults from `SafeWord_V2/configs/settings/dreamerv3.json`.
 
 ## Running A Task JSON
 
 ```bash
 python SafeWord_V2/main.py \
-  --model simple_pointgoal2 \
+  --model dreamerv3 \
+  --checkpoint /path/to/dreamerv3_logdir \
   --task-config SafeWord_V2/configs/tasks/obstacle_avoidance.json \
-  --settings-config SafeWord_V2/configs/settings/simple_pointgoal2.json \
+  --settings-config SafeWord_V2/configs/settings/dreamerv3.json \
   --auto-paired
 ```
 
@@ -50,7 +52,8 @@ model, environment, rollout, and verification defaults.
 
 ```bash
 python SafeWord_V2/main.py \
-  --model simple_pointgoal2 \
+  --model dreamerv3 \
+  --checkpoint /path/to/dreamerv3_logdir \
   --benchmark \
   --auto-paired
 ```
@@ -73,7 +76,7 @@ Runs all 23 built-in specifications and prints a summary table.
 
 | Flag | Description |
 |---|---|
-| `--model NAME` | World model: `random`, `dreamerv3`, `safety_point_goal`, `simple_pointgoal2` (default: `random`). |
+| `--model NAME` | World model: `random`, `dreamerv3` (default: `random`). |
 | `--checkpoint PATH` | Model checkpoint path for wrappers that require one. |
 | `--env-name NAME` | Override `environment.name` from settings. |
 | `--env-config PATH` | Environment config JSON for AP threshold overrides. If omitted, the path is read from `settings["environment"]["config"]`. |

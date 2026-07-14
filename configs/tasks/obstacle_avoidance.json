@@ -4,7 +4,7 @@
   "description": "Always maintain a positive hazard safety margin over a 50-step horizon.",
   "metadata": {
     "intended_environment": "SafetyPointGoal2Gymnasium-v0",
-    "intended_model": "simple_pointgoal2",
+    "intended_model": "dreamerv3",
     "note": "This metadata is explanatory only. Runtime model, environment, rollout, and verification settings are loaded from configs/settings."
   },
   "predicates": [

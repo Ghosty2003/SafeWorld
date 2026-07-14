@@ -140,7 +140,7 @@ def calibrate_robustness_quantile(
     delta_cp: float = 0.05,
 ) -> float:
     """
-    Compute q̂_δ = split-conformal (1-δ_cp) quantile of the N model robustness values.
+    Compute q̂_δ = split-conformal LOWER δ_cp-quantile of the N model robustness values.
 
     Theorem D.4 guarantees:
         Pr[ρ(φ, τ^M_{N+1}, 0) ≥ q̂_δ] ≥ 1 - δ_cp
@@ -153,15 +153,20 @@ def calibrate_robustness_quantile(
 
     Returns
     -------
-    q̂_δ : (1-δ_cp) quantile of the calibration margins.
+    q̂_δ : the ⌊δ_cp(n+1)⌋-th smallest calibration margin (lower bound on a
+          fresh rollout's robustness). -inf if n is too small for the level.
     """
     if not margins:
         return -math.inf
     n = len(margins)
     sorted_m = sorted(margins)
-    idx = math.ceil((1.0 - delta_cp) * (n + 1)) - 1
-    idx = max(0, min(idx, n - 1))
-    return sorted_m[idx]
+    # Lower conformal bound: taking the upper (1-δ) quantile here would bound
+    # ρ_new from ABOVE — anti-conservative for a safety guarantee.
+    idx = math.floor(delta_cp * (n + 1)) - 1
+    if idx < 0:
+        # n < (1-δ_cp)/δ_cp samples: no valid lower bound at this level.
+        return -math.inf
+    return sorted_m[min(idx, n - 1)]
 
 
 # ─── main transfer verdict ────────────────────────────────────────────────────

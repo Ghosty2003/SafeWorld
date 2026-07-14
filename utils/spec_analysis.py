@@ -11,6 +11,11 @@ def analyze_spec_structure(spec: dict[str, Any]) -> dict[str, Any]:
     bounded = is_bounded_formula(formula)
     objectives = extract_objectives(formula)
     level = infer_level(formula, bounded, objectives)
+    # Prefer the spec's hardcoded level field when present — structural inference
+    # cannot distinguish L4/L5/L6/L8 within the recurrence class without additional
+    # heuristics, and the spec author's intent is authoritative.
+    if "level" in spec:
+        level = f"L{spec['level']}"
     verification_mode = "finite_stl" if bounded else "infinite_parity"
     if bounded:
         support = "sound"
@@ -64,7 +69,8 @@ def extract_objectives(formula: dict[str, Any]) -> dict[str, Any]:
         elif _is_reachability(clause):
             objectives["guarantee"].extend(_extract_atom_names(clause["child"]))
         elif _is_recurrence(clause):
-            objectives["recurrence"].append(_atom_name(clause["child"]["child"]))
+            # child may be F(atom), F(compound), or U(p,q) — collect all referenced APs
+            objectives["recurrence"].extend(_extract_atom_names(clause["child"]))
         elif _is_persistence(clause):
             objectives["persistence"].append(_atom_name(clause["child"]["child"]))
         else:
@@ -106,6 +112,11 @@ def infer_level(formula: dict[str, Any], bounded: bool, objectives: dict[str, An
 
 def infer_mp_class(objectives: dict[str, Any], bounded: bool) -> str:
     if bounded:
+        # Recurrence/Response dominate: G(F·), G(·U·), G(p→F(q)) are all Recurrence class
+        # regardless of whether bounds are finite. Safety/Guarantee are pointwise and
+        # co-safety objectives; Recurrence requires repetition and is semantically stronger.
+        if objectives["recurrence"] or objectives["responses"]:
+            return "Recurrence"
         if objectives["safety"] and objectives["guarantee"]:
             return "Obligation"
         if objectives["guarantee"]:
@@ -140,13 +151,12 @@ def _is_reachability(node: dict[str, Any]) -> bool:
 
 
 def _is_recurrence(node: dict[str, Any]) -> bool:
-    return (
-        node["type"] == "always"
-        and node["child"]["type"] == "eventually"
-        and node["child"]["child"]["type"] == "atom"
-        and int(node["b"]) >= UNBOUNDED_SENTINEL
-        and int(node["child"]["b"]) >= UNBOUNDED_SENTINEL
-    )
+    # Manna-Pnueli Recurrence: G(F(·)) or G(· U ·) — bounded or unbounded.
+    # Routing (finite_stl vs infinite_parity) is determined separately by is_bounded_formula();
+    # mp_class is determined by temporal structure, independent of bound magnitude.
+    if node["type"] != "always":
+        return False
+    return node["child"]["type"] in ("eventually", "until")
 
 
 def _is_persistence(node: dict[str, Any]) -> bool:
