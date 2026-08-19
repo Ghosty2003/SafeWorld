@@ -46,6 +46,7 @@ from core.lppm import (
     build_parity_automaton,
     calibrate_lppm,
     fit_lppm,
+    DEFAULT_LPPM_CONFIG,
     LPPMResult,
 )
 from core.cegar import (
@@ -60,7 +61,7 @@ from core.cegar import (
     derive_predicates_from_spec,
 )
 from core.soft_buchi import SoftBuchiResult, run_soft_buchi
-from utils.spec_analysis import analyze_spec_structure
+from utils.spec_analysis import UNCLASSIFIED_MP_CLASS, analyze_spec_structure, SUPPORT_DEDUCTIVE
 from utils.task_parser import apply_confidence_profile, evaluate_predicates, load_task_spec
 
 logger = logging.getLogger(__name__)
@@ -77,10 +78,14 @@ class VerifyConfig:
 
     # Transfer Calibrator
     delta_cp:       float = 0.05
-    """Conformal coverage failure prob for model-side robustness bound (Theorem D.4)."""
+    """Conformal coverage failure prob for model-side robustness bound (Theorem D.4).
+    TODO: unverified against current paper draft (not covered by the Theorem-5.5
+    citation audit; distinct numbering, appendix theorem -- confirm before citing)."""
 
     delta_err:      float = 0.05
-    """Conformal coverage failure prob for model-error budget (Corollary 5.2)."""
+    """Conformal coverage failure prob for model-error budget (Corollary 5.2).
+    TODO: unverified against current paper draft -- confirm this corollary number
+    still matches before citing (see Theorem-5.5 citation audit)."""
 
     model_error_budget: float = 0.08
     """
@@ -97,9 +102,9 @@ class VerifyConfig:
 
     # LPPM Certificate
     gamma:          float = 0.05
-    """Binary-indicator calibration failure probability for LPPM (Theorem 5.5)."""
+    """Binary-indicator calibration failure probability for LPPM (Theorem 5.4)."""
 
-    eta:            float = 0.01
+    eta:            float = DEFAULT_LPPM_CONFIG.eta
     """Strict descent margin η for LPPM (P2) condition."""
 
     warrant_threshold: float = 0.80
@@ -113,6 +118,16 @@ class VerifyConfig:
 
     lppm_epochs:    int = 300
     """Number of training epochs for fit_lppm (if fit_lppm_params=True)."""
+
+    lppm_train_trajectories: list[list[dict[str, float]]] | None = None
+    """
+    REQUIRED when fit_lppm_params=True: a disjoint TRAINING split for
+    fit_lppm(). verify()'s `trajectories` argument is used as the
+    CALIBRATION split -- previously (see EXPERIMENT_CONFIG.md §8.12) this
+    branch silently reused `trajectories` for both roles, guaranteeing 100%
+    overlap; that is no longer possible even accidentally, since fit_lppm()/
+    calibrate_lppm() now raise on detected overlap by default.
+    """
 
     # Method selection (Algorithm 1)
     method: str = "stl"
@@ -177,7 +192,7 @@ class VerificationResult:
         "strict"    – ρ_net > 0: all N rollouts satisfied spec with margin > ĉ_err.
                       Confidence ≥ 1 - δ_err.
         "conformal" – ρ_net_cp > 0: (1-δ_cp) fraction satisfied with margin > ĉ_err.
-                      Confidence ≥ 1 - δ_cp - δ_err  (Theorem 5.5).
+                      Confidence ≥ 1 - δ_cp - δ_err  (Theorem 5.1).
         "none"      – no transfer guarantee achieved.
     """
 
@@ -201,6 +216,12 @@ class VerificationResult:
     verification_mode: str = ""
     support_level: str = ""
     support_note: str = ""
+    # Whether the LTL->parity automaton translation was exact (Spot) or template-
+    # based -- a property of the AUTOMATON, independent of support_level (which
+    # describes the CERTIFICATE's guarantee strength). Never conflate the two:
+    # exact translation says nothing about whether (P1)-(P2) were verified
+    # support-wide (see the assertion in verify() Step 3).
+    automaton_translation: str = ""
     wall_time:  float = 0.0   # seconds
 
     # Which guarantee path produced the WARRANT/STL_MARGIN verdict
@@ -261,26 +282,47 @@ class VerificationResult:
             f" Task level:     {self.task_level or 'n/a'}",
             f" Mode:           {self.verification_mode or 'n/a'}",
             f" Support:        {self.support_level or 'n/a'}",
+            f" Automaton:      {self.automaton_translation or 'n/a'}  "
+            f"(independent of Support -- exact translation of phi, not certificate soundness)",
             f" ρ* (worst-case margin):  {self.rho_star:+.4f}",
             f" q̂_δ (CP quantile):       {self.q_hat:+.4f}",
             f" ĉ_err (model error):      {self.c_hat_err:.4f}",
             f" ρ_net = ρ* - ĉ_err:       {self.rho_net:+.4f}  [strict]",
-            f" ρ_net_cp = q̂_δ - ĉ_err:  {self.rho_net_cp:+.4f}  [conformal, Theorem 5.5]",
+            f" ρ_net_cp = q̂_δ - ĉ_err:  {self.rho_net_cp:+.4f}  [conformal, Theorem 5.1]",
         ]
         if self.lppm:
             lines += [
                 f" p̂_γ (LPPM warrant):      {self.p_hat:.3f}",
                 f" avg descent margin η:    {self.lppm.avg_descent_margin:.4f}",
             ]
+            # External-review fix: surface Theorem 5.4's exact minimal-premise
+            # diagnostic in the final report -- previously computed (if at
+            # all) with no visible path into what a caller actually reads.
+            zc = self.lppm.zfree_closure
+            if zc is not None:
+                if zc.verifiable:
+                    lines.append(
+                        f" p̂_closure (Z_free minimal premise): {zc.p_hat_closure:.3f}  "
+                        f"(n={zc.n_zfree}, k={zc.k_zfree}; separate from p̂_γ above)"
+                    )
+                else:
+                    lines.append(
+                        " p̂_closure (Z_free minimal premise): UNVERIFIABLE "
+                        "(no trajectory ever entered Z_free)"
+                    )
         lines += [
             f" Note:                    {self.support_note}",
             f" Wall time:               {self.wall_time:.2f}s",
             f"{'─'*60}",
         ]
         if self.cegar_result:
+            coverage_note = ("" if self.cegar_result.verdict != CEGAR_SAFE
+                              else "  [reachable-cell coverage NOT verified]"
+                              if not self.cegar_result.coverage_verified else "")
             lines.append(f" CEGAR: {self.cegar_result.verdict}  "
                          f"({self.cegar_result.iterations} iter, "
-                         f"{len(self.cegar_result.predicates)} predicates)")
+                         f"{len(self.cegar_result.predicates)} predicates)"
+                         f"{coverage_note}")
         if self.soft_buchi_result:
             lines.append(f" Soft Büchi: a*={self.soft_buchi_result.acceptance_score:.4f}  "
                          f"ε={self.soft_buchi_result.epsilon:.2f}")
@@ -533,7 +575,7 @@ def verify(
             verdict        = WARRANT
             guarantee_type = "strict"
             confidence     = transfer_res.effective_confidence()
-        # Conformal path (Theorem 5.5): (1-δ_cp) fraction satisfied with margin > ĉ_err
+        # Conformal path (Theorem 5.1): (1-δ_cp) fraction satisfied with margin > ĉ_err
         elif transfer_res.transfers_cp():
             verdict        = WARRANT
             guarantee_type = "conformal"
@@ -563,39 +605,149 @@ def verify(
             confidence=confidence,
         )
 
-    # ─── Step 3: LPPM Certificate (Section 4.3, Theorem 5.5) ─────────────────
+    # ─── Step 3: LPPM Certificate (Section 4.3, Theorem 5.4) ─────────────────
+    # Batch-2 L2 audit fix (Option B): refuse to route an unclassified spec
+    # into the co-Büchi pipeline. analyze_spec_structure() sets mp_class to
+    # UNCLASSIFIED_MP_CLASS (not a guessed Safety/Obligation default) when at
+    # least one clause didn't match any recognized AST shape -- routing it
+    # into build_parity_automaton() anyway would either fabricate a warrant
+    # under the wrong automaton or (since that function now also refuses,
+    # see core/lppm/automaton.py) raise an uncaught exception out of
+    # verify(). Neither is acceptable; report INCONCLUSIVE honestly instead,
+    # using the real Steps 1-2 results already computed above.
+    #
+    # External-review fix: this gate previously only refused
+    # UNCLASSIFIED_MP_CLASS -- mp_class in {"Recurrence", "Reactivity"} sailed
+    # straight through into build_parity_automaton() (which DOES have a
+    # branch for them -- it can construct an automaton, just not one the
+    # co-Büchi (P1/P2, Theorem 5.4) LPPM certificate is valid for) and the
+    # entire LPPM pipeline, fabricating an unsupported guarantee. Per Lemma
+    # E.6, these classes are not co-Büchi-expressible and must never reach
+    # this pipeline, confidently-classified or not -- a DIFFERENT reason
+    # than "classification uncertain", so it gets its own support_note
+    # rather than reusing the Unclassified wording. L3 (the correct home for
+    # these classes) is confirmed infeasible on real checkpoints as of this
+    # session, so the only honest verdict right now is INCONCLUSIVE, not a
+    # silent "route to L3" that doesn't actually exist yet.
+    LEMMA_E6_EXCLUDED_MP_CLASSES = {"Recurrence", "Reactivity"}
+    if mp_class in LEMMA_E6_EXCLUDED_MP_CLASSES:
+        lemma_e6_note = (
+            f"mp_class={mp_class!r} is not co-Büchi-expressible (Lemma E.6) -- the "
+            "co-Büchi (P1/P2, Theorem 5.4) LPPM pipeline this Step builds does not "
+            "provide a valid statistical certificate for this class, regardless of "
+            "how confidently it was classified. The correct home for this class is "
+            "L3, which is confirmed infeasible on real checkpoints as of this "
+            "session -- reporting INCONCLUSIVE rather than fabricating a L2 warrant."
+        )
+        if cfg.verbose:
+            print(f"  [3/3] LPPM: skipped -- mp_class={mp_class!r} excluded by Lemma E.6.")
+            print("  → INCONCLUSIVE (lemma_e6_excluded)")
+        return VerificationResult(
+            verdict=INCONCLUSIVE,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=analysis["verification_mode"],
+            support_level=analysis["support_level"],
+            support_note=lemma_e6_note,
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+        )
+
+    if analysis.get("classification_uncertain") or mp_class == UNCLASSIFIED_MP_CLASS:
+        if cfg.verbose:
+            print("  [3/3] LPPM: skipped -- spec classification uncertain.")
+            print("  → INCONCLUSIVE (classification_uncertain)")
+        return VerificationResult(
+            verdict=INCONCLUSIVE,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=analysis["verification_mode"],
+            support_level=analysis["support_level"],
+            support_note=analysis["support_note"],
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+        )
+
     if cfg.verbose:
         print("  [3/3] LPPM: building parity automaton and calibrating certificate...")
 
     dpa          = build_parity_automaton(spec)
     support_level = analysis["support_level"]
     support_note = analysis["support_note"]
-    if getattr(dpa, "exact", False):
-        support_level = "sound"
-        support_note = (
-            "Infinite-horizon LTL was translated to an exact deterministic parity automaton "
-            "via Spot; the remaining verification path uses the parity/LPPM certificate."
-        )
-        if cfg.verbose:
-            print("        backend=spot exact_parity=True")
-    else:
-        if cfg.verbose:
-            print(f"        backend={getattr(dpa, 'backend', 'template')} exact_parity=False")
+    automaton_translation = "exact" if getattr(dpa, "exact", False) else getattr(dpa, "backend", "template")
+    if cfg.verbose:
+        print(f"        backend={getattr(dpa, 'backend', 'template')} "
+              f"exact_parity={getattr(dpa, 'exact', False)}")
+    # support_level must NEVER become SUPPORT_DEDUCTIVE here. Exact automaton
+    # translation (Spot) only guarantees phi's parity-automaton ENCODING is
+    # correct -- it says nothing about whether (P1)-(P2) hold support-wide.
+    # That requires a deductive NN-verification branch, which this codebase
+    # does not implement: fit_lppm() trains via gradient descent on SAMPLED
+    # transitions, and calibrate_lppm() calibrates via Clopper-Pearson on a
+    # held-out SAMPLE -- both are the statistical branch (Theorem 5.4), never
+    # a formal proof over the full support. Automaton exactness is tracked
+    # separately in automaton_translation. Fail loud if this is ever violated:
+    # a SUPPORT_DEDUCTIVE support_level reaching here would mean a deductive
+    # verifier was silently assumed rather than actually run.
+    assert support_level != SUPPORT_DEDUCTIVE, (
+        f"support_level={SUPPORT_DEDUCTIVE!r} at the LPPM/L2 step with no deductive "
+        "verifier implemented -- this assertion firing means a deductive path was "
+        "reintroduced without attaching real deductive-verifier provenance."
+    )
     lppm_params  = None
 
     if cfg.fit_lppm_params:
+        # External-review fix: this Step 3 path previously trained and
+        # calibrated on the SAME `trajectories` list (verify()'s single-arg
+        # API had no separate training split), guarded only by
+        # warn_if_overlap=True -- which only ever warns, never raises,
+        # despite a since-removed comment here incorrectly claiming this
+        # "fails loudly". Now requires a genuinely separate training split
+        # via VerifyConfig.lppm_train_trajectories; fit_lppm()/
+        # calibrate_lppm() themselves raise on any detected overlap by
+        # default (see EXPERIMENT_CONFIG.md §8.12).
+        if not cfg.lppm_train_trajectories:
+            raise ValueError(
+                "VerifyConfig.fit_lppm_params=True requires VerifyConfig."
+                "lppm_train_trajectories (a disjoint training split) -- "
+                "verify()'s `trajectories` argument is used as the CALIBRATION "
+                "split; reusing it for training too would break Theorem 5.4's "
+                "exchangeability premise. Pass a separately-collected/split "
+                "training set."
+            )
         if cfg.verbose:
             print(f"        Training LPPM ({cfg.lppm_epochs} epochs)...")
         training_info = fit_lppm(
-            trajectories=trajectories,
+            trajectories=cfg.lppm_train_trajectories,
             dpa=dpa,
             spec=spec,
             eta=cfg.eta,
             n_epochs=cfg.lppm_epochs,
+            calib_trajectories=trajectories,
         )
         lppm_params = training_info
         if cfg.verbose:
+            backend = training_info.get("backend", "unknown")
+            print(f"        Training backend: {backend}"
+                  + (f"  ({training_info['reason']})" if backend != "torch_mlp" else ""))
             print(f"        Training loss: {training_info['final_loss']:.5f}")
+            if backend != "torch_mlp":
+                print("        WARNING: NOT a trained NeuralLPPM -- p̂_γ below comes from "
+                    "the untrained compute_lppm_value() heuristic, not a fitted certificate.")
     else:
         training_info = {}
 
@@ -607,6 +759,7 @@ def verify(
         eta=cfg.eta,
         warrant_threshold=cfg.warrant_threshold,
         lppm_params=lppm_params,
+        train_trajectories=cfg.lppm_train_trajectories if cfg.fit_lppm_params else None,
     )
 
     if cfg.verbose:
@@ -652,6 +805,7 @@ def verify(
         verification_mode=analysis["verification_mode"],
         support_level=support_level,
         support_note=support_note,
+        automaton_translation=automaton_translation,
         wall_time=time.perf_counter() - t0,
         guarantee_type=guarantee_type,
         confidence=confidence,

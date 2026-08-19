@@ -340,6 +340,25 @@ STL_SPECS: list[dict] = [
         ),
         "aps":         ["human_distance", "speed"],
     },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # TD-MPC2 / dm_control walker task-family extension (bounded cross-check
+    # counterpart of ltl_height_safety)
+    # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "stl_height_safety",
+        "level":       1,
+        "name":        "Walker height safety (STL)",
+        "mp_class":    "Safety",
+        "formula":     G(0, 99, atom("height", 0.6, ">")),
+        "horizon":     100,
+        "description": (
+            "Bounded counterpart of ltl_height_safety, for ρ* cross-check: "
+            "□[0,99](height>0.6). h_min=0.6 -- see ltl_height_safety docstring "
+            "for the reward-tolerance-margin justification (decided before running)."
+        ),
+        "aps":         ["height"],
+    },
 ]
 
 

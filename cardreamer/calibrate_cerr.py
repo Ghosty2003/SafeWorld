@@ -30,18 +30,21 @@ AP_KEY  = "hazard_dist"
 CHUNK   = 20   # imagination batch size (bounds decoder GPU memory)
 
 
-def load_wrapper():
+def load_wrapper(checkpoint=None):
     from wrappers.cardreamer_wrapper import CarDreamerWrapper
     from configs.settings import RolloutConfig
     cfg = RolloutConfig(n_rollouts=CHUNK, horizon=50, seed=0, action_source="actor")
     w = CarDreamerWrapper(cfg)
-    w.load()
+    if checkpoint:
+        w.load(checkpoint_path=checkpoint)
+    else:
+        w.load()
     return w
 
 
-def make_env():
+def make_env(task, port):
     import car_dreamer
-    env, _ = car_dreamer.create_task("carla_four_lane")
+    env, _ = car_dreamer.create_task(task, ["--env.world.carla_port", str(port)])
     return env
 
 
@@ -98,13 +101,13 @@ def main(args):
     print("=" * 65 + "\n")
 
     print("[1/4] Loading model ...", flush=True)
-    w = load_wrapper()
+    w = load_wrapper(args.checkpoint)
     jax_agent = w._jax_agent
     burn_in   = w._burn_in
     dev       = jax_agent.policy_devices[0]
 
     print("[2/4] Connecting to CARLA ...", flush=True)
-    env = make_env()
+    env = make_env(args.task, args.port)
 
     # ── Drive real episodes, harvest anchors ─────────────────────────────────
     print(f"[3/4] Driving {args.episodes} real episodes ...", flush=True)
@@ -145,30 +148,44 @@ def main(args):
           f"(chunks of {CHUNK}) ...", flush=True)
     scores, dropped = [], 0
     series_m, series_e = [], []   # raw per-step hazard_dist, NaN where SENTINEL
+    near_m, near_e = [], []       # raw per-step near_obstacle (for L7 formulas)
+    from cardreamer.probe_common import build_imagine_fn
+    fn = build_imagine_fn(jax_agent, args.horizon, w._n_acts, w._burn_in, decode=True)
     for start in range(0, len(anchors), CHUNK):
         batch = anchors[start:start + CHUNK]
         m = len(batch)
-        fn  = w._get_fn("actor", m, args.horizon)
+        if m < CHUNK:                      # pad to keep one JIT signature
+            batch = batch + batch[:CHUNK - m]
         rng = jax_agent._next_rngs(jax_agent.policy_devices)
         obs_jax = jax.device_put(np.stack([a[0] for a in batch]), dev)
         act_jax = jax.device_put(np.stack([a[1] for a in batch]), dev)
-        images_u8, _ = fn(jax_agent.varibs, rng, obs_jax, act_jax)
-        images_np = np.asarray(jax.device_get(images_u8))  # (horizon+1, m, H, W, C)
+        (images_u8, _deter), _ = fn(jax_agent.varibs, rng, obs_jax, act_jax)
+        # probe_common fn already slices off t=0: images are t=1..horizon
+        images_np = np.concatenate([np.zeros_like(np.asarray(jax.device_get(images_u8))[:1]),
+                                    np.asarray(jax.device_get(images_u8))])
         if w._bgr_observations:
             images_np = images_np[..., ::-1]
 
         for i in range(m):
             sm = np.full(args.horizon, np.nan)
             se = np.full(args.horizon, np.nan)
+            nm = np.full(args.horizon, np.nan)
+            ne = np.full(args.horizon, np.nan)
             for t in range(args.horizon):
-                r_m = cv_extract(images_np[t + 1, i]).get(AP_KEY, UNCERTAIN_SENTINEL)
-                r_e = cv_extract(batch[i][2][t]).get(AP_KEY, UNCERTAIN_SENTINEL)
+                ap_m = cv_extract(images_np[t + 1, i])
+                ap_e = cv_extract(batch[i][2][t])
+                r_m = ap_m.get(AP_KEY, UNCERTAIN_SENTINEL)
+                r_e = ap_e.get(AP_KEY, UNCERTAIN_SENTINEL)
                 if r_m != UNCERTAIN_SENTINEL:
                     sm[t] = r_m
+                    nm[t] = ap_m.get("near_obstacle", np.nan)
                 if r_e != UNCERTAIN_SENTINEL:
                     se[t] = r_e
+                    ne[t] = ap_e.get("near_obstacle", np.nan)
             series_m.append(sm)
             series_e.append(se)
+            near_m.append(nm)
+            near_e.append(ne)
             diffs = np.abs(sm - se)
             if np.isnan(diffs).all():
                 dropped += 1
@@ -191,11 +208,12 @@ def main(args):
 
     sm = np.array(series_m)   # (n_pairs, horizon) raw hazard_dist, NaN = SENTINEL
     se = np.array(series_e)
-    np.savez("cerr_calibration.npz", scores=np.array(scores),
+    np.savez(args.out, scores=np.array(scores),
              series_model=sm, series_env=se,
+             near_model=np.array(near_m), near_env=np.array(near_e),
              c_hat_err=c_hat, delta_err=args.delta_err,
              horizon=args.horizon, burn_in=burn_in)
-    print("  saved → cerr_calibration.npz")
+    print(f"  saved → {args.out}")
 
     def conformal_upper(vals, delta):
         vals = sorted(v for v in vals if not np.isnan(v))
@@ -231,6 +249,10 @@ def main(args):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--episodes",  type=int,   default=6)
+    p.add_argument("--task",      default="carla_four_lane")
+    p.add_argument("--port",      type=int,   default=2000)
+    p.add_argument("--checkpoint", default=None)
+    p.add_argument("--out",       default="cerr_calibration.npz")
     p.add_argument("--horizon",   type=int,   default=50)
     p.add_argument("--stride",    type=int,   default=50)
     p.add_argument("--delta_err", type=float, default=0.05)

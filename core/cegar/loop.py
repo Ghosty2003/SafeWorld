@@ -53,8 +53,14 @@ class CegarResult:
 
     Verdicts
     --------
-    SAFE         — no accepting cycle found; φ holds over all observed abstract
-                   transitions.  Sound when the sample covers all reachable cells.
+    SAFE         — no accepting cycle found in the DATA-DRIVEN abstract system
+                   built from the observed sample. This is sample-based, not a
+                   soundness guarantee: reachable-cell coverage (whether the
+                   sample actually visited every cell the true system can
+                   reach) is NOT verified anywhere in this code path. A SAFE
+                   verdict on an under-sampled abstraction can be wrong. See
+                   coverage_verified below -- always False until a coverage
+                   check is implemented (currently backlog, not done).
     VIOLATION    — an accepting cycle was found AND is concretizable; a concrete
                    trajectory segment witnesses a violation.
     INCONCLUSIVE — accepting cycles found but all are spurious; iteration budget
@@ -67,6 +73,12 @@ class CegarResult:
     counterexample: AbstractCex | None = None
     abstract_sys:   AbstractSystem | None = None
     detail:      str = ""
+    # Explicit, always-False marker: no code path in this project checks
+    # whether the sample covers all reachable abstract cells, so a SAFE
+    # verdict's soundness precondition is never actually verified. This field
+    # exists so callers cannot mistake "verdict==SAFE" for "coverage checked" --
+    # flip to True only if/when a real coverage check is implemented.
+    coverage_verified: bool = False
 
 
 # ─── CEGAR configuration ──────────────────────────────────────────────────────

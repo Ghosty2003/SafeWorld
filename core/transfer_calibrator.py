@@ -176,7 +176,8 @@ class TransferResult:
     """
     Complete output of the Transfer Calibrator.
 
-    Two guarantee paths (Theorem 5.5 / Corollary 5.2):
+    Two guarantee paths (Theorem 5.1 / Corollary 5.2 -- Corollary 5.2 number
+    unverified against current paper draft, TODO confirm before citing):
 
     Strict path (transfers()):
         ρ_net = ρ* - ĉ_err > 0
@@ -186,7 +187,7 @@ class TransferResult:
     Conformal path (transfers_cp()):
         ρ_net_cp = q̂_δ - ĉ_err > 0
         A (1-δ_cp) fraction of rollouts satisfied the spec with margin ≥ ĉ_err.
-        Confidence: 1 - δ_cp - δ_err  (Theorem 5.5 PAC-CP guarantee).
+        Confidence: 1 - δ_cp - δ_err  (Theorem 5.1 PAC-CP guarantee).
 
     The strict path is the special case δ_cp → 0 (q̂_0 = ρ*).
     """
@@ -202,7 +203,7 @@ class TransferResult:
     rho_net:     float   # ρ_net    = ρ* - ĉ_err  (Equation 2)
     confidence:  float   # 1 - δ_cp - δ_err
 
-    # derived — conformal path (Theorem 5.5)
+    # derived — conformal path (Theorem 5.1)
     rho_net_cp:  float   # ρ_net_cp = q̂_δ - ĉ_err
 
     # per-AP error budget breakdown (optional)
@@ -218,7 +219,7 @@ class TransferResult:
 
     def transfers_cp(self) -> bool:
         """
-        Conformal transfer (Theorem 5.5): ρ_net_cp > 0.
+        Conformal transfer (Theorem 5.1): ρ_net_cp > 0.
         With probability ≥ 1 - δ_cp - δ_err, a fresh environment rollout satisfies the spec.
         """
         return self.rho_net_cp > 0
