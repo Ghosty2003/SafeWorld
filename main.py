@@ -710,13 +710,19 @@ def verify_from_wrapper(
     # All trajectories tainted → INCONCLUSIVE_perception, skip STL computation.
     _SENTINEL = -999.0
     spec_aps  = set(required_keys)
+    # Default to _SENTINEL (not 0.0) for an AP key the wrapper never emits at
+    # all, not just one it emits as an explicit sentinel value. Before this
+    # fix, `if k in step` skipped entirely-absent keys, so a spec requiring an
+    # AP the wrapper never provides (e.g. human_distance for a wrapper with no
+    # human concept) silently computed STL robustness against a fabricated
+    # 0.0 instead of routing to INCONCLUSIVE_perception -- confirmed by trial:
+    # it produced a false WARRANT verdict for stl_human_proximity_response.
     tainted   = [
         i for i, traj in enumerate(trajectories)
         if any(
-            step.get(k, 0.0) == _SENTINEL
+            step.get(k, _SENTINEL) == _SENTINEL
             for step in traj
             for k in spec_aps
-            if k in step
         )
     ]
     if tainted:
@@ -733,12 +739,13 @@ def verify_from_wrapper(
                 margins=[0.0] * len(trajectories),
                 rho_star=0.0, witness_idx=0,
                 n_satisfied=0, n_rollouts=len(trajectories),
-                mean_margin=0.0,
+                mean_margin=0.0, std_margin=0.0,
             )
             dummy_transfer = TransferResult(
-                rho_net=0.0, rho_net_cp=0.0,
+                rho_star=0.0, rho_net=0.0, rho_net_cp=0.0,
                 q_hat=0.0, c_hat_err=vcfg.model_error_budget,
                 delta_cp=vcfg.delta_cp, delta_err=vcfg.delta_err,
+                confidence=0.0,
             )
             analysis = spec.get("analysis") or analyze_spec_structure(spec)
             return VerificationResult(
@@ -873,7 +880,7 @@ if __name__ == "__main__":
     parser.add_argument("--settings-config", default=None,
                         help="Path to a JSON runtime settings file")
     parser.add_argument("--model",   default="random",
-                        choices=["random", "dreamerv3", "cardreamer"],
+                        choices=["random", "dreamerv3", "cardreamer", "safedreamer"],
                         help="World model to use")
     parser.add_argument("--env-name", default=None,
                         help="Gymnasium environment name for env-backed wrappers")
@@ -920,6 +927,7 @@ if __name__ == "__main__":
         CarDreamerWrapper,
         DreamerV3Wrapper,
         RandomWorldModelWrapper,
+        SafeDreamerWrapper,
     )
 
     task_spec = load_task_spec(args.task_config) if args.task_config else None
@@ -978,6 +986,10 @@ if __name__ == "__main__":
         cfg_path = settings.get("model", {}).get("config_path")
         w = CarDreamerWrapper(roll_cfg, **wrapper_kwargs)
         w.load(checkpoint_path=ckpt, config_path=cfg_path)
+    elif args.model == "safedreamer":
+        ckpt = args.checkpoint or settings.get("model", {}).get("checkpoint_path")
+        w = SafeDreamerWrapper(roll_cfg)
+        w.load(checkpoint_path=ckpt)
     else:
         w = RandomWorldModelWrapper(roll_cfg)
         w.load()

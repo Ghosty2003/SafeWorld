@@ -1,0 +1,27 @@
+{
+  "description": "Template runtime settings for a SafeDreamer (OSRP-Vector) checkpoint.",
+  "model": {
+    "type": "safedreamer",
+    "checkpoint_path": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt"
+  },
+  "environment": {
+    "name": "safetygymcoor_SafetyPointGoal1-v0"
+  },
+  "rollout": {
+    "horizon": 50,
+    "n_rollouts": 20,
+    "action_source": "random",
+    "seed": 0,
+    "device": "cpu"
+  },
+  "verification": {
+    "auto_collect_paired_rollouts": false,
+    "model_error_budget": 0.08
+  },
+  "extra": {
+    "repo_root": "/home/sunyhg/Documents/SafeDreamer",
+    "method": "osrp_vector",
+    "task": "safetygymcoor_SafetyPointGoal1-v0",
+    "config_overrides": {"jax": {"platform": "cpu"}}
+  }
+}
