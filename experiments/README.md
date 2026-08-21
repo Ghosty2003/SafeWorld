@@ -20,14 +20,30 @@ core code). Either train your own following SafeDreamer's own instructions,
 or obtain a pretrained one separately. All numbers in this README came from
 `20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt`.
 
-**3. Build the conda env** with SafeDreamer's own dependencies:
+**3. Build the conda env** with SafeDreamer's own dependencies. The exact
+versions this session's results were produced with:
 ```bash
-conda create -n safedreamer python=3.10   # match whatever SafeDreamer's own docs specify
+conda create -n safedreamer python=3.8
 conda activate safedreamer
 pip install -r /path/to/SafeDreamer/requirements.txt
 ```
-(Follow SafeDreamer's own README for the exact/current recommended setup —
-not duplicated here to avoid drifting out of sync.)
+Key pinned versions (`pip freeze` from the working env — JAX in particular
+is very version-sensitive, so mismatches here are a likely source of
+non-reproduction even with the same checkpoint):
+```
+jax==0.3.25
+jaxlib==0.3.25+cuda11.cudnn82
+mujoco==2.3.3
+gymnasium==0.28.1
+gymnasium-robotics==1.2.2
+tensorflow==2.12.0
+tensorflow-probability==0.20.1
+numpy==1.23.5
+safety_gymnasium @ git+https://github.com/PKU-Alignment/safety-gymnasium.git@ae966e511b9927f06b39c727ca5c650136a4e696
+```
+(Follow SafeDreamer's own README for the current recommended setup if these
+versions become unavailable — not duplicated in full here to avoid drifting
+out of sync with upstream.)
 
 **4. Point this repo at your SafeDreamer clone and checkpoint** via env vars
 (defaults to `~/Documents/SafeDreamer` and the checkpoint path above if
