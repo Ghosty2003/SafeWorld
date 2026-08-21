@@ -7,14 +7,53 @@ while stress-testing it against a real SafeDreamer (PKU-Alignment)
 
 ## Setup
 
+**1. Get SafeDreamer itself** (this repo does not vendor it):
 ```bash
-conda activate safedreamer   # must have SafeDreamer's own deps (jax, ninjax, etc.)
+git clone https://github.com/PKU-Alignment/SafeDreamer.git
+```
+This wrapper was built and tested against the `osrp_vector` method on
+`SafetyPointGoal1-v0` specifically — other methods/tasks are untested and
+may need wrapper changes.
+
+**2. Get a checkpoint.** Not included in this repo (training artifact, not
+core code). Either train your own following SafeDreamer's own instructions,
+or obtain a pretrained one separately. All numbers in this README came from
+`20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt`.
+
+**3. Build the conda env** with SafeDreamer's own dependencies:
+```bash
+conda create -n safedreamer python=3.10   # match whatever SafeDreamer's own docs specify
+conda activate safedreamer
+pip install -r /path/to/SafeDreamer/requirements.txt
+```
+(Follow SafeDreamer's own README for the exact/current recommended setup —
+not duplicated here to avoid drifting out of sync.)
+
+**4. Point this repo at your SafeDreamer clone and checkpoint** via env vars
+(defaults to `~/Documents/SafeDreamer` and the checkpoint path above if
+unset — override for any other machine/layout):
+```bash
+export SAFEDREAMER_REPO_ROOT=/path/to/your/SafeDreamer
+export SAFEDREAMER_CHECKPOINT_PATH=/path/to/your/checkpoint.ckpt
 ```
 
 `wrappers/safedreamer_wrapper.py` expects a config dict (see `BASE_EXTRA` in
 `l1_pipeline.py`) with `repo_root`, `checkpoint_path`, `method`, `task`.
 CPU is forced via `config_overrides: {"jax": {"platform": "cpu"}}` — GPU
 (`ptxas`) failed in this environment; adjust if yours works.
+
+**Platform note**: JAX (SafeDreamer's core dependency) is officially
+supported on Linux/macOS only — Windows users should run this under WSL2
+rather than native Windows.
+
+**Before running anything**, read the module docstring and inline comments
+in `wrappers/safedreamer_wrapper.py` — it documents several non-obvious
+JAX/ninjax pitfalls hit while building this (e.g. `import SafeDreamer.ninjax`
+vs bare `import ninjax` being two different module objects with separate
+state, why `nj.jit()` is required over raw `jax.jit()`, and why CCEPlanner —
+not `task_behavior.ac.actor` — is what `osrp_vector` actually dispatches to
+at eval time). This README doesn't restate those; the wrapper's comments are
+the source of truth.
 
 ## Files
 

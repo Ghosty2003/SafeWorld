@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import sys
 import time
+from pathlib import Path
 
-sys.path.insert(0, "/home/sunyhg/Documents/SafeWorld")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from configs.settings import RolloutConfig
 from wrappers.safedreamer_wrapper import SafeDreamerWrapper

@@ -40,10 +40,12 @@ construction; this comment exists so nobody "simplifies" it back out.
 from __future__ import annotations
 
 import math
+import os
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 
-sys.path.insert(0, "/home/sunyhg/Documents/SafeWorld")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from configs.settings import RolloutConfig
 from wrappers.safedreamer_wrapper import SafeDreamerWrapper
@@ -51,11 +53,17 @@ from core.stl_monitor import monitor_rollouts
 from core.transfer_calibrator import fit_conformal_error_budget, calibrate_robustness_quantile
 from specs import get_spec_by_id
 
+# Both overridable via env vars so this repo is portable across machines --
+# see experiments/README.md for how to obtain SafeDreamer + a checkpoint.
+_DEFAULT_REPO_ROOT = str(Path.home() / "Documents" / "SafeDreamer")
+_DEFAULT_CHECKPOINT = str(
+    Path.home() / "Documents" / "SafeDreamer" / "checkpoint" /
+    "20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt"
+)
+
 BASE_EXTRA = {
-    "repo_root": "/home/sunyhg/Documents/SafeDreamer",
-    "checkpoint_path": "/home/sunyhg/Documents/SafeDreamer/checkpoint/"
-                        "20240307-010600_osrp_vector_safetygymcoor_"
-                        "SafetyPointGoal1-v0_0.ckpt",
+    "repo_root": os.environ.get("SAFEDREAMER_REPO_ROOT", _DEFAULT_REPO_ROOT),
+    "checkpoint_path": os.environ.get("SAFEDREAMER_CHECKPOINT_PATH", _DEFAULT_CHECKPOINT),
     "method": "osrp_vector",
     "task": "safetygymcoor_SafetyPointGoal1-v0",
     "action_source": "random",
