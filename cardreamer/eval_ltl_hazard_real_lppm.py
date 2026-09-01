@@ -44,6 +44,11 @@ from core.lppm.config import DEFAULT_LPPM_CONFIG
 from core.lppm.model import NeuralLPPM, infer_feature_keys
 from core.lppm.loss import p1_loss, p2_loss, smoothness_penalty
 from core.lppm.verifier import run_product_trajectory, verify_zfree_closure
+from core.safety_evidence import (
+    MODEL_VIOLATION,
+    collect_invariant_safety_witnesses,
+    decide_safety_verdict,
+)
 
 N_ROLLOUTS = 100
 HORIZON = 50
@@ -69,6 +74,27 @@ def main():
     w.load()
     trajectories = w.sample_rollouts(cfg)
     print(f"    got {len(trajectories)} trajectories x {len(trajectories[0])} steps")
+
+    # Formula-driven counterexample gate: this intentionally contains no
+    # hazard/AP-specific threshold.  A sampled L2 statistic must never turn an
+    # observed invariant breach into a safe-looking result.
+    model_witnesses = collect_invariant_safety_witnesses(
+        trajectories,
+        spec["formula"],
+        source="model",
+        spec_id=spec["id"],
+    )
+    evidence_verdict = decide_safety_verdict(model_witnesses=model_witnesses)
+    if evidence_verdict.verdict == MODEL_VIOLATION:
+        witness = evidence_verdict.witness
+        print(
+            f"\n[COUNTEREXAMPLE] {MODEL_VIOLATION}: rollout={witness.rollout_index} "
+            f"t={witness.time_index} AP={witness.ap_key} value={witness.observed_value} "
+            f"threshold={witness.threshold} witness_id={witness.witness_id}.\n"
+            "Stopping: fitting/calibrating V cannot override an observed model-side "
+            "violation of this invariant."
+        )
+        return
 
     # ── liveness check: does the REAL imagined data ever visit the odd/bad state? ──
     n_visit_trap = 0

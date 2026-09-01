@@ -113,10 +113,26 @@ class WorldModelWrapper(abc.ABC):
     ) -> list[tuple[list[dict[str, float]], list[dict[str, float]]]]:
         """
         Optional paired (model, environment) rollouts for transfer calibration.
+
+        Each pair must start from the same declared anchor and use the same
+        recorded action sequence.  A wrapper that can retain replay metadata
+        should expose it through ``paired_rollout_provenance()``; the generic
+        verifier records that metadata in any safety counterexample but never
+        interprets model-specific fields itself.
         """
         raise NotImplementedError(
             f"{type(self).__name__} does not implement paired environment rollouts."
         )
+
+    def paired_rollout_provenance(self) -> list[dict] | None:
+        """Optional one-per-pair replay metadata from the latest paired sample.
+
+        Typical entries contain an anchor/state identifier, the full action
+        sequence, policy/action-source identity, and seed.  Returning ``None``
+        is valid, but then a resulting witness cannot be replayed from this
+        generic interface alone.
+        """
+        return None
 
     def decode_and_replay(
         self,

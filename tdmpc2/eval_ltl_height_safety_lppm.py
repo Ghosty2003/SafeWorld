@@ -48,6 +48,13 @@ from core.lppm.trainer import fit_lppm
 from core.lppm.calibrator import calibrate_lppm
 from core.lppm.verifier import run_product_trajectory, verify_zfree_closure
 from core.stl_monitor import monitor_rollouts
+from core.transfer_calibrator import compute_atomic_distortion
+from core.safety_evidence import (
+    ENVIRONMENT_VIOLATION,
+    MODEL_VIOLATION,
+    collect_invariant_safety_witnesses,
+    decide_safety_verdict,
+)
 
 CKPT = "/home/bot/SafeWorld/models/walker-walk-3.pt"
 ANCHORS_NPZ = "/tmp/tdmpc2_anchors_with_physics_state.npz"
@@ -90,8 +97,74 @@ def main():
     N, T, _ = z_array.shape
     extractor = make_height_ap_extractor(probe)
     trajectories = [[extractor(z_array[i, t]) for t in range(T)] for i in range(N)]
-    w.close()
     print(f"    got {len(trajectories)} trajectories x {T} steps")
+
+    # Concrete invariant failures take precedence over certificate fitting.
+    # This is formula-driven rather than height-specific, so the same gate is
+    # usable by any spec evaluated through this script structure.
+    model_witnesses = collect_invariant_safety_witnesses(
+        trajectories,
+        ltl_spec["formula"],
+        source="model",
+        spec_id=ltl_spec["id"],
+        checkpoint_id=CKPT,
+        rollout_provenance=meta["provenance"],
+    )
+    evidence_verdict = decide_safety_verdict(model_witnesses=model_witnesses)
+    if evidence_verdict.verdict == MODEL_VIOLATION:
+        witness = evidence_verdict.witness
+        witness_index = witness.rollout_index
+
+        # Replay the exact recorded actions that generated this model-side
+        # witness, from the exact same saved physics anchor.  This callback is
+        # experiment-specific because real observation layouts are environment
+        # adapters; the replay and verdict mechanisms themselves remain generic.
+        def environment_ap_extractor(obs):
+            if hasattr(obs, "detach"):
+                obs = obs.detach().cpu().numpy()
+            return {"height": float(obs[14])}
+
+        env_trajectories = w.replay_recorded_actions_from_states(
+            physics_states[witness_index:witness_index + 1],
+            [meta["provenance"][witness_index]],
+            environment_ap_extractor=environment_ap_extractor,
+        )
+        environment_witnesses = collect_invariant_safety_witnesses(
+            env_trajectories,
+            ltl_spec["formula"],
+            source="environment",
+            spec_id=ltl_spec["id"],
+            checkpoint_id=CKPT,
+            rollout_provenance=[meta["provenance"][witness_index]],
+        )
+        paired_verdict = decide_safety_verdict(
+            model_witnesses=[witness],
+            environment_witnesses=environment_witnesses,
+        )
+        witness_ap_error = compute_atomic_distortion(
+            trajectories[witness_index], env_trajectories[0], ltl_spec["aps"],
+        )
+        print(
+            f"\n[COUNTEREXAMPLE] {MODEL_VIOLATION}: rollout={witness.rollout_index} "
+            f"t={witness.time_index} AP={witness.ap_key} value={witness.observed_value} "
+            f"threshold={witness.threshold} witness_id={witness.witness_id}."
+        )
+        print(
+            f"[PAIRED REPLAY] max_abs_AP_error={witness_ap_error:.6f}; "
+            f"environment_min_height={min(step['height'] for step in env_trajectories[0]):.6f}; "
+            f"verdict={paired_verdict.verdict}."
+        )
+        if paired_verdict.verdict == ENVIRONMENT_VIOLATION:
+            print("Stopping: the identical action sequence also violates the real environment.")
+        else:
+            print(
+                "Stopping: the real replay did not violate this finite prefix, so this is a "
+                "model-side false positive for the replayed witness—not a safety guarantee."
+            )
+        w.close()
+        return
+
+    w.close()
 
     # ── liveness check: does the imagined data ever visit the trap state? ────
     n_visit_trap = 0

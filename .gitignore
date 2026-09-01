@@ -5,5 +5,8 @@ __pycache__/
 *.npz
 VERIFICATION_CARDREAMER.md
 verified_checkpoints/
+*.pt
+*.pth
+*.ckpt
 *.log
 .DS_Store

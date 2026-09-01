@@ -56,6 +56,7 @@ from __future__ import annotations
 import logging
 import os
 import warnings
+import hashlib
 from typing import Any, Callable, Literal
 
 import numpy as np
@@ -65,7 +66,7 @@ from .base import WorldModelWrapper
 
 logger = logging.getLogger(__name__)
 
-TDMPC2_SRC_DEFAULT = "/tmp/claude-1000/-home-bot-SafeWorld/e841d332-2bd3-48b3-932f-f67fc6de35a2/scratchpad/tdmpc2_src/tdmpc2"
+TDMPC2_SRC_DEFAULT = os.environ.get("TDMPC2_SRC", "/tmp/tdmpc2_src/tdmpc2")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -181,6 +182,14 @@ class TDMPC2Wrapper(WorldModelWrapper):
 
         # Public: raw (N, T, D) latent array from the last sample_latent_rollouts() call.
         self.last_z_array: np.ndarray | None = None
+        # Exact-anchor imagination provenance.  Unlike paired provenance this
+        # exists even before a real replay, so a model-side witness can later
+        # be replayed with the *identical* action sequence that produced it.
+        self.last_latent_rollout_provenance: list[dict[str, Any]] = []
+        # Replay metadata from the latest exact-anchor paired collection.  It
+        # is kept separate from AP trajectories so callers can give it to the
+        # generic safety-evidence layer without polluting spec AP dictionaries.
+        self.last_paired_rollout_provenance: list[dict[str, Any]] = []
 
     # ── WorldModelWrapper interface ───────────────────────────────────────────
 
@@ -256,6 +265,14 @@ class TDMPC2Wrapper(WorldModelWrapper):
     def ap_keys(self) -> list[str]:
         return list(self._ap_keys)
 
+    def paired_rollout_provenance(self) -> list[dict] | None:
+        """Return replay metadata from sample_paired_rollouts_from_states()."""
+        return list(self.last_paired_rollout_provenance) or None
+
+    def latent_rollout_provenance(self) -> list[dict] | None:
+        """Return exact-action provenance from the latest anchor imagination."""
+        return list(self.last_latent_rollout_provenance) or None
+
     # ── Latent primitives (the wrapper's actual responsibility) ──────────────
 
     def encode(self, obs):
@@ -307,20 +324,39 @@ class TDMPC2Wrapper(WorldModelWrapper):
             return self.pi_prior_action(z)
         raise ValueError(f"Unknown action_source: {action_source!r}")
 
+    def _imagine_with_actions_from_obs(
+        self,
+        obs,
+        action_source: str,
+        horizon: int,
+    ) -> tuple[np.ndarray, list[np.ndarray]]:
+        """Imagine a latent trace and retain the exact actions that generated it.
+
+        Keeping actions is not an AP/spec concern.  It is necessary provenance
+        for any later replay against the real environment, regardless of
+        whether the active specification concerns height, hazards, speed, or a
+        future AP entirely.
+        """
+        import torch
+        with torch.no_grad():
+            z = self.encode(obs)
+            z_seq = []
+            action_seq: list[np.ndarray] = []
+            for step_idx in range(horizon):
+                a = self._select_action(z, step_idx, action_source)
+                # Store an unbatched CPU action, exactly as passed to env.step.
+                action_seq.append(a[0].detach().cpu().numpy().copy())
+                z = self.next(z, a)
+                z_seq.append(z[0].cpu().numpy())
+        return np.stack(z_seq), action_seq
+
     def _imagine_from_obs(self, obs, action_source: str, horizon: int) -> np.ndarray:
         """Encode obs -> anchor z, then imagine `horizon` steps forward (t=1..T).
         Shared by both anchor-sourcing strategies (burn_in and physics-state)
         so the imagination loop itself -- including t0 handling -- has one
         implementation, not two independently-maintained copies."""
-        import torch
-        with torch.no_grad():
-            z = self.encode(obs)
-            z_seq = []
-            for step_idx in range(horizon):
-                a = self._select_action(z, step_idx, action_source)
-                z = self.next(z, a)
-                z_seq.append(z[0].cpu().numpy())
-        return np.stack(z_seq)
+        z_seq, _ = self._imagine_with_actions_from_obs(obs, action_source, horizon)
+        return z_seq
 
     # ── Rollout sampling ──────────────────────────────────────────────────────
 
@@ -479,14 +515,179 @@ class TDMPC2Wrapper(WorldModelWrapper):
             physics_states = np.load(physics_states)["physics_state"]
 
         z_rollouts = []
-        for i in range(len(physics_states)):
-            obs = self._obs_from_physics_state(physics_states[i])
-            z_rollouts.append(self._imagine_from_obs(obs, action_source, horizon))
+        provenance: list[dict[str, Any]] = []
+        for i, state in enumerate(physics_states):
+            obs = self._obs_from_physics_state(state)
+            z_seq, actions = self._imagine_with_actions_from_obs(obs, action_source, horizon)
+            z_rollouts.append(z_seq)
+            provenance.append({
+                "anchor_id": hashlib.sha256(np.ascontiguousarray(state).tobytes()).hexdigest(),
+                "actions": [action.tolist() for action in actions],
+                "action_source": action_source,
+                "horizon": horizon,
+                "rollout_index": i,
+                "replay_mode": "model_closed_loop_actions__pending_environment_replay",
+            })
 
         z_array = np.stack(z_rollouts)  # (N, horizon, D)
         self.last_z_array = z_array
-        meta = {"action_source": action_source, "n_anchors": len(physics_states)}
+        self.last_latent_rollout_provenance = provenance
+        meta = {
+            "action_source": action_source,
+            "n_anchors": len(physics_states),
+            "provenance": provenance,
+        }
         return z_array, meta
+
+    def replay_recorded_actions_from_states(
+        self,
+        physics_states: np.ndarray | str,
+        rollout_provenance: list[dict[str, Any]],
+        *,
+        environment_ap_extractor: Callable[[Any], dict[str, float]],
+    ) -> list[list[dict[str, float]]]:
+        """Replay previously recorded model actions from their exact anchors.
+
+        This is the forensic counterpart to
+        :meth:`sample_latent_rollouts_from_states`: it never replans and never
+        samples fresh actions.  Consequently an environment verdict refers to
+        the same model rollout that generated the original witness.  AP
+        extraction is an explicit callback, leaving all AP/spec semantics out
+        of the world-model adapter.
+        """
+        if self._agent is None or self._physics is None:
+            raise RuntimeError("Call load() with physics-state access before replaying actions.")
+        if isinstance(physics_states, str):
+            physics_states = np.load(physics_states)["physics_state"]
+        if len(physics_states) != len(rollout_provenance):
+            raise ValueError(
+                "physics_states and rollout_provenance must have one matching entry per replay."
+            )
+
+        import torch
+
+        env_trajectories: list[list[dict[str, float]]] = []
+        for rollout_index, (state, provenance) in enumerate(zip(physics_states, rollout_provenance)):
+            if "actions" not in provenance:
+                raise ValueError(
+                    f"Replay provenance for rollout {rollout_index} has no recorded actions."
+                )
+            expected_anchor = hashlib.sha256(np.ascontiguousarray(state).tobytes()).hexdigest()
+            if provenance.get("anchor_id") not in (None, expected_anchor):
+                raise ValueError(
+                    f"Replay provenance anchor_id does not match physics state for rollout {rollout_index}."
+                )
+            env_obs = self._obs_from_physics_state(state)
+            env_traj: list[dict[str, float]] = []
+            actions = provenance["actions"]
+            for t, action in enumerate(actions):
+                action_array = np.asarray(action, dtype=np.float32)
+                env_obs, _, done, _ = self._env.step(torch.from_numpy(action_array))
+                env_traj.append(dict(environment_ap_extractor(env_obs)))
+                if done and t + 1 < len(actions):
+                    raise RuntimeError(
+                        f"Replay rollout {rollout_index} terminated at t={t} before its "
+                        "recorded action sequence ended. Define explicit terminal AP semantics "
+                        "before treating this partial trace as transfer/L2 evidence."
+                    )
+            env_trajectories.append(env_traj)
+        return env_trajectories
+
+    def sample_paired_rollouts_from_states(
+        self,
+        physics_states: np.ndarray | str,
+        *,
+        action_source: Literal["mpc_plan", "pi_prior"],
+        horizon: int,
+        model_ap_extractor: Callable[[np.ndarray], dict[str, float]] | None = None,
+        environment_ap_extractor: Callable[[Any], dict[str, float]] | None = None,
+    ) -> tuple[list[tuple[list[dict[str, float]], list[dict[str, float]]]], list[dict[str, Any]]]:
+        """Pair model imagination with exact environment replay from real anchors.
+
+        Each pair begins from the same saved physics state.  The model first
+        produces a closed-loop-in-latent action sequence; those *recorded*
+        actions are then replayed open-loop in the real environment.  This is
+        intentionally not presented as a closed-loop environment deployment:
+        it measures model-to-environment AP disagreement for a fixed action
+        sequence.  The returned provenance makes that scope and every action
+        hash auditable by :mod:`core.safety_evidence`.
+
+        AP extraction remains fully caller supplied.  In particular, a latent
+        probe and a real-observation extractor are separate arguments because
+        they need not (and usually should not) share an input representation.
+        No property name, threshold, or spec identifier is hardcoded here.
+
+        Returns
+        -------
+        pairs, provenance
+            ``pairs`` is compatible with ``VerifyConfig.paired_rollouts``.
+            ``provenance[i]`` contains the exact anchor hash, full action list,
+            source/action mode, and horizon for the corresponding pair.  Pass
+            this list to both VerifyConfig provenance fields when producing
+            safety witnesses from these pairs.
+        """
+        if self._agent is None:
+            raise RuntimeError("Call load() before sample_paired_rollouts_from_states().")
+        if self._physics is None:
+            raise RuntimeError(
+                "Exact paired replay requires dm_control physics-state access; "
+                "this wrapper could not resolve it during load()."
+            )
+        if isinstance(physics_states, str):
+            physics_states = np.load(physics_states)["physics_state"]
+        model_extractor = model_ap_extractor or self._ap_extractor
+        if model_extractor is None:
+            raise RuntimeError(
+                "model_ap_extractor is required unless set_ap_extractor() was called."
+            )
+        if environment_ap_extractor is None:
+            raise ValueError(
+                "environment_ap_extractor is required: real observations and model latents "
+                "have different representations, so silently reusing a latent AP probe is unsafe."
+            )
+
+        import torch
+
+        pairs: list[tuple[list[dict[str, float]], list[dict[str, float]]]] = []
+        provenance: list[dict[str, Any]] = []
+        z_rollouts: list[np.ndarray] = []
+        for rollout_index, state in enumerate(np.asarray(physics_states)):
+            anchor_obs = self._obs_from_physics_state(state)
+            z_seq, actions = self._imagine_with_actions_from_obs(
+                anchor_obs, action_source, horizon,
+            )
+            model_traj = [dict(model_extractor(z_seq[t])) for t in range(horizon)]
+
+            # Restore again after imagination: model planning mutates planner
+            # warm-start state, but must not move real physics before the exact
+            # fixed-action replay begins.
+            env_obs = self._obs_from_physics_state(state)
+            env_traj: list[dict[str, float]] = []
+            for t, action in enumerate(actions):
+                env_obs, _, done, _ = self._env.step(torch.from_numpy(action))
+                env_traj.append(dict(environment_ap_extractor(env_obs)))
+                if done and t + 1 < horizon:
+                    raise RuntimeError(
+                        f"Paired replay rollout {rollout_index} terminated at t={t} before "
+                        f"the requested horizon={horizon}. Define explicit terminal-state AP "
+                        "semantics before using this partial trace for transfer/L2 evidence."
+                    )
+
+            anchor_id = hashlib.sha256(np.ascontiguousarray(state).tobytes()).hexdigest()
+            provenance.append({
+                "anchor_id": anchor_id,
+                "actions": [action.tolist() for action in actions],
+                "action_source": action_source,
+                "horizon": horizon,
+                "rollout_index": rollout_index,
+                "replay_mode": "model_closed_loop_actions__environment_open_loop_replay",
+            })
+            pairs.append((model_traj, env_traj))
+            z_rollouts.append(z_seq)
+
+        self.last_z_array = np.stack(z_rollouts) if z_rollouts else None
+        self.last_paired_rollout_provenance = provenance
+        return pairs, provenance
 
     def sample_rollouts(
         self,
