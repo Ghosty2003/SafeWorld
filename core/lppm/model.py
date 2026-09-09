@@ -43,6 +43,22 @@ if nn is not None:
             return F.softplus(self.head(hidden))
 
 
+def _nonneg(value: float) -> float:
+    """
+    Batch-4 audit fix: several heuristic-fallback branches below subtract an
+    unclamped z-feature value (progress/zone_val/margin) from a small
+    constant -- only the lower end of that feature was ever clamped (via the
+    per-branch max(0.0, ...) on the raw AP reading), not the resulting V
+    itself, so a large raw feature value could still drive the whole
+    expression negative. V is meant to be a nonnegative certificate value:
+    both Z_free = {(z,q): V_phi(z,q) < eta} and the P2 descent check assume
+    V >= 0. Clamp explicitly at every heuristic branch's return point,
+    rather than relying on each branch's arithmetic happening to stay
+    nonnegative on its own.
+    """
+    return max(0.0, value)
+
+
 def compute_lppm_value(
     z: dict[str, float],
     q: str,
@@ -69,14 +85,31 @@ def compute_lppm_value(
         if q == "trap":
             return 0.0
         safety_margin = min((z.get(ap, 0.0) for ap in objectives["safety"]), default=0.0)
-        return rem * (1.0 + max(0.0, safety_margin))
+        return _nonneg(rem * (1.0 + max(0.0, safety_margin)))
 
     if mp == "Guarantee":
+        # External-review fix: this branch previously read ONLY
+        # meta["remaining_goals"] (objectives["guarantee"]'s UNORDERED
+        # plain-goal bucket) -- for a state built from the
+        # guarantee_sequences (ordered F(A and F(B and F(C...)))) branch of
+        # core/lppm/automaton.py, remaining_goals is the empty list for
+        # EVERY state whenever the spec has no plain unordered goals at all
+        # (e.g. ltl_sequential_goals, ltl_three_stage), so V collapsed to
+        # the unconditional 0.0 branch everywhere -- completely blind to
+        # sequence_progress, the field that actually tracks how far a
+        # purely-sequential spec has advanced.
         remaining = meta.get("remaining_goals", objectives["guarantee"])
-        if not remaining:
+        sequences = objectives.get("guarantee_sequences", [])
+        seq_progress = meta.get("sequence_progress")
+        seq_remaining = (
+            sum(len(seq) - p for seq, p in zip(sequences, seq_progress))
+            if seq_progress is not None else 0
+        )
+        total_remaining = len(remaining) + seq_remaining
+        if total_remaining == 0:
             return 0.0
         progress = max((z.get(ap, 0.0) for ap in objectives["guarantee"]), default=0.0)
-        return rem * (1.0 + len(remaining) - max(0.0, progress))
+        return _nonneg(rem * (1.0 + total_remaining - max(0.0, progress)))
 
     if mp == "Obligation":
         if q == "trap":
@@ -86,20 +119,20 @@ def compute_lppm_value(
             return rem * 0.1
         safety_margin = min((z.get(ap, 0.0) for ap in objectives["safety"]), default=0.0)
         progress = max((z.get(ap, 0.0) for ap in objectives["guarantee"]), default=0.0)
-        return rem * (1.0 + len(remaining) - progress + max(0.0, safety_margin))
+        return _nonneg(rem * (1.0 + len(remaining) - progress + max(0.0, safety_margin)))
 
     if mp == "Recurrence":
         remaining = meta.get("remaining_recur", objectives["recurrence"])
         if not remaining:
             return rem * 0.25
         zone_val = max((z.get(ap, 0.0) for ap in objectives["recurrence"]), default=0.0)
-        return rem * (1.0 + len(remaining) - zone_val)
+        return _nonneg(rem * (1.0 + len(remaining) - zone_val))
 
     if mp == "Persistence":
         if q == "absorbed":
             return 0.0
         stability = min((z.get(ap, 0.0) for ap in objectives["persistence"]), default=0.0)
-        return rem * (1.0 + max(0.0, stability))
+        return _nonneg(rem * (1.0 + max(0.0, stability)))
 
     if mp in {"Reactivity", "Streett"}:
         if q == "trap":
@@ -113,7 +146,7 @@ def compute_lppm_value(
         margin = 0.0
         for item in objectives["responses"]:
             margin += max(0.0, z.get(item["response"], 0.0)) - max(0.0, z.get(item["trigger"], 0.0))
-        return rem * (1.0 + len(pending) - margin)
+        return _nonneg(rem * (1.0 + len(pending) - margin))
 
     return rem
 

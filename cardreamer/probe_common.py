@@ -34,7 +34,9 @@ GOAL_PROBE_DATA = "/tmp/goal_probe_data"
 ROUNDABOUT_CKPT = "/home/bot/CarDreamer/logdir/carla_roundabout/checkpoint.ckpt"
 # frozen verified snapshot (training overwrites the logdir checkpoint):
 ROUNDABOUT_CKPT_FROZEN = \
-    "/home/bot/SafeWorld/verified_checkpoints/carla_roundabout_20260713.ckpt"
+    "/home/bot/SafeWorld/verified_checkpoints/carla_roundabout_20260713/checkpoint.ckpt"
+ROUNDABOUT_CONFIG_FROZEN = \
+    "/home/bot/CarDreamer/logdir/carla_roundabout/config_20260713-225614.yaml"
 
 
 # ── probe data / fitting ──────────────────────────────────────────────────────

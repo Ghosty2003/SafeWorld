@@ -1,5 +1,9 @@
 # SAFEWORLD V2
 
+For the consolidated implementation status, empirical results, paper-alignment
+gaps, artifact inventory, and reproduction commands, see
+[`CURRENT_PROJECT_STATUS.md`](CURRENT_PROJECT_STATUS.md).
+
 SAFEWORLD V2 uses three configuration layers:
 
 | Layer | Location | Purpose |

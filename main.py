@@ -46,6 +46,7 @@ from core.lppm import (
     build_parity_automaton,
     calibrate_lppm,
     fit_lppm,
+    DEFAULT_LPPM_CONFIG,
     LPPMResult,
 )
 from core.cegar import (
@@ -60,7 +61,17 @@ from core.cegar import (
     derive_predicates_from_spec,
 )
 from core.soft_buchi import SoftBuchiResult, run_soft_buchi
-from utils.spec_analysis import analyze_spec_structure
+from core.safety_evidence import (
+    ENVIRONMENT_VIOLATION,
+    INCONCLUSIVE as SAFETY_INCONCLUSIVE,
+    L2_CALIBRATED_MODEL_SCOPE,
+    MODEL_VIOLATION,
+    SafetyVerdict,
+    SafetyWitness,
+    collect_invariant_safety_witnesses,
+    decide_safety_verdict,
+)
+from utils.spec_analysis import UNCLASSIFIED_MP_CLASS, analyze_spec_structure, SUPPORT_DEDUCTIVE
 from utils.task_parser import apply_confidence_profile, evaluate_predicates, load_task_spec
 
 logger = logging.getLogger(__name__)
@@ -77,10 +88,14 @@ class VerifyConfig:
 
     # Transfer Calibrator
     delta_cp:       float = 0.05
-    """Conformal coverage failure prob for model-side robustness bound (Theorem D.4)."""
+    """Conformal coverage failure prob for model-side robustness bound (Theorem D.4).
+    TODO: unverified against current paper draft (not covered by the Theorem-5.5
+    citation audit; distinct numbering, appendix theorem -- confirm before citing)."""
 
     delta_err:      float = 0.05
-    """Conformal coverage failure prob for model-error budget (Corollary 5.2)."""
+    """Conformal coverage failure prob for model-error budget (Corollary 5.2).
+    TODO: unverified against current paper draft -- confirm this corollary number
+    still matches before citing (see Theorem-5.5 citation audit)."""
 
     model_error_budget: float = 0.08
     """
@@ -97,9 +112,9 @@ class VerifyConfig:
 
     # LPPM Certificate
     gamma:          float = 0.05
-    """Binary-indicator calibration failure probability for LPPM (Theorem 5.5)."""
+    """Binary-indicator calibration failure probability for LPPM (Theorem 5.4)."""
 
-    eta:            float = 0.01
+    eta:            float = DEFAULT_LPPM_CONFIG.eta
     """Strict descent margin η for LPPM (P2) condition."""
 
     warrant_threshold: float = 0.80
@@ -113,6 +128,16 @@ class VerifyConfig:
 
     lppm_epochs:    int = 300
     """Number of training epochs for fit_lppm (if fit_lppm_params=True)."""
+
+    lppm_train_trajectories: list[list[dict[str, float]]] | None = None
+    """
+    REQUIRED when fit_lppm_params=True: a disjoint TRAINING split for
+    fit_lppm(). verify()'s `trajectories` argument is used as the
+    CALIBRATION split -- previously (see EXPERIMENT_CONFIG.md §8.12) this
+    branch silently reused `trajectories` for both roles, guaranteeing 100%
+    overlap; that is no longer possible even accidentally, since fit_lppm()/
+    calibrate_lppm() now raise on detected overlap by default.
+    """
 
     # Method selection (Algorithm 1)
     method: str = "stl"
@@ -151,6 +176,15 @@ class VerifyConfig:
     auto_collect_paired_rollouts: bool = False
     """If True, ask the wrapper for paired model/environment rollouts when available."""
 
+    checkpoint_id: str | None = None
+    """Optional immutable checkpoint identifier recorded in any safety witness."""
+
+    model_rollout_provenance: list[dict] | None = None
+    """Optional per-model-rollout replay metadata (actions, anchor IDs, seed, etc.)."""
+
+    environment_rollout_provenance: list[dict] | None = None
+    """Optional per-environment-rollout replay metadata for paired evidence."""
+
 
 # ─── Verdict enum ─────────────────────────────────────────────────────────────
 
@@ -169,7 +203,9 @@ class VerificationResult:
     Complete output of the SAFEWORLD verification pipeline (Algorithm 1).
 
     Verdict logic:
-        WARRANT    – transfer guarantee holds (strict or conformal) AND p̂_γ ≥ threshold
+        WARRANT    – transfer guarantee holds (strict or conformal), a trained
+                     LPPM has p̂_γ ≥ threshold, and its observed Z_free-closure
+                     diagnostic also meets the threshold
         STL_MARGIN – ρ* > 0 but no transfer guarantee (ρ_net ≤ 0 and ρ_net_cp ≤ 0)
         VIOLATION  – ρ* < 0  (witnessing rollout available)
 
@@ -177,7 +213,7 @@ class VerificationResult:
         "strict"    – ρ_net > 0: all N rollouts satisfied spec with margin > ĉ_err.
                       Confidence ≥ 1 - δ_err.
         "conformal" – ρ_net_cp > 0: (1-δ_cp) fraction satisfied with margin > ĉ_err.
-                      Confidence ≥ 1 - δ_cp - δ_err  (Theorem 5.5).
+                      Confidence ≥ 1 - δ_cp - δ_err  (Theorem 5.1).
         "none"      – no transfer guarantee achieved.
     """
 
@@ -201,6 +237,12 @@ class VerificationResult:
     verification_mode: str = ""
     support_level: str = ""
     support_note: str = ""
+    # Whether the LTL->parity automaton translation was exact (Spot) or template-
+    # based -- a property of the AUTOMATON, independent of support_level (which
+    # describes the CERTIFICATE's guarantee strength). Never conflate the two:
+    # exact translation says nothing about whether (P1)-(P2) were verified
+    # support-wide (see the assertion in verify() Step 3).
+    automaton_translation: str = ""
     wall_time:  float = 0.0   # seconds
 
     # Which guarantee path produced the WARRANT/STL_MARGIN verdict
@@ -220,6 +262,17 @@ class VerificationResult:
 
     # Witness trajectory (only when VIOLATION)
     witness_trajectory: list[dict] | None = None
+
+    # ── Counterexample-first safety evidence ─────────────────────────────────
+    # This deliberately does not replace the historical UI verdict above.  The
+    # latter is used by existing CLI and benchmark consumers; this field is the
+    # unambiguous safety conclusion whose precedence is shared by every model
+    # adapter (core/safety_evidence.py).
+    safety_verdict: SafetyVerdict = field(default_factory=lambda: SafetyVerdict(
+        SAFETY_INCONCLUSIVE,
+        "No counterexample/certificate evidence was attached to this result.",
+    ))
+    safety_witnesses: list[SafetyWitness] = field(default_factory=list)
 
     # ── convenience properties ────────────────────────────────────────────────
 
@@ -248,7 +301,18 @@ class VerificationResult:
         return self.transfer.c_hat_err
 
     def is_safe(self) -> bool:
-        return self.verdict in (WARRANT, STL_MARGIN)
+        """True only for a support-wide deductive safety proof.
+
+        ``STL_MARGIN`` and sampled L2 calibration are useful evidence, but
+        neither is an infinite-horizon environment proof.  Keeping that
+        distinction here prevents callers from silently treating a missing
+        counterexample as a proof of safety.
+        """
+        return self.safety_verdict.is_deductively_safe
+
+    def is_model_scope_warranted(self) -> bool:
+        """Whether held-out L2 evidence met its configured model-scope criterion."""
+        return self.safety_verdict.verdict == L2_CALIBRATED_MODEL_SCOPE
 
     def summary(self) -> str:
         lines = [
@@ -256,35 +320,64 @@ class VerificationResult:
             f" SAFEWORLD Verification: {self.spec_name} (Level {self.level}, {self.mp_class})",
             f"{'─'*60}",
             f" Verdict:        {self.verdict}",
+            f" Safety verdict: {self.safety_verdict.verdict}",
+            f" Safety reason:  {self.safety_verdict.reason}",
             f" Guarantee:      {self.guarantee_type}",
             f" Confidence:     {self.confidence:.3f}",
             f" Task level:     {self.task_level or 'n/a'}",
             f" Mode:           {self.verification_mode or 'n/a'}",
             f" Support:        {self.support_level or 'n/a'}",
+            f" Automaton:      {self.automaton_translation or 'n/a'}  "
+            f"(independent of Support -- exact translation of phi, not certificate soundness)",
             f" ρ* (worst-case margin):  {self.rho_star:+.4f}",
             f" q̂_δ (CP quantile):       {self.q_hat:+.4f}",
             f" ĉ_err (model error):      {self.c_hat_err:.4f}",
             f" ρ_net = ρ* - ĉ_err:       {self.rho_net:+.4f}  [strict]",
-            f" ρ_net_cp = q̂_δ - ĉ_err:  {self.rho_net_cp:+.4f}  [conformal, Theorem 5.5]",
+            f" ρ_net_cp = q̂_δ - ĉ_err:  {self.rho_net_cp:+.4f}  [conformal, Theorem 5.1]",
         ]
         if self.lppm:
             lines += [
                 f" p̂_γ (LPPM warrant):      {self.p_hat:.3f}",
                 f" avg descent margin η:    {self.lppm.avg_descent_margin:.4f}",
             ]
+            # External-review fix: surface Theorem 5.4's exact minimal-premise
+            # diagnostic in the final report -- previously computed (if at
+            # all) with no visible path into what a caller actually reads.
+            zc = self.lppm.zfree_closure
+            if zc is not None:
+                if zc.verifiable:
+                    lines.append(
+                        f" p̂_closure (Z_free minimal premise): {zc.p_hat_closure:.3f}  "
+                        f"(n={zc.n_zfree}, k={zc.k_zfree}; separate from p̂_γ above)"
+                    )
+                else:
+                    lines.append(
+                        " p̂_closure (Z_free minimal premise): UNVERIFIABLE "
+                        "(no trajectory ever entered Z_free)"
+                    )
         lines += [
             f" Note:                    {self.support_note}",
             f" Wall time:               {self.wall_time:.2f}s",
             f"{'─'*60}",
         ]
         if self.cegar_result:
+            coverage_note = ("" if self.cegar_result.verdict != CEGAR_SAFE
+                              else "  [reachable-cell coverage NOT verified]"
+                              if not self.cegar_result.coverage_verified else "")
             lines.append(f" CEGAR: {self.cegar_result.verdict}  "
                          f"({self.cegar_result.iterations} iter, "
-                         f"{len(self.cegar_result.predicates)} predicates)")
+                         f"{len(self.cegar_result.predicates)} predicates)"
+                         f"{coverage_note}")
         if self.soft_buchi_result:
             lines.append(f" Soft Büchi: a*={self.soft_buchi_result.acceptance_score:.4f}  "
                          f"ε={self.soft_buchi_result.epsilon:.2f}")
-        if self.verdict == VIOLATION:
+        if self.safety_verdict.witness is not None:
+            witness = self.safety_verdict.witness
+            lines.append(
+                f" ⚠ Safety witness: source={witness.source} rollout={witness.rollout_index} "
+                f"t={witness.time_index} id={witness.witness_id[:12]}"
+            )
+        elif self.verdict == VIOLATION:
             lines.append(f" ⚠ Witness rollout index: {self.monitor.witness_idx}")
         return "\n".join(lines)
 
@@ -358,6 +451,36 @@ def verify(
     spec_id  = spec.get("id", "")
     mp_class = analysis["mp_class"]
 
+    # ─── Counterexample-first invariant evidence ────────────────────────────
+    # This is intentionally computed before selecting an L2/STL/CEGAR method.
+    # A concrete violation of an unconditional G-clause is evidence about the
+    # sampled trace, not an optimization result, so a later p_hat/loss/CEGAR
+    # branch must never overwrite it.  The helper is formula-structural: it
+    # finds every unconditional ``always`` clause (including G p inside an
+    # Obligation) without any spec-id or wrapper-name special case.
+    model_witnesses = collect_invariant_safety_witnesses(
+        trajectories,
+        formula,
+        source="model",
+        spec_id=spec_id,
+        checkpoint_id=cfg.checkpoint_id,
+        rollout_provenance=cfg.model_rollout_provenance,
+    )
+    environment_witnesses: list[SafetyWitness] = []
+    if cfg.paired_rollouts:
+        environment_witnesses = collect_invariant_safety_witnesses(
+            [env_traj for _, env_traj in cfg.paired_rollouts],
+            formula,
+            source="environment",
+            spec_id=spec_id,
+            checkpoint_id=cfg.checkpoint_id,
+            rollout_provenance=cfg.environment_rollout_provenance,
+        )
+    safety_verdict = decide_safety_verdict(
+        model_witnesses=model_witnesses,
+        environment_witnesses=environment_witnesses,
+    )
+
     if cfg.verbose:
         print(f"\n[SAFEWORLD] Verifying '{spec.get('name', spec_id)}' "
               f"(Level {spec.get('level',0)}, {mp_class})")
@@ -404,10 +527,54 @@ def verify(
     # (CEGAR/ONESHOT/SOFT_BUCHI have their own violation semantics).
     method = (cfg.method or "stl").lower()
 
-    # ─── Early exit: VIOLATION — STL method only (Algorithm 1, line 4) ───────
-    if monitor_res.rho_star < 0 and method == "stl":
+    # ─── Early exit: concrete invariant counterexample ──────────────────────
+    # Equality is a violation for a strict AP comparison (x > c / x < c),
+    # while the old ρ* < 0 condition would let it slip through as a neutral
+    # boundary.  This return intentionally applies to *every* method: CEGAR,
+    # soft Büchi, or a high sampled p_hat cannot reverse an observed witness.
+    if safety_verdict.verdict in (MODEL_VIOLATION, ENVIRONMENT_VIOLATION):
         if cfg.verbose:
-            print(f"  → VIOLATION (ρ*<0, witness rollout #{monitor_res.witness_idx})")
+            witness = safety_verdict.witness
+            print(
+                f"  → {safety_verdict.verdict} "
+                f"(witness rollout #{witness.rollout_index}, t={witness.time_index})"
+            )
+        return VerificationResult(
+            verdict=VIOLATION,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=analysis["verification_mode"],
+            support_level=analysis["support_level"],
+            support_note=analysis["support_note"],
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+            witness_trajectory=(
+                trajectories[safety_verdict.witness.rollout_index]
+                if safety_verdict.witness is not None and safety_verdict.witness.source == "model"
+                else None
+            ),
+            safety_verdict=safety_verdict,
+            safety_witnesses=[*environment_witnesses, *model_witnesses],
+        )
+
+    # Retain the historical finite-trace monitor exit for non-invariant
+    # formula failures (e.g. an unmet bounded goal).  It remains a model-side
+    # violation, but is not manufactured as an invariant SafetyWitness.
+    if monitor_res.rho_star < 0 and method == "stl":
+        monitor_safety_verdict = SafetyVerdict(
+            MODEL_VIOLATION,
+            "The finite model trace violates the monitored formula; no invariant-step "
+            "witness could be localised for this temporal clause.",
+        )
+        if cfg.verbose:
+            print(f"  → {MODEL_VIOLATION} (ρ*<0, witness rollout #{monitor_res.witness_idx})")
         return VerificationResult(
             verdict=VIOLATION,
             monitor=monitor_res,
@@ -425,6 +592,8 @@ def verify(
             guarantee_type="none",
             confidence=0.0,
             witness_trajectory=trajectories[monitor_res.witness_idx],
+            safety_verdict=monitor_safety_verdict,
+            safety_witnesses=[*environment_witnesses, *model_witnesses],
         )
 
     # ── CEGAR path ────────────────────────────────────────────────────────────
@@ -533,7 +702,7 @@ def verify(
             verdict        = WARRANT
             guarantee_type = "strict"
             confidence     = transfer_res.effective_confidence()
-        # Conformal path (Theorem 5.5): (1-δ_cp) fraction satisfied with margin > ĉ_err
+        # Conformal path (Theorem 5.1): (1-δ_cp) fraction satisfied with margin > ĉ_err
         elif transfer_res.transfers_cp():
             verdict        = WARRANT
             guarantee_type = "conformal"
@@ -563,39 +732,149 @@ def verify(
             confidence=confidence,
         )
 
-    # ─── Step 3: LPPM Certificate (Section 4.3, Theorem 5.5) ─────────────────
+    # ─── Step 3: LPPM Certificate (Section 4.3, Theorem 5.4) ─────────────────
+    # Batch-2 L2 audit fix (Option B): refuse to route an unclassified spec
+    # into the co-Büchi pipeline. analyze_spec_structure() sets mp_class to
+    # UNCLASSIFIED_MP_CLASS (not a guessed Safety/Obligation default) when at
+    # least one clause didn't match any recognized AST shape -- routing it
+    # into build_parity_automaton() anyway would either fabricate a warrant
+    # under the wrong automaton or (since that function now also refuses,
+    # see core/lppm/automaton.py) raise an uncaught exception out of
+    # verify(). Neither is acceptable; report INCONCLUSIVE honestly instead,
+    # using the real Steps 1-2 results already computed above.
+    #
+    # External-review fix: this gate previously only refused
+    # UNCLASSIFIED_MP_CLASS -- mp_class in {"Recurrence", "Reactivity"} sailed
+    # straight through into build_parity_automaton() (which DOES have a
+    # branch for them -- it can construct an automaton, just not one the
+    # co-Büchi (P1/P2, Theorem 5.4) LPPM certificate is valid for) and the
+    # entire LPPM pipeline, fabricating an unsupported guarantee. Per Lemma
+    # E.6, these classes are not co-Büchi-expressible and must never reach
+    # this pipeline, confidently-classified or not -- a DIFFERENT reason
+    # than "classification uncertain", so it gets its own support_note
+    # rather than reusing the Unclassified wording. L3 (the correct home for
+    # these classes) is confirmed infeasible on real checkpoints as of this
+    # session, so the only honest verdict right now is INCONCLUSIVE, not a
+    # silent "route to L3" that doesn't actually exist yet.
+    LEMMA_E6_EXCLUDED_MP_CLASSES = {"Recurrence", "Reactivity"}
+    if mp_class in LEMMA_E6_EXCLUDED_MP_CLASSES:
+        lemma_e6_note = (
+            f"mp_class={mp_class!r} is not co-Büchi-expressible (Lemma E.6) -- the "
+            "co-Büchi (P1/P2, Theorem 5.4) LPPM pipeline this Step builds does not "
+            "provide a valid statistical certificate for this class, regardless of "
+            "how confidently it was classified. The correct home for this class is "
+            "L3, which is confirmed infeasible on real checkpoints as of this "
+            "session -- reporting INCONCLUSIVE rather than fabricating a L2 warrant."
+        )
+        if cfg.verbose:
+            print(f"  [3/3] LPPM: skipped -- mp_class={mp_class!r} excluded by Lemma E.6.")
+            print("  → INCONCLUSIVE (lemma_e6_excluded)")
+        return VerificationResult(
+            verdict=INCONCLUSIVE,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=analysis["verification_mode"],
+            support_level=analysis["support_level"],
+            support_note=lemma_e6_note,
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+        )
+
+    if analysis.get("classification_uncertain") or mp_class == UNCLASSIFIED_MP_CLASS:
+        if cfg.verbose:
+            print("  [3/3] LPPM: skipped -- spec classification uncertain.")
+            print("  → INCONCLUSIVE (classification_uncertain)")
+        return VerificationResult(
+            verdict=INCONCLUSIVE,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode=analysis["verification_mode"],
+            support_level=analysis["support_level"],
+            support_note=analysis["support_note"],
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+        )
+
     if cfg.verbose:
         print("  [3/3] LPPM: building parity automaton and calibrating certificate...")
 
     dpa          = build_parity_automaton(spec)
     support_level = analysis["support_level"]
     support_note = analysis["support_note"]
-    if getattr(dpa, "exact", False):
-        support_level = "sound"
-        support_note = (
-            "Infinite-horizon LTL was translated to an exact deterministic parity automaton "
-            "via Spot; the remaining verification path uses the parity/LPPM certificate."
-        )
-        if cfg.verbose:
-            print("        backend=spot exact_parity=True")
-    else:
-        if cfg.verbose:
-            print(f"        backend={getattr(dpa, 'backend', 'template')} exact_parity=False")
+    automaton_translation = "exact" if getattr(dpa, "exact", False) else getattr(dpa, "backend", "template")
+    if cfg.verbose:
+        print(f"        backend={getattr(dpa, 'backend', 'template')} "
+              f"exact_parity={getattr(dpa, 'exact', False)}")
+    # support_level must NEVER become SUPPORT_DEDUCTIVE here. Exact automaton
+    # translation (Spot) only guarantees phi's parity-automaton ENCODING is
+    # correct -- it says nothing about whether (P1)-(P2) hold support-wide.
+    # That requires a deductive NN-verification branch, which this codebase
+    # does not implement: fit_lppm() trains via gradient descent on SAMPLED
+    # transitions, and calibrate_lppm() calibrates via Clopper-Pearson on a
+    # held-out SAMPLE -- both are the statistical branch (Theorem 5.4), never
+    # a formal proof over the full support. Automaton exactness is tracked
+    # separately in automaton_translation. Fail loud if this is ever violated:
+    # a SUPPORT_DEDUCTIVE support_level reaching here would mean a deductive
+    # verifier was silently assumed rather than actually run.
+    assert support_level != SUPPORT_DEDUCTIVE, (
+        f"support_level={SUPPORT_DEDUCTIVE!r} at the LPPM/L2 step with no deductive "
+        "verifier implemented -- this assertion firing means a deductive path was "
+        "reintroduced without attaching real deductive-verifier provenance."
+    )
     lppm_params  = None
 
     if cfg.fit_lppm_params:
+        # External-review fix: this Step 3 path previously trained and
+        # calibrated on the SAME `trajectories` list (verify()'s single-arg
+        # API had no separate training split), guarded only by
+        # warn_if_overlap=True -- which only ever warns, never raises,
+        # despite a since-removed comment here incorrectly claiming this
+        # "fails loudly". Now requires a genuinely separate training split
+        # via VerifyConfig.lppm_train_trajectories; fit_lppm()/
+        # calibrate_lppm() themselves raise on any detected overlap by
+        # default (see EXPERIMENT_CONFIG.md §8.12).
+        if not cfg.lppm_train_trajectories:
+            raise ValueError(
+                "VerifyConfig.fit_lppm_params=True requires VerifyConfig."
+                "lppm_train_trajectories (a disjoint training split) -- "
+                "verify()'s `trajectories` argument is used as the CALIBRATION "
+                "split; reusing it for training too would break Theorem 5.4's "
+                "exchangeability premise. Pass a separately-collected/split "
+                "training set."
+            )
         if cfg.verbose:
             print(f"        Training LPPM ({cfg.lppm_epochs} epochs)...")
         training_info = fit_lppm(
-            trajectories=trajectories,
+            trajectories=cfg.lppm_train_trajectories,
             dpa=dpa,
             spec=spec,
             eta=cfg.eta,
             n_epochs=cfg.lppm_epochs,
+            calib_trajectories=trajectories,
         )
         lppm_params = training_info
         if cfg.verbose:
+            backend = training_info.get("backend", "unknown")
+            print(f"        Training backend: {backend}"
+                  + (f"  ({training_info['reason']})" if backend != "torch_mlp" else ""))
             print(f"        Training loss: {training_info['final_loss']:.5f}")
+            if backend != "torch_mlp":
+                print("        WARNING: NOT a trained NeuralLPPM -- p̂_γ below comes from "
+                    "the untrained compute_lppm_value() heuristic, not a fitted certificate.")
     else:
         training_info = {}
 
@@ -607,6 +886,7 @@ def verify(
         eta=cfg.eta,
         warrant_threshold=cfg.warrant_threshold,
         lppm_params=lppm_params,
+        train_trajectories=cfg.lppm_train_trajectories if cfg.fit_lppm_params else None,
     )
 
     if cfg.verbose:
@@ -629,15 +909,46 @@ def verify(
         confidence     = 0.0
         transfer_ok    = False
 
-    if transfer_ok and lppm_res.is_warranted():
+    # A sampled L2 result is usable only when it came from an actual trained
+    # certificate network, not compute_lppm_value()'s explicit heuristic
+    # fallback.  In addition to p_hat_gamma, require the separately computed
+    # Z_free-source closure diagnostic to be both observable and above the
+    # same pre-registered threshold.  Otherwise the old UI label would make a
+    # lucky/degenerate scalar output look like L2 evidence.
+    trained_lppm = lppm_params is not None and lppm_params.get("backend") == "torch_mlp"
+    closure = lppm_res.zfree_closure
+    l2_calibrated_model_scope = (
+        trained_lppm
+        and lppm_res.is_warranted()
+        and closure is not None
+        and closure.verifiable
+        and closure.p_hat_closure is not None
+        and closure.p_hat_closure >= cfg.warrant_threshold
+    )
+
+    if transfer_ok and l2_calibrated_model_scope:
         verdict = WARRANT
     elif transfer_ok:
         verdict = STL_MARGIN   # transfer holds but LPPM p̂_γ < threshold
     else:
         verdict = STL_MARGIN   # no transfer guarantee, no explicit violation
 
+    # Current LPPM calibration is a held-out sampled MODEL-scope result.  It
+    # cannot claim L2_DEDUCTIVE_SAFE: the support-wide P1/P2 verification
+    # required by Theorem 5.2 is not implemented in this repository.  The
+    # evidence gate remains here (rather than being inferred from `verdict`) so
+    # future deductive backends must opt in explicitly.
+    safety_verdict = decide_safety_verdict(
+        model_witnesses=model_witnesses,
+        environment_witnesses=environment_witnesses,
+        l2_calibrated_model_scope=l2_calibrated_model_scope,
+    )
+
     if cfg.verbose:
-        print(f"  → {verdict} ({guarantee_type}, confidence={confidence:.3f})")
+        print(
+            f"  → {verdict} ({guarantee_type}, confidence={confidence:.3f}; "
+            f"l2_model_scope_ready={l2_calibrated_model_scope})"
+        )
 
     return VerificationResult(
         verdict=verdict,
@@ -652,10 +963,13 @@ def verify(
         verification_mode=analysis["verification_mode"],
         support_level=support_level,
         support_note=support_note,
+        automaton_translation=automaton_translation,
         wall_time=time.perf_counter() - t0,
         guarantee_type=guarantee_type,
         confidence=confidence,
         lppm_training=training_info,
+        safety_verdict=safety_verdict,
+        safety_witnesses=[*environment_witnesses, *model_witnesses],
     )
 
 
@@ -687,6 +1001,19 @@ def verify_from_wrapper(
         paired = wrapper.sample_paired_rollouts(rollout_config)
         trajectories = [tau_model for tau_model, _ in paired]
         vcfg.paired_rollouts = paired
+        provenance_fn = getattr(wrapper, "paired_rollout_provenance", None)
+        provenance = provenance_fn() if callable(provenance_fn) else None
+        if provenance is not None:
+            if len(provenance) != len(paired):
+                raise ValueError(
+                    "Wrapper returned paired-rollout provenance with a different length from "
+                    "its pairs; refusing to attach replay metadata to the wrong trajectory."
+                )
+            # The same action/anchor record identifies both sides of a paired
+            # replay.  Core verdict code still treats their AP traces as
+            # distinct model/environment evidence sources.
+            vcfg.model_rollout_provenance = provenance
+            vcfg.environment_rollout_provenance = provenance
     else:
         trajectories = wrapper.sample_rollouts(rollout_config)
 
@@ -710,19 +1037,13 @@ def verify_from_wrapper(
     # All trajectories tainted → INCONCLUSIVE_perception, skip STL computation.
     _SENTINEL = -999.0
     spec_aps  = set(required_keys)
-    # Default to _SENTINEL (not 0.0) for an AP key the wrapper never emits at
-    # all, not just one it emits as an explicit sentinel value. Before this
-    # fix, `if k in step` skipped entirely-absent keys, so a spec requiring an
-    # AP the wrapper never provides (e.g. human_distance for a wrapper with no
-    # human concept) silently computed STL robustness against a fabricated
-    # 0.0 instead of routing to INCONCLUSIVE_perception -- confirmed by trial:
-    # it produced a false WARRANT verdict for stl_human_proximity_response.
     tainted   = [
         i for i, traj in enumerate(trajectories)
         if any(
-            step.get(k, _SENTINEL) == _SENTINEL
+            step.get(k, 0.0) == _SENTINEL
             for step in traj
             for k in spec_aps
+            if k in step
         )
     ]
     if tainted:
@@ -739,13 +1060,12 @@ def verify_from_wrapper(
                 margins=[0.0] * len(trajectories),
                 rho_star=0.0, witness_idx=0,
                 n_satisfied=0, n_rollouts=len(trajectories),
-                mean_margin=0.0, std_margin=0.0,
+                mean_margin=0.0,
             )
             dummy_transfer = TransferResult(
-                rho_star=0.0, rho_net=0.0, rho_net_cp=0.0,
+                rho_net=0.0, rho_net_cp=0.0,
                 q_hat=0.0, c_hat_err=vcfg.model_error_budget,
                 delta_cp=vcfg.delta_cp, delta_err=vcfg.delta_err,
-                confidence=0.0,
             )
             analysis = spec.get("analysis") or analyze_spec_structure(spec)
             return VerificationResult(
@@ -880,7 +1200,7 @@ if __name__ == "__main__":
     parser.add_argument("--settings-config", default=None,
                         help="Path to a JSON runtime settings file")
     parser.add_argument("--model",   default="random",
-                        choices=["random", "dreamerv3", "cardreamer", "safedreamer"],
+                        choices=["random", "dreamerv3", "cardreamer"],
                         help="World model to use")
     parser.add_argument("--env-name", default=None,
                         help="Gymnasium environment name for env-backed wrappers")
@@ -927,7 +1247,6 @@ if __name__ == "__main__":
         CarDreamerWrapper,
         DreamerV3Wrapper,
         RandomWorldModelWrapper,
-        SafeDreamerWrapper,
     )
 
     task_spec = load_task_spec(args.task_config) if args.task_config else None
@@ -986,10 +1305,6 @@ if __name__ == "__main__":
         cfg_path = settings.get("model", {}).get("config_path")
         w = CarDreamerWrapper(roll_cfg, **wrapper_kwargs)
         w.load(checkpoint_path=ckpt, config_path=cfg_path)
-    elif args.model == "safedreamer":
-        ckpt = args.checkpoint or settings.get("model", {}).get("checkpoint_path")
-        w = SafeDreamerWrapper(roll_cfg)
-        w.load(checkpoint_path=ckpt)
     else:
         w = RandomWorldModelWrapper(roll_cfg)
         w.load()

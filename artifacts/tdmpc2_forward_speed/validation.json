@@ -1,0 +1,378 @@
+{
+  "verdict": "C0_VALID_C1_MODEL_TRANSFER_INCONCLUSIVE",
+  "target": {
+    "name": "forward_speed",
+    "definition": "dm_control walker Physics.horizontal_velocity()",
+    "signed": true,
+    "unit": "m/s",
+    "walk_target_mps": 1.0,
+    "not_observation_index_15": true
+  },
+  "scope": {
+    "task": "walker-walk",
+    "checkpoint": "/home/bot/SafeWorld/models/walker-walk-3.pt",
+    "checkpoint_sha256": "dba5a0545862ef5aa92b334ae43daae76294a4dedaee3d804f5f87134e8670d3",
+    "checkpoint_seed": 3,
+    "tdmpc2_source": "/tmp/tdmpc2_src/tdmpc2",
+    "tdmpc2_commit": "e9f59321933cbc8e11a002b842adc7d4ffae8ff1",
+    "action_source": "mpc_plan"
+  },
+  "fixed_acceptance_criteria": {
+    "c0_min_r2": 0.95,
+    "c0_max_mae_mps": 0.1,
+    "c0_max_mpc_p90_mps": 0.2,
+    "c1_max_depth100_p90_mps": 0.5,
+    "c1_min_depth100_threshold_agreement": 0.8
+  },
+  "c0": {
+    "protocol": "nested_episode_grouped_cv",
+    "alpha_grid": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "outer_selected_alphas": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      100.0
+    ],
+    "final_alpha": 10.0,
+    "overall": {
+      "n": 7500,
+      "r2": 0.986728310585022,
+      "mae_mps": 0.061700623482465744,
+      "rmse_mps": 0.10090505331754684,
+      "p90_abs_mps": 0.1471273690462113,
+      "p99_abs_mps": 0.35298850029706963,
+      "max_abs_mps": 1.0825635194778442,
+      "walk_threshold_agreement": 0.9942666666666666,
+      "true_walk_rate": 0.5304,
+      "predicted_walk_rate": 0.5281333333333333
+    },
+    "mpc_plan": {
+      "n": 4000,
+      "r2": 0.9383238554000854,
+      "mae_mps": 0.03388000652194023,
+      "rmse_mps": 0.06863433122634888,
+      "p90_abs_mps": 0.06467493772506713,
+      "p99_abs_mps": 0.25512445926666083,
+      "max_abs_mps": 1.0825635194778442,
+      "walk_threshold_agreement": 0.9965,
+      "true_walk_rate": 0.98,
+      "predicted_walk_rate": 0.978
+    },
+    "random": {
+      "n": 3500,
+      "r2": 0.9128975868225098,
+      "mae_mps": 0.09349562227725983,
+      "rmse_mps": 0.12819743156433105,
+      "p90_abs_mps": 0.201696565747261,
+      "p99_abs_mps": 0.3769253310561176,
+      "max_abs_mps": 0.9963383674621582,
+      "walk_threshold_agreement": 0.9917142857142857,
+      "true_walk_rate": 0.01657142857142857,
+      "predicted_walk_rate": 0.014
+    },
+    "per_episode": {
+      "0": {
+        "n": 500,
+        "r2": 0.9717501997947693,
+        "mae_mps": 0.030764056369662285,
+        "rmse_mps": 0.040300458669662476,
+        "p90_abs_mps": 0.06723428964614868,
+        "p99_abs_mps": 0.10658353686332697,
+        "max_abs_mps": 0.1828685998916626,
+        "walk_threshold_agreement": 0.998,
+        "true_walk_rate": 0.994,
+        "predicted_walk_rate": 0.992
+      },
+      "1": {
+        "n": 500,
+        "r2": 0.8983076810836792,
+        "mae_mps": 0.038395486772060394,
+        "rmse_mps": 0.09568962454795837,
+        "p90_abs_mps": 0.06022757291793824,
+        "p99_abs_mps": 0.36201449781656164,
+        "max_abs_mps": 1.0825635194778442,
+        "walk_threshold_agreement": 0.996,
+        "true_walk_rate": 0.968,
+        "predicted_walk_rate": 0.972
+      },
+      "2": {
+        "n": 500,
+        "r2": 0.9489123225212097,
+        "mae_mps": 0.034985072910785675,
+        "rmse_mps": 0.06047363951802254,
+        "p90_abs_mps": 0.06777982711791997,
+        "p99_abs_mps": 0.23002312451601012,
+        "max_abs_mps": 0.5488397479057312,
+        "walk_threshold_agreement": 0.998,
+        "true_walk_rate": 0.978,
+        "predicted_walk_rate": 0.976
+      },
+      "3": {
+        "n": 500,
+        "r2": 0.9128833413124084,
+        "mae_mps": 0.03175864741206169,
+        "rmse_mps": 0.07130896300077438,
+        "p90_abs_mps": 0.058160901069641134,
+        "p99_abs_mps": 0.18333056449890134,
+        "max_abs_mps": 0.8578184843063354,
+        "walk_threshold_agreement": 1.0,
+        "true_walk_rate": 0.99,
+        "predicted_walk_rate": 0.99
+      },
+      "4": {
+        "n": 500,
+        "r2": 0.9729205965995789,
+        "mae_mps": 0.030334340408444405,
+        "rmse_mps": 0.04708920046687126,
+        "p90_abs_mps": 0.05979831218719485,
+        "p99_abs_mps": 0.13412161752581592,
+        "max_abs_mps": 0.4018607437610626,
+        "walk_threshold_agreement": 0.998,
+        "true_walk_rate": 0.96,
+        "predicted_walk_rate": 0.962
+      },
+      "5": {
+        "n": 500,
+        "r2": 0.9050123691558838,
+        "mae_mps": 0.03850068524479866,
+        "rmse_mps": 0.09270667284727097,
+        "p90_abs_mps": 0.06598483324050904,
+        "p99_abs_mps": 0.521787887215614,
+        "max_abs_mps": 1.0593875646591187,
+        "walk_threshold_agreement": 0.996,
+        "true_walk_rate": 0.978,
+        "predicted_walk_rate": 0.974
+      },
+      "6": {
+        "n": 500,
+        "r2": 0.9395343065261841,
+        "mae_mps": 0.03290042281150818,
+        "rmse_mps": 0.07011278718709946,
+        "p90_abs_mps": 0.061920249462127694,
+        "p99_abs_mps": 0.29353502839803686,
+        "max_abs_mps": 0.7993517518043518,
+        "walk_threshold_agreement": 1.0,
+        "true_walk_rate": 0.98,
+        "predicted_walk_rate": 0.98
+      },
+      "7": {
+        "n": 500,
+        "r2": 0.9637289047241211,
+        "mae_mps": 0.033401329070329666,
+        "rmse_mps": 0.049345552921295166,
+        "p90_abs_mps": 0.07096725702285768,
+        "p99_abs_mps": 0.24065330147743225,
+        "max_abs_mps": 0.2741246223449707,
+        "walk_threshold_agreement": 0.986,
+        "true_walk_rate": 0.992,
+        "predicted_walk_rate": 0.978
+      },
+      "8": {
+        "n": 500,
+        "r2": 0.8828704953193665,
+        "mae_mps": 0.09509555250406265,
+        "rmse_mps": 0.12261974811553955,
+        "p90_abs_mps": 0.19669236838817597,
+        "p99_abs_mps": 0.32812349110841743,
+        "max_abs_mps": 0.504460871219635,
+        "walk_threshold_agreement": 0.988,
+        "true_walk_rate": 0.022,
+        "predicted_walk_rate": 0.03
+      },
+      "9": {
+        "n": 500,
+        "r2": 0.8789846301078796,
+        "mae_mps": 0.10262568295001984,
+        "rmse_mps": 0.13470061123371124,
+        "p90_abs_mps": 0.22537447512149814,
+        "p99_abs_mps": 0.3361155375838279,
+        "max_abs_mps": 0.5978559255599976,
+        "walk_threshold_agreement": 0.988,
+        "true_walk_rate": 0.042,
+        "predicted_walk_rate": 0.042
+      },
+      "10": {
+        "n": 500,
+        "r2": 0.898514449596405,
+        "mae_mps": 0.09958275407552719,
+        "rmse_mps": 0.1290617436170578,
+        "p90_abs_mps": 0.21568248271942142,
+        "p99_abs_mps": 0.3529885002970696,
+        "max_abs_mps": 0.4715697169303894,
+        "walk_threshold_agreement": 0.98,
+        "true_walk_rate": 0.028,
+        "predicted_walk_rate": 0.012
+      },
+      "11": {
+        "n": 500,
+        "r2": 0.8875375986099243,
+        "mae_mps": 0.09440117329359055,
+        "rmse_mps": 0.1430092304944992,
+        "p90_abs_mps": 0.1925129681825638,
+        "p99_abs_mps": 0.5703876811265935,
+        "max_abs_mps": 0.9963383674621582,
+        "walk_threshold_agreement": 0.99,
+        "true_walk_rate": 0.016,
+        "predicted_walk_rate": 0.006
+      },
+      "12": {
+        "n": 500,
+        "r2": 0.9086484909057617,
+        "mae_mps": 0.09408628195524216,
+        "rmse_mps": 0.13176316022872925,
+        "p90_abs_mps": 0.1863293558359147,
+        "p99_abs_mps": 0.44578307092189784,
+        "max_abs_mps": 0.7184096574783325,
+        "walk_threshold_agreement": 1.0,
+        "true_walk_rate": 0.006,
+        "predicted_walk_rate": 0.006
+      },
+      "13": {
+        "n": 500,
+        "r2": 0.9309718608856201,
+        "mae_mps": 0.07465294003486633,
+        "rmse_mps": 0.10198144614696503,
+        "p90_abs_mps": 0.16493293642997742,
+        "p99_abs_mps": 0.3280355161428451,
+        "max_abs_mps": 0.4721805453300476,
+        "walk_threshold_agreement": 0.996,
+        "true_walk_rate": 0.002,
+        "predicted_walk_rate": 0.002
+      },
+      "14": {
+        "n": 500,
+        "r2": 0.9031328558921814,
+        "mae_mps": 0.09402493387460709,
+        "rmse_mps": 0.13035297393798828,
+        "p90_abs_mps": 0.2087566614151001,
+        "p99_abs_mps": 0.4480625194311142,
+        "max_abs_mps": 0.5537468194961548,
+        "walk_threshold_agreement": 1.0,
+        "true_walk_rate": 0.0,
+        "predicted_walk_rate": 0.0
+      }
+    },
+    "passed": true
+  },
+  "c1": {
+    "protocol": "exact_anchor_model_mpc_actions_replayed_open_loop_in_environment",
+    "n_anchors": 200,
+    "horizon": 100,
+    "combined_probe_and_world_model_error": true,
+    "max_prefix_depth_meeting_fixed_c1_criteria": 15,
+    "all_steps": {
+      "n": 20000,
+      "r2": -1.949995517730713,
+      "mae_mps": 1.1954715251922607,
+      "rmse_mps": 1.433225154876709,
+      "p90_abs_mps": 2.1790998935699473,
+      "p99_abs_mps": 2.894681167602538,
+      "max_abs_mps": 4.034590721130371,
+      "walk_threshold_agreement": 0.2979,
+      "true_walk_rate": 0.29575,
+      "predicted_walk_rate": 0.99765
+    },
+    "by_depth": {
+      "1": {
+        "n": 200,
+        "r2": 0.9710991382598877,
+        "mae_mps": 0.03682775795459747,
+        "rmse_mps": 0.0632164403796196,
+        "p90_abs_mps": 0.07739882469177245,
+        "p99_abs_mps": 0.317664769887924,
+        "max_abs_mps": 0.33689141273498535,
+        "walk_threshold_agreement": 0.995,
+        "true_walk_rate": 0.955,
+        "predicted_walk_rate": 0.96
+      },
+      "5": {
+        "n": 200,
+        "r2": 0.9245135188102722,
+        "mae_mps": 0.05992838740348816,
+        "rmse_mps": 0.08749420195817947,
+        "p90_abs_mps": 0.12793999910354611,
+        "p99_abs_mps": 0.2877628225088114,
+        "max_abs_mps": 0.4976903796195984,
+        "walk_threshold_agreement": 0.995,
+        "true_walk_rate": 0.965,
+        "predicted_walk_rate": 0.97
+      },
+      "10": {
+        "n": 200,
+        "r2": 0.417621374130249,
+        "mae_mps": 0.11864417791366577,
+        "rmse_mps": 0.21754904091358185,
+        "p90_abs_mps": 0.22798453569412228,
+        "p99_abs_mps": 0.7809333550929988,
+        "max_abs_mps": 2.0048303604125977,
+        "walk_threshold_agreement": 0.985,
+        "true_walk_rate": 0.985,
+        "predicted_walk_rate": 1.0
+      },
+      "25": {
+        "n": 200,
+        "r2": -0.6107362508773804,
+        "mae_mps": 0.7278698086738586,
+        "rmse_mps": 0.9221805930137634,
+        "p90_abs_mps": 1.514247286319732,
+        "p99_abs_mps": 2.255872769355774,
+        "max_abs_mps": 2.300873041152954,
+        "walk_threshold_agreement": 0.59,
+        "true_walk_rate": 0.59,
+        "predicted_walk_rate": 1.0
+      },
+      "50": {
+        "n": 200,
+        "r2": -6.510280609130859,
+        "mae_mps": 1.5996999740600586,
+        "rmse_mps": 1.7224150896072388,
+        "p90_abs_mps": 2.4531440258026125,
+        "p99_abs_mps": 2.8949895334243747,
+        "max_abs_mps": 3.258817195892334,
+        "walk_threshold_agreement": 0.065,
+        "true_walk_rate": 0.065,
+        "predicted_walk_rate": 1.0
+      },
+      "100": {
+        "n": 200,
+        "r2": -13.292656898498535,
+        "mae_mps": 1.630070447921753,
+        "rmse_mps": 1.7144438028335571,
+        "p90_abs_mps": 2.367863202095031,
+        "p99_abs_mps": 2.917799596786499,
+        "max_abs_mps": 3.573668956756592,
+        "walk_threshold_agreement": 0.01,
+        "true_walk_rate": 0.01,
+        "predicted_walk_rate": 1.0
+      }
+    },
+    "passed": false
+  },
+  "artifacts": {
+    "c0_dataset": "/home/bot/SafeWorld/artifacts/tdmpc2_forward_speed/c0_real_posterior.npz",
+    "probe_model": "/home/bot/SafeWorld/artifacts/tdmpc2_forward_speed/forward_speed_probe.joblib",
+    "c1_anchors": "/home/bot/SafeWorld/artifacts/tdmpc2_forward_speed/c1_exact_mpc_anchors.npz",
+    "c1_predictions": "/home/bot/SafeWorld/artifacts/tdmpc2_forward_speed/c1_paired_predictions.npz"
+  },
+  "args": {
+    "checkpoint": "/home/bot/SafeWorld/models/walker-walk-3.pt",
+    "tdmpc2_src": "/tmp/tdmpc2_src/tdmpc2",
+    "output_dir": "/home/bot/SafeWorld/artifacts/tdmpc2_forward_speed",
+    "seed": 3,
+    "episode_steps": 500,
+    "c0_mpc_episodes": 8,
+    "c0_random_episodes": 7,
+    "c1_episodes": 8,
+    "anchor_every": 20,
+    "c1_horizon": 100,
+    "c1_chunk": 10,
+    "resume": true
+  }
+}

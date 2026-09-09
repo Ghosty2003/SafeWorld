@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
+from .config import DEFAULT_LPPM_CONFIG
 from .loss import heuristic_epoch_loss, p1_loss, p2_loss, smoothness_penalty
 from .model import NeuralLPPM, infer_feature_keys
-from .verifier import run_product_trajectory
+from .verifier import find_trajectory_overlap, iter_transitions, run_product_trajectory
 
 try:
     import torch
@@ -18,17 +20,67 @@ def fit_lppm(
     trajectories: list[list[dict[str, float]]],
     dpa,
     spec: dict,
-    eta: float = 0.01,
+    eta: float = DEFAULT_LPPM_CONFIG.eta,
     n_epochs: int = 300,
     lr: float = 1e-3,
     lambda_reg: float = 0.01,
+    calib_trajectories: list[list[dict[str, float]]] | None = None,
+    allow_overlap: bool = False,
+    overlap_reason: str | None = None,
 ) -> dict[str, Any]:
+    """
+    calib_trajectories : opt-in disjointness check. Pass the calibration
+      split here to verify it shares no trajectory object with `trajectories`
+      -- Theorem 5.4's PAC bound assumes the calibration draw is exchangeable
+      with, and disjoint from, whatever fit V_phi. Off by default (None): no
+      check, no behavior change for callers that don't pass it. See
+      EXPERIMENT_CONFIG.md §8.8/§8.12 for why this was added (main.py::
+      verify()'s Step 3 was found to reuse one trajectory list for both fit
+      and calibrate).
+
+    allow_overlap, overlap_reason : External-review fix -- overlap detected
+      when calib_trajectories is passed now RAISES ValueError by default
+      (previously only warned, despite main.py's own comment at its one real
+      call site incorrectly claiming this "fails loudly"). Pass
+      allow_overlap=True with a non-empty overlap_reason to proceed anyway
+      (e.g. a deliberate ablation) -- this is a forced, auditable opt-out:
+      omitting overlap_reason while allow_overlap=True is itself an error.
+    """
+    if calib_trajectories is not None:
+        n_overlap = find_trajectory_overlap(trajectories, calib_trajectories)
+        if n_overlap:
+            if not allow_overlap:
+                raise ValueError(
+                    f"fit_lppm(): {n_overlap} trajectory object(s) also present in "
+                    "calib_trajectories -- the calibration split is not disjoint "
+                    "from the training split, which breaks the exchangeability "
+                    "premise Theorem 5.4's p_hat_gamma relies on. Pass "
+                    "allow_overlap=True with a non-empty overlap_reason to proceed "
+                    "anyway (e.g. a deliberate ablation)."
+                )
+            if not overlap_reason:
+                raise ValueError(
+                    "fit_lppm(): allow_overlap=True requires a non-empty "
+                    "overlap_reason explaining why this violation is intentional "
+                    "-- silent overrides are not permitted."
+                )
+            warnings.warn(
+                f"fit_lppm(): {n_overlap} trajectory object(s) also present in "
+                f"calib_trajectories, allowed via allow_overlap=True: {overlap_reason}",
+                stacklevel=2,
+            )
+
     odd_prios = dpa.odd_priorities
     all_transitions = []
     for traj in trajectories:
         path = run_product_trajectory(traj, dpa, spec)
-        for i in range(len(path) - 1):
-            all_transitions.append((path[i], path[i + 1]))
+        # External-review fix: see iter_transitions()'s docstring -- this
+        # previously zipped adjacent path entries directly, silently
+        # dropping the FINAL transition (on the last observed AP) of every
+        # trajectory from training data entirely (the same bug fixed in
+        # check_pathwise_conditions()/verify_zfree_closure() -- training was
+        # blind to it too, for every trajectory ever fit).
+        all_transitions.extend(iter_transitions(path, dpa))
 
     if not all_transitions:
         return {

@@ -356,6 +356,31 @@ LTL_SPECS: list[dict] = [
         "dpa_size":    8,
         "min_preds":   5,
     },
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # TD-MPC2 / dm_control walker task-family extension
+    # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "ltl_height_safety",
+        "level":       1,
+        "name":        "Walker height safety",
+        "mp_class":    "Safety",
+        "ltl_str":     "G(height>h_min)",
+        "formula":     G(atom("height", 0.6, ">")),
+        "horizon":     100,
+        "description": (
+            "Walker torso must always stay above h_min=0.6m: G(height>0.6). "
+            "h_min=0.6 = dm_control walker's own _STAND_HEIGHT(1.2) minus its "
+            "reward-tolerance margin(0.6) -- the height at which the task's own "
+            "standing-reward component decays to its tolerance floor, i.e. the "
+            "task's own definition of 'failing badly at standing', not a value "
+            "chosen for verification convenience. Same structural class "
+            "(co-Buchi-compatible, dpa_size=2) as ltl_hazard_avoidance."
+        ),
+        "aps":         ["height"],
+        "dpa_size":    2,
+        "min_preds":   1,
+    },
 ]
 
 

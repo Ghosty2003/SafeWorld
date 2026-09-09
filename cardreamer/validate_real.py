@@ -28,20 +28,23 @@ sys.path.insert(0, "/home/bot/SafeWorld")
 UNCERTAIN_SENTINEL = -999.0
 
 
-def load_model():
+def load_model(checkpoint=None):
     print("  Loading CarDreamerWrapper ...", flush=True)
     from wrappers.cardreamer_wrapper import CarDreamerWrapper
     from configs.settings import RolloutConfig
     cfg = RolloutConfig(n_rollouts=1, horizon=50, seed=0, action_source="actor")
     w = CarDreamerWrapper(cfg)
-    w.load()
+    if checkpoint:
+        w.load(checkpoint_path=checkpoint)
+    else:
+        w.load()
     return w
 
 
-def make_env():
-    print("  Connecting to CARLA ...", flush=True)
+def make_env(task="carla_four_lane", port=2000):
+    print(f"  Connecting to CARLA :{port} ({task}) ...", flush=True)
     import car_dreamer
-    env, _ = car_dreamer.create_task("carla_four_lane")
+    env, _ = car_dreamer.create_task(task, ["--env.world.carla_port", str(port)])
     print("  CARLA connected.", flush=True)
     return env
 
@@ -161,12 +164,12 @@ def main(args):
 
     # ── Load model ──────────────────────────────────────────────────────────
     print("[1/3] Loading model ...", flush=True)
-    w = load_model()
+    w = load_model(args.checkpoint)
     jax_agent = w._jax_agent
 
     # ── Connect to CARLA ────────────────────────────────────────────────────
     print("[2/3] Connecting to CARLA ...", flush=True)
-    env = make_env()
+    env = make_env(args.task, args.port)
 
     # ── Run real episodes ───────────────────────────────────────────────────
     print(f"[3/3] Running {args.episodes} real episodes (window={args.window} steps) ...\n",
@@ -197,9 +200,11 @@ def main(args):
     env.close()
 
     # Persist raw per-episode hazard series for offline re-analysis
-    np.savez("real_episodes.npz",
+    np.savez(args.out,
              hazard=np.array([[s.get("hazard_dist", UNCERTAIN_SENTINEL) for s in t]
                               for t in all_trajs], dtype=object),
+             near=np.array([[s.get("near_obstacle", UNCERTAIN_SENTINEL) for s in t]
+                            for t in all_trajs], dtype=object),
              ep_info=np.array(ep_infos, dtype=object),
              allow_pickle=True)
 
@@ -276,6 +281,10 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--episodes",       type=int,   default=20)
+    parser.add_argument("--task",           default="carla_four_lane")
+    parser.add_argument("--port",           type=int,   default=2000)
+    parser.add_argument("--checkpoint",     default=None)
+    parser.add_argument("--out",            default="real_episodes.npz")
     parser.add_argument("--window",         type=int,   default=50)
     parser.add_argument("--model_rho_star", type=float, default=None,
                         help="ρ* from model-side run (for comparison)")

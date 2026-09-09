@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from utils.spec_analysis import analyze_spec_structure
+from utils.spec_analysis import UNCLASSIFIED_MP_CLASS, analyze_spec_structure
 
 try:
     import spot  # type: ignore
@@ -81,11 +81,33 @@ def build_parity_automaton(spec: dict[str, Any]) -> ParityAutomaton:
     objectives = analysis["objectives"]
 
     if mp == "Safety":
-        safe_aps = objectives["safety"] or spec.get("aps", [])
+        # Batch 3a: safety_disjunctions holds G(a1 v a2 v ... v an) clauses
+        # (see utils/spec_analysis.py) SEPARATELY from plain single-atom
+        # safety objectives -- they need a different trap condition (ALL
+        # disjuncts simultaneously violated), not "any one atom violated".
+        safety_disjunctions = objectives.get("safety_disjunctions", [])
+        # Only fall back to the declared aps list when NEITHER bucket
+        # produced anything -- previously this fell back whenever
+        # objectives["safety"] alone was empty, which would have silently
+        # mistreated a purely-disjunctive spec's atoms as independent
+        # must-never-violate atoms (reintroducing the G(a v b) -> G(a) & G(b)
+        # bug this batch exists to fix).
+        if objectives["safety"] or safety_disjunctions:
+            safe_aps = objectives["safety"]
+        else:
+            safe_aps = spec.get("aps", [])
         transitions = {("trap", frozenset()): "trap"}
         for ap in safe_aps:
             transitions[("ok", frozenset({f"not_{ap}"}))] = "trap"
             transitions[("trap", frozenset({f"not_{ap}"}))] = "trap"
+        for clause in safety_disjunctions:
+            # Trap iff EVERY disjunct's own atom condition is simultaneously
+            # false (guard <= active_aps subset-matching in
+            # step_with_priority() already gives exactly this semantics: the
+            # guard only matches when ALL its "not_x" labels are present).
+            guard = frozenset(f"not_{ap}" for ap in clause)
+            transitions[("ok", guard)] = "trap"
+            transitions[("trap", guard)] = "trap"
         transitions[("ok", frozenset())] = "ok"
         return ParityAutomaton(
             states=["ok", "trap"],
@@ -97,20 +119,92 @@ def build_parity_automaton(spec: dict[str, Any]) -> ParityAutomaton:
         )
 
     if mp == "Guarantee":
-        goals = objectives["guarantee"] or spec.get("aps", [])
+        sequences = objectives.get("guarantee_sequences", [])
+        if not sequences:
+            # Unchanged path (no sequences present): identical to the
+            # pre-Batch-3b code, zero behavior change for plain F(atom) /
+            # unordered-multi-goal specs.
+            goals = objectives["guarantee"] or spec.get("aps", [])
+            states, priority, transitions, state_meta = [], {}, {}, {}
+            for remaining in _powerset_strings(goals):
+                name = _remaining_state_name("wait", remaining)
+                states.append(name)
+                priority[name] = 1 if remaining else 0
+                state_meta[name] = {"kind": "waiting", "remaining_goals": list(remaining)}
+            initial = _remaining_state_name("wait", tuple(goals))
+            for remaining in _powerset_strings(goals):
+                src = _remaining_state_name("wait", remaining)
+                transitions[(src, frozenset())] = src
+                for active in _all_label_sets(goals):
+                    reduced = tuple(goal for goal in remaining if goal not in active)
+                    transitions[(src, active)] = _remaining_state_name("wait", reduced)
+            return ParityAutomaton(states, initial, priority, transitions, state_meta, backend="template")
+
+        # Batch 3b: at least one F(A and F(B and F(C ...))) ordered chain is
+        # present. State = (remaining UNORDERED atoms, tuple of per-sequence
+        # progress indices). Each sequence's progress can only advance by
+        # ONE step per tick, and ONLY via its own next-required atom -- seeing
+        # a later atom in the chain out of order does not advance it, fixing
+        # the "B before A wrongly accepted" bug (see utils/spec_analysis.py's
+        # guarantee_sequences bucket and its Batch-3b comment for the extraction
+        # side of this fix).
+        goals = objectives["guarantee"]  # any remaining plain (unordered) F(atom) goals
+        all_labels = list(goals) + [ap for seq in sequences for ap in seq]
+
+        def seq_states():
+            ranges = [range(len(seq) + 1) for seq in sequences]
+            result = [()]
+            for r in ranges:
+                result = [t + (i,) for t in result for i in r]
+            return result
+
+        def state_name(remaining: tuple[str, ...], progress: tuple[int, ...]) -> str:
+            if not remaining and all(p == len(seq) for p, seq in zip(progress, sequences)):
+                return "wait_done"
+            prog_str = ",".join(str(p) for p in progress)
+            return "wait:" + ",".join(remaining) + "|" + prog_str
+
+        def advance_progress(progress: tuple[int, ...], active: frozenset[str]) -> tuple[int, ...]:
+            # External-review fix: F(A and F(B and F(C ...))) is satisfied
+            # the instant its remaining required atoms are ALL true
+            # simultaneously (F(B) only needs B true at some time >= now,
+            # including right now) -- a single `if` here only ever consumed
+            # ONE atom per observation, even when several consecutive
+            # required atoms were active in the very same observation,
+            # wrongly leaving the automaton "still waiting" for an atom that
+            # had, in fact, already been satisfied at this same instant.
+            # `while` keeps advancing through as many consecutive required
+            # atoms as are simultaneously active.
+            new_progress = []
+            for p, seq in zip(progress, sequences):
+                while p < len(seq) and seq[p] in active:
+                    p += 1
+                new_progress.append(p)
+            return tuple(new_progress)
+
         states, priority, transitions, state_meta = [], {}, {}, {}
         for remaining in _powerset_strings(goals):
-            name = _remaining_state_name("wait", remaining)
-            states.append(name)
-            priority[name] = 1 if remaining else 0
-            state_meta[name] = {"kind": "waiting", "remaining_goals": list(remaining)}
-        initial = _remaining_state_name("wait", tuple(goals))
+            for progress in seq_states():
+                name = state_name(remaining, progress)
+                if name in priority:
+                    continue
+                states.append(name)
+                done = not remaining and all(p == len(seq) for p, seq in zip(progress, sequences))
+                priority[name] = 0 if done else 1
+                state_meta[name] = {
+                    "kind": "waiting", "remaining_goals": list(remaining),
+                    "sequence_progress": list(progress),
+                }
+        initial_progress = tuple(0 for _ in sequences)
+        initial = state_name(tuple(goals), initial_progress)
         for remaining in _powerset_strings(goals):
-            src = _remaining_state_name("wait", remaining)
-            transitions[(src, frozenset())] = src
-            for active in _all_label_sets(goals):
-                reduced = tuple(goal for goal in remaining if goal not in active)
-                transitions[(src, active)] = _remaining_state_name("wait", reduced)
+            for progress in seq_states():
+                src = state_name(remaining, progress)
+                transitions[(src, frozenset())] = src
+                for active in _all_label_sets(all_labels):
+                    reduced = tuple(goal for goal in remaining if goal not in active)
+                    new_progress = advance_progress(progress, active)
+                    transitions[(src, active)] = state_name(reduced, new_progress)
         return ParityAutomaton(states, initial, priority, transitions, state_meta, backend="template")
 
     if mp == "Obligation":
@@ -213,13 +307,25 @@ def build_parity_automaton(spec: dict[str, Any]) -> ParityAutomaton:
                 transitions[(src, frozenset({f"not_{ap}"}))] = "trap"
         return ParityAutomaton(states, initial, priority, transitions, state_meta, backend="template")
 
-    return ParityAutomaton(
-        states=["q0"],
-        initial="q0",
-        priority={"q0": 0},
-        transition={("q0", frozenset()): "q0"},
-        state_meta={"q0": {"kind": "default"}},
-        backend="template",
+    # Batch-2 L2 audit fix (Option B): every legitimate mp_class value
+    # infer_mp_class() can produce has an explicit branch above. Reaching
+    # here means either UNCLASSIFIED_MP_CLASS (extract_objectives() found an
+    # unrecognized clause -- see utils/spec_analysis.py) or some other
+    # unrecognized value, possibly injected directly via spec["analysis"]
+    # rather than computed by analyze_spec_structure(). Previously this
+    # silently returned a trivial single-state "accept everything" automaton
+    # (states=["q0"], priority 0 -- always in the accepting region regardless
+    # of the trajectory), which is at least as dangerous as the classifier
+    # defaulting to Safety/Obligation: it fabricates a co-Büchi warrant for a
+    # specification this code never actually understood. Fail loud instead.
+    raise ValueError(
+        f"build_parity_automaton(): no automaton construction branch for "
+        f"mp_class={mp!r} (spec id={spec.get('id', '<unknown>')!r}). Refusing "
+        "to fall back to a trivial always-accepting automaton -- this would "
+        "silently issue an unsupported co-Büchi warrant. If mp_class == "
+        f"{UNCLASSIFIED_MP_CLASS!r}, the caller should have already routed "
+        "this spec to INCONCLUSIVE before reaching build_parity_automaton() "
+        "(see main.py::verify()'s Step-3 classification_uncertain check)."
     )
 
 

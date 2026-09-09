@@ -1,10 +1,13 @@
 from .automaton import ParityAutomaton, ProductState, build_parity_automaton
 from .calibrator import LPPMResult, calibrate_lppm
+from .config import DEFAULT_LPPM_CONFIG, LPPMConfig
 from .model import NeuralLPPM, compute_lppm_value
 from .trainer import fit_lppm
 from .verifier import PathwiseResult, check_pathwise_conditions, run_product_trajectory
 
 __all__ = [
+    "DEFAULT_LPPM_CONFIG",
+    "LPPMConfig",
     "LPPMResult",
     "NeuralLPPM",
     "ParityAutomaton",
