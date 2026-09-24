@@ -97,10 +97,11 @@ def test_only_unconditional_always_clauses_become_safety_witnesses():
 def test_main_returns_model_violation_at_strict_equality_before_lppm_calibration():
     from main import VerifyConfig, verify
     from specs.ltl_specs import get_ltl_spec_by_id
+    from specs.walker_constants import WALKER_FALL_HEIGHT_M
 
     spec = get_ltl_spec_by_id("ltl_height_safety")
     result = verify(
-        [[{"height": 0.6}, {"height": 0.8}]],
+        [[{"height": WALKER_FALL_HEIGHT_M}, {"height": 0.8}]],
         spec,
         VerifyConfig(verbose=False),
     )

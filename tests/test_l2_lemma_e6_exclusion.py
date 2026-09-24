@@ -78,14 +78,15 @@ def test_recurrence_inconclusive_note_distinguishes_from_unclassified():
     assert "l3" in note, f"support_note should mention L3 -- got: {result.support_note!r}"
 
 
-def test_safety_and_obligation_specs_are_unaffected():
-    """Regression guard: this fix must not accidentally block legitimate
-    co-Büchi-eligible classes (Safety, Obligation, Guarantee)."""
+def test_pure_safety_is_routed_away_from_strict_descent_lppm():
+    """G(safe)'s absorbing odd trap cannot sustain positive P2 descent."""
     from main import INCONCLUSIVE, VerifyConfig, verify
 
     spec = get_ltl_spec_by_id("ltl_hazard_avoidance")
     trajectory = [{"hazard_dist": 5.0}, {"hazard_dist": 4.0}, {"hazard_dist": 3.0}]
     result = verify([trajectory, trajectory], spec, VerifyConfig(verbose=False))
-    assert result.verdict != INCONCLUSIVE
-    assert result.lppm is not None
+    assert result.verdict == INCONCLUSIVE
+    assert result.lppm is None
     assert result.mp_class == "Safety"
+    assert "absorbing" in result.support_note.lower()
+    assert result.verification_mode == "direct_invariant_only"

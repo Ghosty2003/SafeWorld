@@ -413,6 +413,131 @@ def _build_imagine_random_fn(
     return nj.jit(nj.pure(_fn), device=device)
 
 
+def _build_imagine_epsilon_from_obs_fn(
+    jax_agent: Any,
+    n_rollouts: int,
+    horizon: int,
+    n_acts: int,
+    burn_in: int,
+    epsilon_random: float,
+) -> Any:
+    """Replay-conditioned actor imagination with per-step epsilon exploration.
+
+    This is a training-coverage/falsification mechanism, never a deployment
+    policy result.  Unlike ``_build_imagine_random_fn``, it preserves the real
+    replay posterior anchor and burn-in context.  At each imagined step and for
+    each rollout independently, the actor action is replaced by a uniformly
+    random discrete action with probability ``epsilon_random``.
+    """
+    _add_cardreamer_to_path()
+    from dreamerv3 import ninjax as nj  # noqa: PLC0415
+    import jax  # noqa: PLC0415
+    import jax.numpy as jnp  # noqa: PLC0415
+
+    wm = jax_agent.agent.wm
+    actor = _get_actor(jax_agent)
+    device = jax_agent.policy_devices[0]
+
+    def _fn(obs_seq, act_seq):
+        n = obs_seq.shape[0]
+        img_0 = obs_seq[:, 0].astype(jnp.float32) / 255.0
+        embed_0 = wm.encoder({"birdeye_wpt": img_0})
+        latent = wm.rssm.initial(n)
+        zero_act = jnp.zeros((n, n_acts), dtype=jnp.float32)
+        latent, _ = wm.rssm.obs_step(
+            latent, zero_act, embed_0, jnp.ones((n,), dtype=bool)
+        )
+
+        for t in range(1, burn_in + 1):
+            img_t = obs_seq[:, t].astype(jnp.float32) / 255.0
+            embed_t = wm.encoder({"birdeye_wpt": img_t})
+            latent, _ = wm.rssm.obs_step(
+                latent,
+                act_seq[:, t - 1],
+                embed_t,
+                jnp.zeros((n,), dtype=bool),
+            )
+
+        latent["is_terminal"] = jnp.zeros((n,), dtype=jnp.float32)
+
+        def policy(state):
+            actor_action = actor(state).sample(seed=nj.rng())
+            random_idx = jax.random.randint(nj.rng(), (n,), 0, n_acts)
+            random_action = jax.nn.one_hot(random_idx, n_acts)
+            use_random = jax.random.bernoulli(nj.rng(), epsilon_random, (n, 1))
+            return jnp.where(use_random, random_action, actor_action)
+
+        traj = wm.imagine(policy, latent, horizon)
+        decoded = wm.heads["decoder"](traj)
+        images_f = decoded["birdeye_wpt"].mode()
+        return jnp.clip(jnp.round(images_f * 255.0), 0, 255).astype(jnp.uint8)
+
+    return nj.jit(nj.pure(_fn), device=device)
+
+
+def _build_imagine_latent_from_obs_fn(
+    jax_agent: Any,
+    n_rollouts: int,
+    horizon: int,
+    n_acts: int,
+    burn_in: int,
+    epsilon_random: float,
+) -> Any:
+    """Replay-conditioned imagination returning decoded images and RSSM state.
+
+    The returned ``deter`` and ``stoch`` arrays include the start state at
+    index 0, matching DreamerV3 ``wm.imagine``. Callers slice ``[1:]`` so the
+    AP and latent arrays describe the same horizon successor steps.
+    """
+    _add_cardreamer_to_path()
+    from dreamerv3 import ninjax as nj  # noqa: PLC0415
+    import jax  # noqa: PLC0415
+    import jax.numpy as jnp  # noqa: PLC0415
+
+    wm = jax_agent.agent.wm
+    actor = _get_actor(jax_agent)
+    device = jax_agent.policy_devices[0]
+
+    def _fn(obs_seq, act_seq):
+        n = obs_seq.shape[0]
+        img_0 = obs_seq[:, 0].astype(jnp.float32) / 255.0
+        embed_0 = wm.encoder({"birdeye_wpt": img_0})
+        latent = wm.rssm.initial(n)
+        latent, _ = wm.rssm.obs_step(
+            latent,
+            jnp.zeros((n, n_acts), dtype=jnp.float32),
+            embed_0,
+            jnp.ones((n,), dtype=bool),
+        )
+        for t in range(1, burn_in + 1):
+            img_t = obs_seq[:, t].astype(jnp.float32) / 255.0
+            embed_t = wm.encoder({"birdeye_wpt": img_t})
+            latent, _ = wm.rssm.obs_step(
+                latent,
+                act_seq[:, t - 1],
+                embed_t,
+                jnp.zeros((n,), dtype=bool),
+            )
+        latent["is_terminal"] = jnp.zeros((n,), dtype=jnp.float32)
+
+        def policy(state):
+            actor_action = actor(state).sample(seed=nj.rng())
+            if epsilon_random <= 0.0:
+                return actor_action
+            random_idx = jax.random.randint(nj.rng(), (n,), 0, n_acts)
+            random_action = jax.nn.one_hot(random_idx, n_acts)
+            use_random = jax.random.bernoulli(nj.rng(), epsilon_random, (n, 1))
+            return jnp.where(use_random, random_action, actor_action)
+
+        traj = wm.imagine(policy, latent, horizon)
+        decoded = wm.heads["decoder"](traj)
+        images_f = decoded["birdeye_wpt"].mode()
+        images_u8 = jnp.clip(jnp.round(images_f * 255.0), 0, 255).astype(jnp.uint8)
+        return images_u8, traj["deter"], traj["stoch"]
+
+    return nj.jit(nj.pure(_fn), device=device)
+
+
 def _imagine_and_decode(wm: Any, actor: Any, start: dict, horizon: int):
     """
     Core imagination + decode (no reward).  Run inside nj.pure() context.
@@ -722,6 +847,9 @@ class CarDreamerWrapper(WorldModelWrapper):
         use_replay_start: bool = True,
         replay_burn_in_steps: int = 3,
         replay_pool_multiplier: int = 5,
+        epsilon_random: float = 0.20,
+        replay_anchor_strategy: str = "uniform",
+        replay_low_hazard_fraction: float = 0.25,
     ):
         """
         Parameters
@@ -740,6 +868,14 @@ class CarDreamerWrapper(WorldModelWrapper):
         replay_pool_multiplier  : pre-load n_rollouts * this many replay sequences
                                   at load() time (default 5; trades startup time for
                                   fast sampling).
+        epsilon_random          : random-action probability for the
+                                  ``actor_epsilon`` training-only action source.
+        replay_anchor_strategy  : ``uniform`` for deployment-style replay
+                                  sampling, or ``low_hazard`` for training-only
+                                  bad-set coverage.
+        replay_low_hazard_fraction: fraction of the replay pool retained by
+                                  ``low_hazard``, ranked on the final burn-in
+                                  frame's decoded ``hazard_dist``.
         """
         super().__init__(config)
         self._cardreamer_root      = cardreamer_root
@@ -749,6 +885,17 @@ class CarDreamerWrapper(WorldModelWrapper):
         self._use_replay_start     = use_replay_start
         self._burn_in              = replay_burn_in_steps
         self._pool_multiplier      = replay_pool_multiplier
+        if not 0.0 <= epsilon_random <= 1.0:
+            raise ValueError("epsilon_random must lie in [0, 1]")
+        self._epsilon_random       = float(epsilon_random)
+        if replay_anchor_strategy not in {"uniform", "low_hazard"}:
+            raise ValueError(
+                "replay_anchor_strategy must be 'uniform' or 'low_hazard'"
+            )
+        if not 0.0 < replay_low_hazard_fraction <= 1.0:
+            raise ValueError("replay_low_hazard_fraction must lie in (0, 1]")
+        self._replay_anchor_strategy = replay_anchor_strategy
+        self._replay_low_hazard_fraction = float(replay_low_hazard_fraction)
 
         self._jax_agent: Any            = None
         self._n_acts: int               = 15
@@ -757,6 +904,7 @@ class CarDreamerWrapper(WorldModelWrapper):
         self._replay_act_pool: np.ndarray | None = None   # (pool, burn_in, n_acts)
         self._fn_cache: dict            = {}
         self._policy_state: Any         = None
+        self._replay_anchor_hazard: np.ndarray | None = None
 
     # -- Loading ---------------------------------------------------------------
 
@@ -804,6 +952,38 @@ class CarDreamerWrapper(WorldModelWrapper):
                 )
             self._replay_obs_pool = obs_pool
             self._replay_act_pool = act_pool
+            if obs_pool is not None and self._replay_anchor_strategy == "low_hazard":
+                anchor_hazard = np.asarray(
+                    [
+                        extract_aps_from_image(
+                            frame[-1],
+                            color_tol=self._color_tol,
+                            bbox_inflate_px=self._bbox_inflate_px,
+                        )["hazard_dist"]
+                        for frame in obs_pool
+                    ],
+                    dtype=np.float32,
+                )
+                keep = max(
+                    1,
+                    int(np.ceil(len(anchor_hazard) * self._replay_low_hazard_fraction)),
+                )
+                selected = np.argsort(anchor_hazard, kind="stable")[:keep]
+                self._replay_obs_pool = obs_pool[selected]
+                self._replay_act_pool = act_pool[selected]
+                self._replay_anchor_hazard = anchor_hazard[selected]
+            elif obs_pool is not None:
+                self._replay_anchor_hazard = np.asarray(
+                    [
+                        extract_aps_from_image(
+                            frame[-1],
+                            color_tol=self._color_tol,
+                            bbox_inflate_px=self._bbox_inflate_px,
+                        )["hazard_dist"]
+                        for frame in obs_pool
+                    ],
+                    dtype=np.float32,
+                )
 
     # -- Imagination -----------------------------------------------------------
 
@@ -813,6 +993,19 @@ class CarDreamerWrapper(WorldModelWrapper):
         if key not in self._fn_cache:
             if source == "random":
                 fn = _build_imagine_random_fn(self._jax_agent, n, horizon, self._n_acts)
+            elif source == "actor_epsilon":
+                if not has_replay:
+                    raise RuntimeError(
+                        "actor_epsilon requires replay anchors; cold-start exploration is refused"
+                    )
+                fn = _build_imagine_epsilon_from_obs_fn(
+                    self._jax_agent,
+                    n,
+                    horizon,
+                    self._n_acts,
+                    self._burn_in,
+                    self._epsilon_random,
+                )
             elif has_replay and source != "random":
                 fn = _build_imagine_from_obs_fn(
                     self._jax_agent, n, horizon, self._n_acts, self._burn_in
@@ -828,6 +1021,26 @@ class CarDreamerWrapper(WorldModelWrapper):
         rng = np.random.default_rng(seed)
         idx = rng.choice(pool_size, size=n, replace=(pool_size < n))
         return self._replay_obs_pool[idx], self._replay_act_pool[idx]
+
+    def _get_latent_fn(self, source: str, n: int, horizon: int) -> Any:
+        if self._replay_obs_pool is None:
+            raise RuntimeError("latent rollout collection requires replay anchors")
+        if source not in {"actor", "actor_epsilon"}:
+            raise ValueError(
+                "sample_latent_rollouts supports only actor or actor_epsilon"
+            )
+        epsilon = self._epsilon_random if source == "actor_epsilon" else 0.0
+        key = ("latent", source, n, horizon, self._burn_in, epsilon)
+        if key not in self._fn_cache:
+            self._fn_cache[key] = _build_imagine_latent_from_obs_fn(
+                self._jax_agent,
+                n,
+                horizon,
+                self._n_acts,
+                self._burn_in,
+                epsilon,
+            )
+        return self._fn_cache[key]
 
     # Decoder activation memory grows linearly with batch size; 20 rollouts
     # (~1k decoded frames) fits comfortably, 100 at once OOMs on a 24GB GPU.
@@ -900,6 +1113,8 @@ class CarDreamerWrapper(WorldModelWrapper):
 
         action_source in RolloutConfig:
           "random"  -- random actions (coverage only, NOT primary safety result)
+          "actor_epsilon" -- replay-conditioned epsilon-random actor actions
+                             (training coverage only, NOT primary safety result)
           otherwise -- trained actor (deployment policy, primary result)
 
         ALL rollouts will contain velocity=UNCERTAIN_SENTINEL.
@@ -914,6 +1129,54 @@ class CarDreamerWrapper(WorldModelWrapper):
         source = getattr(cfg, "action_source", "actor")
         imgs   = self._run_imagination(source, cfg.n_rollouts, cfg.horizon, cfg.seed)
         return [self._images_to_trajectory(i) for i in imgs]
+
+    def sample_latent_rollouts(
+        self,
+        config: RolloutConfig | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return aligned AP and full Markov RSSM trajectories.
+
+        Each result has ``aps`` (a horizon-length AP trajectory), ``deter``
+        with shape ``(H, deter_dim)``, and ``stoch`` with shape
+        ``(H, *stoch_shape)``. This path is intended for certificate training
+        and diagnostics; caller provenance must still distinguish deployment
+        actor data from epsilon/anchor-stratified training data.
+        """
+        if self._jax_agent is None:
+            raise RuntimeError("Call load() before sample_latent_rollouts().")
+        import jax  # noqa: PLC0415
+
+        cfg = config or self.config
+        source = getattr(cfg, "action_source", "actor")
+        obs_all, act_all = self._sample_replay_batch(cfg.n_rollouts, cfg.seed)
+        device = self._jax_agent.policy_devices[0]
+        results: list[dict[str, Any]] = []
+        for start in range(0, cfg.n_rollouts, self._IMAGINE_CHUNK):
+            n = min(self._IMAGINE_CHUNK, cfg.n_rollouts - start)
+            fn = self._get_latent_fn(source, n, cfg.horizon)
+            rng = self._jax_agent._next_rngs(self._jax_agent.policy_devices)
+            outputs, _ = fn(
+                self._jax_agent.varibs,
+                rng,
+                jax.device_put(obs_all[start : start + n], device),
+                jax.device_put(act_all[start : start + n], device),
+            )
+            images_u8, deter, stoch = outputs
+            images_np = np.asarray(jax.device_get(images_u8))[1:]
+            deter_np = np.asarray(jax.device_get(deter))[1:]
+            stoch_np = np.asarray(jax.device_get(stoch))[1:]
+            if self._bgr_observations:
+                images_np = images_np[..., ::-1]
+            for i in range(n):
+                images = [images_np[t, i] for t in range(cfg.horizon)]
+                results.append(
+                    {
+                        "aps": self._images_to_trajectory(images),
+                        "deter": deter_np[:, i].astype(np.float16),
+                        "stoch": stoch_np[:, i].astype(np.float16),
+                    }
+                )
+        return results
 
     def ap_keys(self) -> list[str]:
         return ["hazard_dist", "near_obstacle", "goal_dist", "velocity"]
@@ -949,3 +1212,4 @@ class CarDreamerWrapper(WorldModelWrapper):
         self._fn_cache         = {}
         self._replay_obs_pool  = None
         self._replay_act_pool  = None
+        self._replay_anchor_hazard = None

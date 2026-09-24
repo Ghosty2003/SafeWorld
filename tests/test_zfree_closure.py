@@ -269,3 +269,60 @@ def test_zfree_closure_reuses_clopper_pearson_not_reimplemented():
     result = verify_zfree_closure([trajectory], dpa, spec, eta=ETA, gamma=0.05)
     expected = _clopper_pearson_lower(result.k_zfree, result.n_zfree, 0.05)
     assert result.p_hat_closure == pytest.approx(expected)
+
+
+def test_zfree_precondition_hard_gate_forces_abstain_despite_high_p_hat_gamma():
+    """
+    Permanent fix: issuing a CALIBRATED/SAFE verdict must be blocked outright
+    whenever ANY sampled Z_free-source transition fails (P1)/(P2) -- i.e.
+    Theorem 5.4's own minimal premise is violated on this sample -- no matter
+    how high p_hat_gamma (or even p_hat_closure itself) happens to be. A
+    single genuine violation diluted across many otherwise-passing Z_free
+    trajectories must not be laundered into a warrant.
+    """
+    from core.lppm.calibrator import calibrate_lppm
+
+    spec = _safety_spec_single_atom()
+    dpa = build_parity_automaton(spec)
+    T = 1000
+    # 9 clean trajectories (never violate) + 1 with a single Z_free-source
+    # violation at the end -- p_hat_gamma/p_hat_closure will both still be
+    # comfortably high (9/10 or 10/10 depending on how the violating
+    # trajectory's own C(tau) is scored), which is exactly the "diluted"
+    # scenario the hard gate exists to catch.
+    clean = [{"hazard": 1.0} for _ in range(T)]
+    violating = [{"hazard": 1.0} for _ in range(T - 1)] + [{"hazard": 500.0}]
+    trajectories = [clean] * 9 + [violating]
+
+    result = calibrate_lppm(trajectories, dpa, spec, gamma=0.05, eta=ETA)
+
+    assert result.zfree_closure.n_zfree >= 1, "fixture must actually exercise a Z_free-source transition"
+    assert result.zfree_closure.k_zfree < result.zfree_closure.n_zfree, (
+        "fixture must contain a genuine Z_free-source violation"
+    )
+    assert result.zfree_precondition_violated() is True
+    assert result.n_zfree_violations() >= 1
+    assert result.is_warranted() is False, (
+        "is_warranted() must hard-reject when the Z_free precondition is violated, "
+        "regardless of p_hat_gamma's own value"
+    )
+    assert "ABSTAIN" in result.summary()
+
+
+def test_zfree_precondition_gate_does_not_trigger_on_a_clean_sample():
+    """Converse of the hard-gate test: zero Z_free-source violations must
+    leave is_warranted() governed by p_hat_gamma/threshold as before -- the
+    gate must not become a blanket always-reject."""
+    from core.lppm.calibrator import calibrate_lppm
+
+    spec = _safety_spec_single_atom()
+    dpa = build_parity_automaton(spec)
+    T = 1000
+    clean = [{"hazard": 1.0} for _ in range(T)]
+    trajectories = [clean] * 10
+
+    result = calibrate_lppm(trajectories, dpa, spec, gamma=0.05, eta=ETA, warrant_threshold=0.5)
+
+    assert result.zfree_precondition_violated() is False
+    assert result.n_zfree_violations() == 0
+    assert result.is_warranted() == (result.p_hat_gamma >= 0.5)

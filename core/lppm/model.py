@@ -129,7 +129,7 @@ def compute_lppm_value(
         return _nonneg(rem * (1.0 + len(remaining) - zone_val))
 
     if mp == "Persistence":
-        if q == "absorbed":
+        if q == "p":
             return 0.0
         stability = min((z.get(ap, 0.0) for ap in objectives["persistence"]), default=0.0)
         return _nonneg(rem * (1.0 + max(0.0, stability)))
@@ -173,7 +173,23 @@ def predict_learned_lppm_value(
     model = get_or_build_lppm_model(lppm_params)
     if model is None:
         return None
-    z_vec = torch.tensor([[float(z.get(key, 0.0)) for key in feature_keys]], dtype=torch.float32)
+    raw_values = [float(z.get(key, 0.0)) for key in feature_keys]
+    feature_mean = lppm_params.get("feature_mean")
+    feature_scale = lppm_params.get("feature_scale")
+    if feature_mean is not None or feature_scale is not None:
+        if feature_mean is None or feature_scale is None:
+            raise ValueError(
+                "learned LPPM preprocessing requires both feature_mean and feature_scale"
+            )
+        if len(feature_mean) != len(feature_keys) or len(feature_scale) != len(feature_keys):
+            raise ValueError(
+                "learned LPPM feature_mean/feature_scale length must match feature_keys"
+            )
+        raw_values = [
+            (value - float(mean)) / float(scale)
+            for value, mean, scale in zip(raw_values, feature_mean, feature_scale)
+        ]
+    z_vec = torch.tensor([raw_values], dtype=torch.float32)
     q_idx = torch.tensor([state_to_idx[q]], dtype=torch.long)
     with torch.no_grad():
         values = model(z_vec, q_idx)

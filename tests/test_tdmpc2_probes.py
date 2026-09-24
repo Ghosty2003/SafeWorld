@@ -4,10 +4,21 @@ import numpy as np
 import pytest
 
 from wrappers.tdmpc2_probes import (
+    fit_height_probe,
     fit_forward_speed_probe,
     make_forward_speed_ap_extractor,
+    walker_forward_position_from_physics,
     walker_forward_speed_from_physics,
 )
+
+
+def test_height_probe_accepts_durable_height_key(tmp_path):
+    z = np.arange(40, dtype=np.float32).reshape(20, 2)
+    height = 0.5 * z[:, 0] - 0.25 * z[:, 1]
+    path = tmp_path / "height.npz"
+    np.savez(path, z=z, height=height)
+    probe = fit_height_probe(str(path), alpha=1e-6)
+    assert np.max(np.abs(probe.predict(z) - height)) < 1e-4
 
 
 def test_forward_speed_probe_fits_and_emits_scalar(tmp_path):
@@ -45,3 +56,15 @@ def test_forward_speed_uses_task_physics_not_observation_index():
             return -1.25
 
     assert walker_forward_speed_from_physics(DummyPhysics()) == -1.25
+
+
+def test_forward_position_uses_named_rootx():
+    class QPos:
+        def __getitem__(self, key):
+            assert key == "rootx"
+            return 12.75
+
+    class DummyPhysics:
+        named = type("Named", (), {"data": type("Data", (), {"qpos": QPos()})()})()
+
+    assert walker_forward_position_from_physics(DummyPhysics()) == 12.75

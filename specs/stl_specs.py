@@ -25,6 +25,8 @@ Quantitative robustness (Definition 3.4):
 
 from __future__ import annotations
 
+from specs.walker_constants import WALKER_FALL_HEIGHT_M, WALKER_HEIGHT_SPEC_VERSION
+
 
 # ── formula tree helpers (bounded only) ──────────────────────────────────────
 
@@ -350,12 +352,13 @@ STL_SPECS: list[dict] = [
         "level":       1,
         "name":        "Walker height safety (STL)",
         "mp_class":    "Safety",
-        "formula":     G(0, 99, atom("height", 0.6, ">")),
+        "formula":     G(0, 99, atom("height", WALKER_FALL_HEIGHT_M, ">")),
         "horizon":     100,
+        "property_definition_version": WALKER_HEIGHT_SPEC_VERSION,
         "description": (
             "Bounded counterpart of ltl_height_safety, for ρ* cross-check: "
-            "□[0,99](height>0.6). h_min=0.6 -- see ltl_height_safety docstring "
-            "for the reward-tolerance-margin justification (decided before running)."
+            "□[0,99](height>0.27). See ltl_height_safety for the empirical "
+            "persistent floor--torso-contact threshold provenance."
         ),
         "aps":         ["height"],
     },

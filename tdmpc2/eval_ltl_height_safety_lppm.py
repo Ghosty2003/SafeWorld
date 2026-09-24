@@ -20,16 +20,13 @@ p90=0.0637m, consistent across all 8 contributing episodes). Do not swap in
 pi_prior or the burn_in anchor path here without re-validating C1 for that
 combination.
 
-h_min = 0.6 (decided before running, not tuned after seeing p_hat_gamma)
---------------------------------------------------------------------------
-dm_control's walker.py: _STAND_HEIGHT=1.2, and the standing-reward tolerance
-uses margin=_STAND_HEIGHT/2=0.6 (rewards.tolerance(height, bounds=(1.2,inf),
-margin=0.6)). At height=1.2-0.6=0.6, the standing-reward component has
-decayed to its tolerance floor (dm_control's default value_at_margin, ~0.1)
--- i.e. 0.6 is the height at which the TASK's OWN reward design considers
-standing to have failed badly. This is a principled, physically-motivated
-boundary already embedded in the environment, not a value invented for
-verification convenience or adjusted to make the result come out warranted.
+h_min = 0.27 (ground-contact-height-v2)
+--------------------------------------
+The previous 0.6 threshold represented severe loss of standing reward, not a
+torso lying on the floor. Nine passive-fall trials observed persistent
+floor--torso contact up to 0.2442m. The replacement adds a 0.02m empirical
+margin and rounds upward to 0.27m. Changing the predicate invalidates every
+old fit/calibration result; this script must collect a fresh split when rerun.
 
 Usage: conda activate dyno && python tdmpc2/eval_ltl_height_safety_lppm.py
 """
@@ -41,6 +38,7 @@ import torch
 
 from specs.ltl_specs import get_ltl_spec_by_id
 from specs.stl_specs import get_stl_spec_by_id
+from specs.walker_constants import WALKER_FALL_HEIGHT_M
 from utils.spec_analysis import analyze_spec_structure
 from core.lppm.automaton import build_parity_automaton
 from core.lppm.config import DEFAULT_LPPM_CONFIG
@@ -178,9 +176,11 @@ def main():
         f"same activity trap as CarDreamer's L4'):")
     print(f"    rollouts that ever visit trap: {n_visit_trap}/{len(trajectories)}")
     print(f"    height min across rollouts: p10={np.percentile(height_mins,10):.3f} "
-        f"p50={np.percentile(height_mins,50):.3f} min={min(height_mins):.3f}  (h_min=0.6)")
+        f"p50={np.percentile(height_mins,50):.3f} min={min(height_mins):.3f}  "
+        f"(h_min={WALKER_FALL_HEIGHT_M})")
     if n_visit_trap == 0:
-        print("    !!! VACUOUS: the trap (height<=0.6) is NEVER visited in this data. Any "
+        print(f"    !!! VACUOUS: the trap (height<={WALKER_FALL_HEIGHT_M}) is NEVER "
+            "visited in this data. Any "
             "p_hat_gamma computed here is a liveness artifact, not genuine descent evidence -- "
             "same activity-trap class as ltl_hazard_avoidance's own flagged issue. A WARRANT "
             "verdict below must be reported with this caveat, not as strong evidence.")
@@ -220,7 +220,9 @@ def main():
         f"(avg count={np.mean([pw.p2_violations for pw in lppm_res.pathwise]):.2f})")
     print(f"               rollouts failing ONLY on P1 (not P2): {n_p1_only}/{len(calib_traj)}")
     calib_height_mins = [min(s["height"] for s in calib_traj[i]) for i in range(len(calib_traj))]
-    n_calib_genuinely_low = sum(1 for h in calib_height_mins if h <= 0.6)
+    n_calib_genuinely_low = sum(
+        1 for h in calib_height_mins if h <= WALKER_FALL_HEIGHT_M
+    )
     print(f"    calibration-split height min: p10={np.percentile(calib_height_mins,10):.3f} "
         f"min={min(calib_height_mins):.3f}  (rollouts with min<=h_min: {n_calib_genuinely_low}/{len(calib_traj)})")
     if n_p1_fail > 0 and n_calib_genuinely_low < len(calib_traj):

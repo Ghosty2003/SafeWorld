@@ -57,6 +57,7 @@ import logging
 import os
 import warnings
 import hashlib
+from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
 import numpy as np
@@ -67,6 +68,44 @@ from .base import WorldModelWrapper
 logger = logging.getLogger(__name__)
 
 TDMPC2_SRC_DEFAULT = os.environ.get("TDMPC2_SRC", "/tmp/tdmpc2_src/tdmpc2")
+
+
+@dataclass(frozen=True)
+class TDMPC2ClosedLoopState:
+    """Complete executable state of one model-side TD-MPC2 closed loop.
+
+    ``mpc_plan`` is stateful and randomized: the next action depends on the
+    latent, MPPI's warm-start mean, and PyTorch's RNG stream. Keeping only
+    ``z`` is therefore not Markov. These snapshots deliberately describe the
+    executable finite-precision model, not a continuous mathematical region.
+    """
+
+    z: np.ndarray
+    previous_mean: np.ndarray
+    torch_cpu_rng: np.ndarray
+    torch_device_rng: np.ndarray | None
+    planner_initialized: bool
+    action_source: str
+
+    def fingerprint(self) -> str:
+        digest = hashlib.sha256()
+        digest.update(b"tdmpc2-closed-loop-state-v1\0")
+        digest.update(self.action_source.encode("utf-8") + b"\0")
+        digest.update(bytes([self.planner_initialized]))
+        for value in (
+            self.z,
+            self.previous_mean,
+            self.torch_cpu_rng,
+            self.torch_device_rng,
+        ):
+            if value is None:
+                digest.update(b"none\0")
+                continue
+            array = np.ascontiguousarray(value)
+            digest.update(str(array.dtype).encode("ascii") + b"\0")
+            digest.update(np.asarray(array.shape, dtype=np.int64).tobytes())
+            digest.update(array.tobytes())
+        return digest.hexdigest()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -128,7 +167,7 @@ def plan_from_z(agent: Any, z0, t0: bool, eval_mode: bool, task):
         if not eval_mode:
             a = a + std_ * torch.randn(cfg.action_dim, device=std_.device)
         agent._prev_mean.copy_(mean)
-        return a.clamp(-1, 1)
+    return a.clamp(-1, 1)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -216,6 +255,7 @@ class TDMPC2Wrapper(WorldModelWrapper):
         hydra.utils.get_original_cwd = lambda: os.getcwd()
 
         from common.parser import parse_cfg  # noqa: PLC0415
+        from common.seed import set_seed  # noqa: PLC0415
         from envs import make_env  # noqa: PLC0415
         from tdmpc2 import TDMPC2  # noqa: PLC0415
 
@@ -227,7 +267,14 @@ class TDMPC2Wrapper(WorldModelWrapper):
         cfg.obs = "state"
         cfg = parse_cfg(cfg)
 
+        # Upstream train.py calls set_seed(), but the old wrapper did not.
+        # cfg.seed alone seeds dm_control and does not seed MPPI's torch.randn
+        # or Gumbel draw. Seed before constructing either environment or agent
+        # so a recorded closed-loop snapshot is reproducible across processes.
+        set_seed(seed)
+
         self._cfg = cfg
+        self._seed = int(seed)
         self._task = task
         self._env = make_env(cfg)
 
@@ -247,7 +294,18 @@ class TDMPC2Wrapper(WorldModelWrapper):
         except AttributeError:
             self._dmw = self._physics = self._dm_task = None
 
+        if self._physics is not None and task.startswith('walker-'):
+            from .walker_contact_monitor import WalkerContactMonitor
+            self._env = WalkerContactMonitor(self._env, self._physics)
+
         logger.info(f"TDMPC2Wrapper loaded: task={task} device={self._agent.device}")
+
+    def real_contact_aps(self) -> dict[str, float]:
+        """Observed event bit; never use this as an imagined-latent prediction."""
+        from .walker_contact_monitor import WalkerContactMonitor
+        if not isinstance(self._env, WalkerContactMonitor):
+            raise RuntimeError('Walker real contact monitor is unavailable')
+        return self._env.aps()
 
     def set_ap_extractor(
         self,
@@ -297,6 +355,163 @@ class TDMPC2Wrapper(WorldModelWrapper):
         the regression-test evidence this matches official TDMPC2._plan()."""
         return plan_from_z(self._agent, z, t0=t0, eval_mode=eval_mode, task=None).unsqueeze(0)
 
+    def snapshot_closed_loop_state(
+        self,
+        z,
+        *,
+        action_source: Literal["mpc_plan", "pi_prior"],
+        planner_initialized: bool,
+    ) -> TDMPC2ClosedLoopState:
+        """Capture every mutable input to the next model-side policy step."""
+        if self._agent is None:
+            raise RuntimeError("Call load() before snapshotting closed-loop state.")
+        if action_source not in {"mpc_plan", "pi_prior"}:
+            raise ValueError(f"Unknown action_source: {action_source!r}")
+        import torch
+
+        device = self._agent.device
+        device_rng = None
+        if torch.device(device).type == "cuda":
+            device_rng = torch.cuda.get_rng_state(device).cpu().numpy().copy()
+        return TDMPC2ClosedLoopState(
+            z=z.detach().cpu().numpy().copy(),
+            previous_mean=self._agent._prev_mean.detach().cpu().numpy().copy(),
+            torch_cpu_rng=torch.get_rng_state().cpu().numpy().copy(),
+            torch_device_rng=device_rng,
+            planner_initialized=bool(planner_initialized),
+            action_source=action_source,
+        )
+
+    def restore_closed_loop_state(self, state: TDMPC2ClosedLoopState):
+        """Restore a snapshot and return its latent tensor on the model device."""
+        if self._agent is None:
+            raise RuntimeError("Call load() before restoring closed-loop state.")
+        import torch
+
+        expected = tuple(self._agent._prev_mean.shape)
+        if tuple(state.previous_mean.shape) != expected:
+            raise ValueError(
+                f"planner mean shape mismatch: expected {expected}, "
+                f"got {tuple(state.previous_mean.shape)}"
+            )
+        torch.set_rng_state(torch.from_numpy(state.torch_cpu_rng.copy()))
+        device = torch.device(self._agent.device)
+        if device.type == "cuda":
+            if state.torch_device_rng is None:
+                raise ValueError("CUDA closed-loop state is missing its device RNG")
+            torch.cuda.set_rng_state(
+                torch.from_numpy(state.torch_device_rng.copy()), device=device
+            )
+        with torch.no_grad():
+            previous = torch.as_tensor(
+                state.previous_mean,
+                dtype=self._agent._prev_mean.dtype,
+                device=device,
+            )
+            self._agent._prev_mean.copy_(previous)
+            return torch.as_tensor(state.z, dtype=torch.float32, device=device)
+
+    def step_closed_loop_state(
+        self, state: TDMPC2ClosedLoopState
+    ) -> tuple[TDMPC2ClosedLoopState, np.ndarray]:
+        """Execute exactly one reproducible model+policy transition.
+
+        Equality of two returned snapshot fingerprints is an exact lasso in
+        the executable floating-point semantics because planner memory and RNG
+        are part of the state. It is not a real-environment statement.
+        """
+        import torch
+
+        with torch.no_grad():
+            z = self.restore_closed_loop_state(state)
+            step_idx = 1 if state.planner_initialized else 0
+            action = self._select_action(z, step_idx, state.action_source)
+            z_next = self.next(z, action)
+            next_state = self.snapshot_closed_loop_state(
+                z_next,
+                action_source=state.action_source,
+                planner_initialized=True,
+            )
+        return next_state, action[0].detach().cpu().numpy().copy()
+
+    def closed_loop_state_from_physics(
+        self,
+        physics_state: np.ndarray,
+        *,
+        action_source: Literal["mpc_plan", "pi_prior"],
+        planner_seed: int,
+    ) -> TDMPC2ClosedLoopState:
+        """Create a reproducible t0 snapshot from one exact MuJoCo anchor."""
+        if self._agent is None:
+            raise RuntimeError("Call load() before creating closed-loop state.")
+        import torch
+
+        obs = self._obs_from_physics_state(np.asarray(physics_state))
+        torch.manual_seed(planner_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(planner_seed)
+        with torch.no_grad():
+            self._agent._prev_mean.zero_()
+            z = self.encode(obs)
+        return self.snapshot_closed_loop_state(
+            z,
+            action_source=action_source,
+            planner_initialized=False,
+        )
+
+    def extend_dmcontrol_episode_limit(self, max_agent_steps: int) -> dict[str, Any]:
+        """Extend both TD-MPC2 and dm_control time limits without resetting physics.
+
+        TD-MPC2's dm_control adapter has two independent episode boundaries:
+        the outer ``Timeout`` counts agent steps, while dm_control's underlying
+        ``control.Environment`` counts physics/control steps.  Merely ignoring
+        the outer ``done`` is unsound because the underlying environment will
+        automatically reset on its next step after reaching its own limit.
+
+        This method is intentionally explicit and walker validation code must
+        audit ``underlying_control_steps`` after a long run to ensure no hidden
+        reset occurred.  One TD-MPC2 agent step advances two dm_control steps.
+        """
+        if max_agent_steps < 1:
+            raise ValueError("max_agent_steps must be positive")
+        if self._env is None or self._dmw is None:
+            raise RuntimeError("Call load() before extending the episode limit.")
+
+        outer_timeout = getattr(self._env, "env", None)
+        action_scale_wrapper = getattr(self._dmw, "env", None)
+        control_env = getattr(action_scale_wrapper, "_env", None)
+        if (
+            outer_timeout is None
+            or not hasattr(outer_timeout, "_max_episode_steps")
+            or control_env is None
+            or not hasattr(control_env, "_step_limit")
+        ):
+            raise RuntimeError(
+                "Unexpected TD-MPC2/dm_control wrapper stack; refusing to "
+                "claim a continuous long-horizon execution."
+            )
+
+        metadata = {
+            "old_outer_agent_step_limit": int(outer_timeout._max_episode_steps),
+            "old_inner_control_step_limit": int(control_env._step_limit),
+            "new_outer_agent_step_limit": int(max_agent_steps),
+            "new_inner_control_step_limit": "infinity",
+            "dmcontrol_steps_per_agent_step": 2,
+        }
+        outer_timeout._max_episode_steps = int(max_agent_steps)
+        control_env._step_limit = float("inf")
+        return metadata
+
+    def dmcontrol_underlying_step_count(self) -> int:
+        """Return the underlying control counter used to audit hidden resets."""
+        if self._dmw is None:
+            raise RuntimeError("Call load() before reading the step count.")
+        action_scale_wrapper = getattr(self._dmw, "env", None)
+        control_env = getattr(action_scale_wrapper, "_env", None)
+        if control_env is None or not hasattr(control_env, "_step_count"):
+            raise RuntimeError("Unexpected dm_control wrapper stack.")
+        return int(control_env._step_count)
+
     def _real_height(self, obs) -> float:
         return float(obs[14])  # dm_control walker obs layout: orientations(14)+height+velocity
 
@@ -314,6 +529,11 @@ class TDMPC2Wrapper(WorldModelWrapper):
         self._env.reset()  # establishes a valid physics/task context to overwrite
         self._physics.set_state(state)
         self._physics.forward()
+        # A bare physics anchor omits the previous transition's event bit.
+        # Do not inherit the unrelated reset state's latch.
+        from .walker_contact_monitor import WalkerContactMonitor
+        if isinstance(self._env, WalkerContactMonitor):
+            self._env.contact = None
         obs_dict = self._dm_task.get_observation(self._physics)
         return self._dmw._obs_to_array(obs_dict)
 
@@ -583,7 +803,9 @@ class TDMPC2Wrapper(WorldModelWrapper):
             for t, action in enumerate(actions):
                 action_array = np.asarray(action, dtype=np.float32)
                 env_obs, _, done, _ = self._env.step(torch.from_numpy(action_array))
-                env_traj.append(dict(environment_ap_extractor(env_obs)))
+                env_aps = dict(environment_ap_extractor(env_obs))
+                env_aps.update(self.real_contact_aps())
+                env_traj.append(env_aps)
                 if done and t + 1 < len(actions):
                     raise RuntimeError(
                         f"Replay rollout {rollout_index} terminated at t={t} before its "
@@ -665,7 +887,9 @@ class TDMPC2Wrapper(WorldModelWrapper):
             env_traj: list[dict[str, float]] = []
             for t, action in enumerate(actions):
                 env_obs, _, done, _ = self._env.step(torch.from_numpy(action))
-                env_traj.append(dict(environment_ap_extractor(env_obs)))
+                env_aps = dict(environment_ap_extractor(env_obs))
+                env_aps.update(self.real_contact_aps())
+                env_traj.append(env_aps)
                 if done and t + 1 < horizon:
                     raise RuntimeError(
                         f"Paired replay rollout {rollout_index} terminated at t={t} before "

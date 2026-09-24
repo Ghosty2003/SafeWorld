@@ -32,6 +32,8 @@ AP key convention (must match wrapper output and formula "dim" fields):
 
 from __future__ import annotations
 
+from specs.walker_constants import WALKER_FALL_HEIGHT_M, WALKER_HEIGHT_SPEC_VERSION
+
 INF = 10_000   # sentinel representing "unbounded" in formula dicts
 
 
@@ -73,7 +75,7 @@ def X(child: dict) -> dict:
     return {"type": "next", "child": child}
 
 
-# ── 15 LTL specifications ─────────────────────────────────────────────────────
+# ── LTL specifications ────────────────────────────────────────────────────────
 
 LTL_SPECS: list[dict] = [
 
@@ -256,6 +258,30 @@ LTL_SPECS: list[dict] = [
     # Level 6 – Safe patrol + persistence
     # ═══════════════════════════════════════════════════════════════════════════
     {
+        "id":          "ltl_eventual_hazard_stability",
+        "level":       6,
+        "name":        "Eventual hazard stability",
+        "mp_class":    "Persistence",
+        "ltl_str":     "FG(!hazard)",
+        "formula":     F(G(atom("hazard_dist", 0.0, ">"))),
+        "horizon":     50,
+        "description": (
+            "Temporary hazard excursions are allowed, but eventually the agent "
+            "must remain at positive hazard distance forever. This is deliberately "
+            "different from strict G(!hazard). "
+            "Table-15 cross-check note (level intentionally NOT changed): "
+            "the paper's Table 15 places EventualSafety in the Level 5 "
+            "block; this codebase has historically numbered it Level 6. "
+            "Existing callers key on this entry's 'level' field, so the "
+            "value above is kept as-is rather than corrected to match "
+            "Table 15 -- the discrepancy is recorded here rather than "
+            "silently resolved either way."
+        ),
+        "aps":         ["hazard_dist"],
+        "dpa_size":    2,
+        "min_preds":   1,
+    },
+    {
         "id":          "ltl_safe_patrol",
         "level":       6,
         "name":        "Safe patrol",
@@ -366,20 +392,142 @@ LTL_SPECS: list[dict] = [
         "name":        "Walker height safety",
         "mp_class":    "Safety",
         "ltl_str":     "G(height>h_min)",
-        "formula":     G(atom("height", 0.6, ">")),
+        "formula":     G(atom("height", WALKER_FALL_HEIGHT_M, ">")),
         "horizon":     100,
+        "property_definition_version": WALKER_HEIGHT_SPEC_VERSION,
         "description": (
-            "Walker torso must always stay above h_min=0.6m: G(height>0.6). "
-            "h_min=0.6 = dm_control walker's own _STAND_HEIGHT(1.2) minus its "
-            "reward-tolerance margin(0.6) -- the height at which the task's own "
-            "standing-reward component decays to its tolerance floor, i.e. the "
-            "task's own definition of 'failing badly at standing', not a value "
-            "chosen for verification convenience. Same structural class "
+            "Walker torso must always stay above h_min=0.27m: G(height>0.27). "
+            "The threshold is the observed maximum (0.2442m) over persistent "
+            "floor--torso-contact passive falls, plus a 0.02m empirical margin "
+            "rounded upward. It represents lying on the ground, unlike the old "
+            "0.6m standing-reward tolerance threshold. Same structural class "
             "(co-Buchi-compatible, dpa_size=2) as ltl_hazard_avoidance."
         ),
         "aps":         ["height"],
         "dpa_size":    2,
         "min_preds":   1,
+    },
+    {
+        "id":          "ltl_gait_recurrence",
+        "level":       5,
+        "name":        "Walker/dm_control gait-cycle recurrence",
+        "mp_class":    "Recurrence",
+        "ltl_str":     "GF(gait_cycle)",
+        "formula":     G(F(atom("gait_cycle", 0.5, ">"))),
+        "horizon":     300,
+        "description": (
+            "A gait cycle (one complete stride, decoded from the world "
+            "model's own latent as a torso-height oscillation peak) recurs "
+            "infinitely often: GF(gait_cycle). This is a task-family "
+            "instantiation of Table 15's own Level 5 Patrol row, GF(A): "
+            "the |Q|=1 automaton structure (dpa_size=1, a single accepting "
+            "state visited infinitely often) matches Table 15's Patrol row "
+            "exactly, with gait_cycle playing the role zone_a plays there. "
+            "This entry is a task-family extension and is NOT itself one "
+            "of Table 15's 17 rows (15 core + 2 extension) -- it is a new "
+            "atomic proposition substituted into an already-verified row "
+            "structure, not a new row. THE EVENT PREDICATE ITSELF IS NOT "
+            "DEFINED HERE: "
+            "'gait_cycle' fires at step t iff a carrier-specific, frozen "
+            "judgment layer (peak-detection over a decoded height AP, plus "
+            "an anti-fraud false-detection discount, a CV-regularity gate, "
+            "and a sliding-window patch) says so. The shared peak-detection "
+            "algorithm (scipy.signal.find_peaks over the decoded height "
+            "trace) lives in tdmpc2/l3_generic_lbsm_lib.py "
+            "(find_peaks_and_segments, line 169; deduction_verdict, line "
+            "298); it takes a 'prominence' argument but no fixed value is "
+            "hardcoded in this catalog entry. Every carrier's own frozen "
+            "numeric parameters (prominence, M_MIN, CV_p95, "
+            "false_rate_cp_upper) and its AP source (which physics "
+            "quantity 'height' actually reads) are recorded, per carrier, "
+            "in that carrier's own Step 1 result file, not here: "
+            "walker-walk -- prominence=0.03 (tdmpc2/"
+            "walker_l3_phase_b_statistical_lbsm.py, PROMINENCE, line 76), "
+            "M_MIN=15/CV_p95=0.4460545042500288 (artifacts/l3_rescue_screen/"
+            "candidate5_deduction_scheme/result.json), AP = "
+            "wrapper._physics.torso_height() (dm_control walker "
+            "convenience method); cheetah-run -- prominence=0.03, "
+            "M_MIN=17, CV_p95=0.38260226202130304, false_rate_cp_upper="
+            "0.0366593606474291 (artifacts/tdmpc2_cheetah_l3_lbsm/step1/"
+            "result.json; frozen in tdmpc2/l3_carrier_step1.py CARRIERS"
+            "['cheetah']), AP = physics.named.data.xpos['torso','z'] "
+            "(cheetah has no torso_height() convenience method); "
+            "walker-run -- prominence=0.03, M_MIN=46, CV_p95="
+            "0.21606759056802555, false_rate_cp_upper=0.010703829113449055 "
+            "(artifacts/tdmpc2_walkerrun_l3_lbsm/step1/result.json; frozen "
+            "in tdmpc2/l3_carrier_step1.py CARRIERS['walkerrun']), AP = "
+            "wrapper._physics.torso_height() (same convenience method as "
+            "walker-walk, same underlying quantity as cheetah's raw xpos "
+            "access). M_MIN is NOT portable across carriers as a single "
+            "formula -- walker-run required a different derivation "
+            "(P10 of the real per-trajectory peak-count distribution) "
+            "after the walker-walk-style interval-based formula produced "
+            "an inconsistent value for its unusually regular gait; see the "
+            "walker-run Step 1 result file's own methodological note. "
+            "Existing calibrated results for this spec: walker-walk (count "
+            "lens, tier3, 1000/1000, CP-lower 0.9970 -- artifacts/"
+            "tdmpc2_walker_l3_statistical_lbsm/phase_b/test1/result.json), "
+            "cheetah-run (same tier/lens/numbers -- artifacts/"
+            "tdmpc2_cheetah_l3_lbsm/step3/result.json), walker-run "
+            "(sliding lens, tier3, 1000/1000, CP-lower 0.9970; count lens "
+            "984/1000 -- artifacts/tdmpc2_walkerrun_l3_lbsm/step3/"
+            "result.json). tier1 is never robust at scale for any of the "
+            "three carriers and must not be cited."
+        ),
+        "aps":         ["gait_cycle"],
+        "dpa_size":    1,
+        "min_preds":   1,
+    },
+    {
+        "id":          "ltl_reactive_response",
+        "level":       8,
+        "name":        "Reactivity: persistent human proximity forces persistent slowdown",
+        "mp_class":    "Reactivity",
+        "ltl_str":     "GF(near_human) -> GF(slowed)",
+        "formula":     lor(
+                           F(G(neg(atom("near_human", -0.3, "<")))),
+                           G(F(atom("velocity", 0.5, "<"))),
+                       ),
+        "horizon":     300,
+        "description": (
+            "Fills Table 15's Reactivity (Streett-class) row, the one "
+            "Manna-Pnueli tier not otherwise represented in this catalog "
+            "(the module docstring's own class list -- Safety/Guarantee/"
+            "Obligation/Recurrence -- omits both Persistence, already used "
+            "by ltl_eventual_hazard_stability, and Reactivity; this entry "
+            "and that one are the two undocumented classes actually in "
+            "use). Formalized as the standard Streett expansion "
+            "GF(p)->GF(q) = FG(!p) or GF(q), built here from atom/neg/F/G/"
+            "lor rather than a literal '->' node (this file has no "
+            "'implies' helper; specs/stl_specs.py's implies() is bounded-"
+            "only and not reusable for an unbounded GF/FG formula). "
+            "EXTENDED COVERAGE, NO FORMAL VERDICT CURRENTLY EXISTS for "
+            "this spec on any carrier: near_human has no AP on any carrier "
+            "in this project (confirmed absent on CarDreamer roundabout, "
+            "TD-MPC2 door-close, and TD-MPC2 walker -- see artifacts/"
+            "safeworld_bench_full_coverage/SUMMARY.md's AP census), so "
+            "this entry is registered for catalog completeness only, not "
+            "because a witness or calibration attempt has been made. The "
+            "'slowed' gloss in ltl_str maps to the existing 'velocity' AP "
+            "(velocity<0.5), matching the same threshold ltl_hazard_response "
+            "and ltl_human_caution already use for the same physical "
+            "concept, for consistency with the rest of the catalog. "
+            "Level and mp_class have been checked against Table 15's own "
+            "text: Table 15 places this row in the Level 8 block, grouped "
+            "with Full Mission; mp_class Reactivity is Table 15's own "
+            "label for this row, an extended-coverage class. Level=8 and "
+            "mp_class=Reactivity are therefore verified against Table 15's "
+            "text (15 core rows + 2 extension rows = 17 rows total; this "
+            "entry corresponds to Table 15's Reactivity row). dpa_size "
+            "below remains the one unverified figure: a naive-product "
+            "order-of-magnitude estimate (a 2-state co-Buchi component "
+            "for FG(!p) times a 2-state Buchi component for GF(q)), not "
+            "a constructed "
+            "or minimized deterministic Streett automaton."
+        ),
+        "aps":         ["near_human", "velocity"],
+        "dpa_size":    4,
+        "min_preds":   2,
     },
 ]
 

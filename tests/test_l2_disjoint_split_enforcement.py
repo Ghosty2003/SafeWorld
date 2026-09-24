@@ -42,6 +42,21 @@ def _safety_spec(ap: str = "hazard") -> dict:
     }
 
 
+def _persistence_spec(ap: str = "hazard") -> dict:
+    """Recoverable co-Buchi spec eligible for main.verify's LPPM route."""
+    return {
+        "id": "test_disjoint_persistence",
+        "formula": {
+            "type": "eventually", "a": 0, "b": 100000,
+            "child": {
+                "type": "always", "a": 0, "b": 100000,
+                "child": {"type": "atom", "dim": ap, "threshold": 0.5, "op": "<"},
+            },
+        },
+        "aps": [ap],
+    }
+
+
 def _trajectories(n: int = 3, t: int = 4) -> list[list[dict]]:
     return [[{"hazard": 0.0} for _ in range(t)] for _ in range(n)]
 
@@ -121,7 +136,10 @@ def test_verify_fit_lppm_params_without_train_split_raises():
     """
     from main import VerifyConfig, verify
 
-    spec = _safety_spec()
+    # Strict Safety is intentionally routed away from LPPM because its
+    # absorbing odd trap makes positive-eta P2 infeasible. Persistence keeps
+    # this test focused on the disjoint-split branch it is meant to exercise.
+    spec = _persistence_spec()
     trajectory = [{"hazard": 0.0}, {"hazard": 0.0}, {"hazard": 0.0}]
     cfg = VerifyConfig(verbose=False, fit_lppm_params=True, lppm_epochs=1)
     with pytest.raises(ValueError, match="(?i)lppm_train_trajectories|disjoint|training split"):
@@ -131,7 +149,7 @@ def test_verify_fit_lppm_params_without_train_split_raises():
 def test_verify_fit_lppm_params_with_disjoint_split_succeeds():
     from main import VerifyConfig, verify
 
-    spec = _safety_spec()
+    spec = _persistence_spec()
     calib_trajectory = [{"hazard": 0.0}, {"hazard": 0.0}, {"hazard": 0.0}]
     train_trajectory = [{"hazard": 0.0}, {"hazard": 0.0}, {"hazard": 0.0}]
     cfg = VerifyConfig(

@@ -47,6 +47,7 @@ from core.lppm import (
     calibrate_lppm,
     fit_lppm,
     DEFAULT_LPPM_CONFIG,
+    analyze_lppm_feasibility,
     LPPMResult,
 )
 from core.cegar import (
@@ -429,6 +430,11 @@ def verify(
         raise ValueError("trajectories must be non-empty")
     if not spec:
         raise ValueError("spec must be a valid specification dict")
+
+    for key in spec.get('required_binary_aps', []):
+        for trajectory in trajectories:
+            if any(key not in state or state[key] not in (0, 1) for state in trajectory):
+                raise ValueError(f'Required binary AP {key!r} is missing or invalid')
 
     predicate_defs = spec.get("predicates", [])
     if predicate_defs:
@@ -813,6 +819,32 @@ def verify(
         print("  [3/3] LPPM: building parity automaton and calibrating certificate...")
 
     dpa          = build_parity_automaton(spec)
+    lppm_feasibility = analyze_lppm_feasibility(
+        dpa, mp_class=mp_class, eta=cfg.eta
+    )
+    if not lppm_feasibility.eligible:
+        if cfg.verbose:
+            print("  [3/3] LPPM: skipped -- absorbing odd Safety trap is incompatible with P2.")
+            print("  → INCONCLUSIVE for L2 (retain direct invariant/L1 evidence)")
+        return VerificationResult(
+            verdict=INCONCLUSIVE,
+            monitor=monitor_res,
+            transfer=transfer_res,
+            lppm=None,
+            spec_id=spec_id,
+            spec_name=spec.get("name", ""),
+            mp_class=mp_class,
+            level=spec.get("level", 0),
+            task_level=analysis["task_level"],
+            verification_mode="direct_invariant_only",
+            support_level=analysis["support_level"],
+            support_note=lppm_feasibility.reason,
+            wall_time=time.perf_counter() - t0,
+            guarantee_type="none",
+            confidence=0.0,
+            safety_verdict=safety_verdict,
+            safety_witnesses=[*environment_witnesses, *model_witnesses],
+        )
     support_level = analysis["support_level"]
     support_note = analysis["support_note"]
     automaton_translation = "exact" if getattr(dpa, "exact", False) else getattr(dpa, "backend", "template")

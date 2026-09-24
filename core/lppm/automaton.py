@@ -254,23 +254,29 @@ def build_parity_automaton(spec: dict[str, Any]) -> ParityAutomaton:
 
     if mp == "Persistence":
         stable_aps = objectives["persistence"] or spec.get("aps", [])
-        transitions = {
-            ("pre", frozenset()): "pre",
-            ("absorbed", frozenset()): "pre",
-        }
+        # Appendix C.7: the two states record whether the most recent label
+        # satisfies p. Neither state is absorbing; a finite automaton cannot
+        # know that p has permanently stabilized. The initial state is the
+        # even p-state, and every label deterministically selects the next
+        # state from either source.
+        p_state = "p"
+        not_p_state = "not_p"
+        transitions = {}
         for active in _all_label_sets(stable_aps):
-            if all(ap in active for ap in stable_aps):
-                transitions[("pre", active)] = "absorbed"
-                transitions[("absorbed", active)] = "absorbed"
-            else:
-                transitions[("pre", active)] = "pre"
-                transitions[("absorbed", active)] = "pre"
+            destination = (
+                p_state if all(ap in active for ap in stable_aps) else not_p_state
+            )
+            transitions[(p_state, active)] = destination
+            transitions[(not_p_state, active)] = destination
         return ParityAutomaton(
-            states=["pre", "absorbed"],
-            initial="pre",
-            priority={"pre": 1, "absorbed": 0},
+            states=[p_state, not_p_state],
+            initial=p_state,
+            priority={p_state: 0, not_p_state: 1},
             transition=transitions,
-            state_meta={"pre": {"kind": "pre"}, "absorbed": {"kind": "absorbed"}},
+            state_meta={
+                p_state: {"kind": "p"},
+                not_p_state: {"kind": "not_p"},
+            },
             backend="template",
         )
 
@@ -330,6 +336,9 @@ def build_parity_automaton(spec: dict[str, Any]) -> ParityAutomaton:
 
 
 def extract_active_aps(state: dict[str, float], spec: dict[str, Any]) -> frozenset[str]:
+    for key in spec.get('required_binary_aps', []):
+        if key not in state or state[key] not in (0, 1):
+            raise ValueError(f'Required binary AP {key!r} is missing or invalid')
     active = set()
     atom_map = spec.get("atom_map") or collect_atom_map(spec["formula"])
     spec["atom_map"] = atom_map

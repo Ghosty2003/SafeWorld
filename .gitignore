@@ -10,3 +10,7 @@ verified_checkpoints/
 *.ckpt
 *.log
 .DS_Store
+
+# LingBot-VA checkpoints (large, fetched via huggingface_hub, not source)
+lingbot-va/model/
+*.safetensors

@@ -143,11 +143,13 @@ def build_imagine_fn(jax_agent, horizon: int, n_acts: int, burn_in: int,
     return nj.jit(nj.pure(_fn), device=dev)
 
 
-def build_imagine_from_latent_fn(jax_agent, horizon: int):
+def build_imagine_from_latent_fn(jax_agent, horizon: int, decode: bool = False):
     """
-    f(varibs, rng, deter, stoch, logit) -> deter_seq (horizon, n, hdim).
+    f(varibs, rng, deter, stoch, logit) -> deter_seq (horizon, n, hdim)   (decode=False)
+                                        -> (images_u8, deter_seq)        (decode=True)
     Start imagination from an existing posterior latent (e.g. captured from
-    jax_agent.policy() while driving a real episode).
+    jax_agent.policy() while driving a real episode, or saved to disk earlier
+    -- no CARLA/live episode needed at call time either way).
     """
     from dreamerv3 import ninjax as nj
     import jax.numpy as jnp
@@ -163,7 +165,68 @@ def build_imagine_from_latent_fn(jax_agent, horizon: int):
         def policy(state):
             return actor(state).sample(seed=nj.rng())
 
-        return wm.imagine(policy, start, horizon)["deter"][1:]
+        traj = wm.imagine(policy, start, horizon)
+        if not decode:
+            return traj["deter"][1:]
+        decoded = wm.heads["decoder"](traj)
+        imgs = jnp.clip(jnp.round(decoded["birdeye_wpt"].mode() * 255.0),
+                        0, 255).astype(jnp.uint8)
+        return imgs[1:], traj["deter"][1:]
+
+    return nj.jit(nj.pure(_fn), device=dev)
+
+
+def build_decode_from_deter_stoch_fn(jax_agent):
+    """
+    f(varibs, rng, deter, stoch) -> images_u8 (n, 128, 128, 3)
+    Decodes ALREADY-COMPUTED (deter, stoch) states (e.g. loaded from a saved
+    npz) through the world model's own decoder head -- no re-imagination, no
+    new RSSM sampling, no CARLA. Used to extract CV APs (hazard_dist etc.)
+    post hoc from previously-generated imagination rollouts that were saved
+    without images (decode=False) to save time/disk.
+    """
+    from dreamerv3 import ninjax as nj
+    import jax.numpy as jnp
+
+    wm = jax_agent.agent.wm
+    dev = jax_agent.policy_devices[0]
+
+    def _fn(deter, stoch):
+        state = {"deter": deter, "stoch": stoch}
+        decoded = wm.heads["decoder"](state)
+        imgs = jnp.clip(jnp.round(decoded["birdeye_wpt"].mode() * 255.0), 0, 255).astype(jnp.uint8)
+        return imgs
+
+    return nj.jit(nj.pure(_fn), device=dev)
+
+
+def build_imagine_deter_stoch_fn(jax_agent, horizon: int):
+    """
+    f(varibs, rng, deter, stoch, logit) -> (deter_seq, stoch_seq)
+      deter_seq: (horizon, n, hdim)   stoch_seq: (horizon, n, *stoch_shape)
+    Same imagination mechanism as build_imagine_from_latent_fn, but also
+    returns the flattened stochastic latent (needed to assemble the full
+    [deter, stoch] feature vector used by cardreamer/train_l2_persistence_latent_v.py's
+    established convention -- decode=False variants elsewhere only returned
+    deter, which is sufficient for position-probe decoding but not for
+    training a V network on the full RSSM state).
+    """
+    from dreamerv3 import ninjax as nj
+    import jax.numpy as jnp
+    from wrappers.cardreamer_wrapper import _get_actor
+
+    wm, actor = jax_agent.agent.wm, _get_actor(jax_agent)
+    dev = jax_agent.policy_devices[0]
+
+    def _fn(deter, stoch, logit):
+        start = {"deter": deter, "stoch": stoch, "logit": logit,
+                 "is_terminal": jnp.zeros((deter.shape[0],), jnp.float32)}
+
+        def policy(state):
+            return actor(state).sample(seed=nj.rng())
+
+        traj = wm.imagine(policy, start, horizon)
+        return traj["deter"][1:], traj["stoch"][1:]
 
     return nj.jit(nj.pure(_fn), device=dev)
 

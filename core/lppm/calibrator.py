@@ -33,11 +33,44 @@ class LPPMResult:
     # core/lppm/verifier.py::verify_zfree_closure()'s docstring.
     zfree_closure: ZFreeClosureResult | None = None
 
+    def zfree_precondition_violated(self) -> bool:
+        """
+        Permanent fix (Theorem 5.4 precondition gate): True iff at least one
+        sampled trajectory had a Z_free-source transition (V(z,q) < eta) that
+        failed (P1)/(P2) -- i.e. Theorem 5.4's own minimal premise does not
+        hold on this sample. This is a HARD, zero-tolerance gate: any
+        violation forces a reject regardless of how high p_hat_gamma or even
+        p_hat_closure itself is (a single genuine violation can be diluted
+        across many otherwise-passing Z_free-source trajectories and still
+        leave p_hat_closure above a soft threshold like 0.80 -- that is not
+        an acceptable basis for issuing a CALIBRATED/SAFE verdict here).
+
+        False (no gate triggered) when zfree_closure is None/unverifiable
+        (no trajectory ever had a Z_free-source transition to check --
+        distinct from "checked and passed").
+        """
+        zc = self.zfree_closure
+        if zc is None or not zc.verifiable:
+            return False
+        return zc.k_zfree < zc.n_zfree
+
+    def n_zfree_violations(self) -> int:
+        """Trajectory-level violation count backing zfree_precondition_violated()."""
+        zc = self.zfree_closure
+        if zc is None or not zc.verifiable:
+            return 0
+        return zc.n_zfree - zc.k_zfree
+
     def is_warranted(self) -> bool:
+        if self.zfree_precondition_violated():
+            return False
         return self.p_hat_gamma >= self.warrant_threshold
 
     def summary(self) -> str:
-        status = "WARRANT ✓" if self.is_warranted() else "NOT WARRANTED"
+        gated = self.zfree_precondition_violated()
+        status = "ABSTAIN (Z_free precondition violated)" if gated else (
+            "WARRANT ✓" if self.is_warranted() else "NOT WARRANTED"
+        )
         lines = [
             f"[LPPM] {status} | "
             f"p̂_γ={self.p_hat_gamma:.3f}  "
@@ -50,8 +83,19 @@ class LPPMResult:
                 lines.append(
                     f"[Z_free closure] p̂_closure={self.zfree_closure.p_hat_closure:.3f}  "
                     f"n={self.zfree_closure.n_zfree}  k={self.zfree_closure.k_zfree}  "
+                    f"violations={self.n_zfree_violations()}  "
                     "(Theorem 5.4 minimal premise -- separate from p̂_γ above, not merged)"
                 )
+                if gated:
+                    lines.append(
+                        f"[Z_free closure] HARD GATE TRIGGERED: {self.n_zfree_violations()} "
+                        "of {n} Z_free-source trajector{y_ies} failed (P1)/(P2) -- no "
+                        "CALIBRATED result may be issued regardless of p̂_γ/p̂_closure "
+                        "value.".format(
+                            n=self.zfree_closure.n_zfree,
+                            y_ies="y" if self.zfree_closure.n_zfree == 1 else "ies",
+                        )
+                    )
             else:
                 lines.append(
                     "[Z_free closure] UNVERIFIABLE -- no trajectory had a source state "

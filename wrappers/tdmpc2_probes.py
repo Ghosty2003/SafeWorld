@@ -74,7 +74,11 @@ def fit_height_probe(npz_path: str, alpha: float = 10.0):
     """
     from sklearn.linear_model import Ridge
 
-    z, h = _load_scalar_probe_data(npz_path, "h")
+    with np.load(npz_path, allow_pickle=False) as data:
+        target_key = "h" if "h" in data.files else "height"
+    # The durable multi-AP posterior dataset uses the descriptive ``height``
+    # key; older height-only pilot files used ``h``.
+    z, h = _load_scalar_probe_data(npz_path, target_key)
     return Ridge(alpha=alpha).fit(z, h)
 
 
@@ -140,4 +144,21 @@ def walker_forward_speed_from_physics(physics) -> float:
     value = float(physics.horizontal_velocity())
     if not np.isfinite(value):
         raise ValueError("walker physics returned a non-finite horizontal velocity")
+    return value
+
+
+def walker_forward_position_from_physics(physics) -> float:
+    """Return the planar walker's absolute root-x position in metres.
+
+    Goal experiments convert this to trajectory-relative progress by
+    subtracting the value observed immediately after reset.  Keeping that
+    subtraction in the experiment (rather than here) makes the temporal
+    reference state explicit and auditable.
+    """
+    try:
+        value = float(physics.named.data.qpos["rootx"])
+    except (AttributeError, KeyError, TypeError, ValueError) as error:
+        raise ValueError("walker physics has no scalar named rootx position") from error
+    if not np.isfinite(value):
+        raise ValueError("walker physics returned a non-finite rootx position")
     return value
