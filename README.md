@@ -16,6 +16,18 @@ initialized from simulator reset observations, not real-environment executions.
 Each run freezes its specification, V and gates before collecting 500 fresh
 calibration paths and 1,000 independent Test1 paths. The warrant threshold is 0.95.
 
+Checkpoint identification (weights are intentionally **not uploaded**):
+
+```text
+Variant: OSRP-Vector / SafetyPointGoal1-v0 / seed 0
+Filename: 20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt
+SHA256: 09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa
+```
+
+On another computer, obtain the same checkpoint separately and verify the hash.
+This is the SafeDreamer backend checkpoint, not the separately fitted certificate
+V weights needed to replay the frozen L2 evaluation.
+
 | Layer | Specification | MP class | Backend / carrier | H | Verdict | p_hat_gamma (CP lower, 95%) | Test 1 (N=1000) |
 |---|---|---|---|---:|---|---:|---|
 | L2 | F[1,17] G[0,47](not hazard) | Guarantee (bounded) | SafeDreamer / SafetyPointGoal1-v0 | 64 | SAFE* | 0.9739 | 970/1000, 0.9595 |

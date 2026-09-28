@@ -44,14 +44,19 @@ This is an orientation list, not an exhaustive minimal dependency closure.
 In particular, keep `selected_bundle.pt`, selected V weights, `region.npz`,
 policy configuration, plans, identity records, raw arrays and report/audit files.
 
-Also transfer the external world-model checkpoint:
+The external world-model checkpoint is intentionally not uploaded to GitHub.
+Obtain it separately on the destination computer (or reuse an existing matching
+copy). The exact checkpoint used was OSRP-Vector / SafetyPointGoal1-v0 / seed 0:
 
 ```text
 SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt
 SHA256: 09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa
 ```
 
-Verify its hash with `sha256sum` after copying. For a full transfer, create a
+Verify its hash with `sha256sum` after obtaining it. This backend checkpoint is
+distinct from the fitted V weights listed above; identifying the backend alone
+does not reconstruct those learned certificate weights.
+For a full transfer, create a
 checksum manifest of the source files and verify the destination against it.
 Check checkpoint/data redistribution permissions before publishing them.
 
