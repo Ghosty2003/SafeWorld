@@ -1,0 +1,288 @@
+{
+  "created": "2026-09-24T12:52:30.296348+00:00",
+  "stage": "FIT_ONLY_SCREENING",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2",
+  "new_rollouts": 0,
+  "source_plan_sha256": "b7dab8e12ab4f4009df93f44bbc6cced910ead503216dc66299dc43066cd424b",
+  "horizon": 300,
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "start_distribution": "fresh independently seeded environment reset, encoded initial goal distance>=1.0",
+  "split_counts": {
+    "fit": 16,
+    "cal_delta": 0,
+    "cal_CP": 0,
+    "test": 0
+  },
+  "thresholds_from": "12 train-fit paths; pooled states0..300; not iid observations",
+  "candidates": [
+    {
+      "id": "clearance_q25_75",
+      "family": "clearance",
+      "signal": "clearance",
+      "safety_required": false,
+      "semantic": "LOW clearance -> HIGH clearance; relative clearance recovery",
+      "semantic_priority": 0,
+      "threshold_label": "q25_75",
+      "d_low": 0.4735981774226446,
+      "d_high": 0.7910375755438274,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "clearance_q10_90",
+      "family": "clearance",
+      "signal": "clearance",
+      "safety_required": false,
+      "semantic": "LOW clearance -> HIGH clearance; relative clearance recovery",
+      "semantic_priority": 0,
+      "threshold_label": "q10_90",
+      "d_low": 0.38290708552676095,
+      "d_high": 1.0271607785216392,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "motion_q25_75",
+      "family": "motion",
+      "signal": "speed",
+      "safety_required": false,
+      "semantic": "LOW decoded speed -> HIGH decoded speed; movement resumes, not goal success",
+      "semantic_priority": 2,
+      "threshold_label": "q25_75",
+      "d_low": 0.2314642400954701,
+      "d_high": 0.7596940547566862,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "motion_q10_90",
+      "family": "motion",
+      "signal": "speed",
+      "safety_required": false,
+      "semantic": "LOW decoded speed -> HIGH decoded speed; movement resumes, not goal success",
+      "semantic_priority": 2,
+      "threshold_label": "q10_90",
+      "d_low": 0.10620508047248037,
+      "d_high": 1.0249977548232574,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "approach_q25_75",
+      "family": "approach",
+      "signal": "approach",
+      "safety_required": false,
+      "semantic": "FAR from decoded goal -> NEAR decoded goal; not original goal attainment",
+      "semantic_priority": 1,
+      "threshold_label": "q25_75",
+      "d_low": 0.3984356577572765,
+      "d_high": 0.593074429944052,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "approach_q10_90",
+      "family": "approach",
+      "signal": "approach",
+      "safety_required": false,
+      "semantic": "FAR from decoded goal -> NEAR decoded goal; not original goal attainment",
+      "semantic_priority": 1,
+      "threshold_label": "q10_90",
+      "d_low": 0.348614680888713,
+      "d_high": 0.6999069828576674,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "progress_q25_75",
+      "family": "progress",
+      "signal": "progress",
+      "safety_required": false,
+      "semantic": "Receding from decoded goal -> approaching it; may reflect decoded jitter",
+      "semantic_priority": 3,
+      "threshold_label": "q25_75",
+      "d_low": 0.349485887534763,
+      "d_high": 0.7460596884805437,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "progress_q10_90",
+      "family": "progress",
+      "signal": "progress",
+      "safety_required": false,
+      "semantic": "Receding from decoded goal -> approaching it; may reflect decoded jitter",
+      "semantic_priority": 3,
+      "threshold_label": "q10_90",
+      "d_low": 0.20417842736750735,
+      "d_high": 0.8705985533816771,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "clearance_safe_q25_75",
+      "family": "clearance_safe",
+      "signal": "clearance",
+      "safety_required": true,
+      "semantic": "Clearance returns AND no decoded hazard throughout states0..300",
+      "semantic_priority": 0,
+      "threshold_label": "q25_75",
+      "d_low": 0.4735981774226446,
+      "d_high": 0.7910375755438274,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "clearance_safe_q10_90",
+      "family": "clearance_safe",
+      "signal": "clearance",
+      "safety_required": true,
+      "semantic": "Clearance returns AND no decoded hazard throughout states0..300",
+      "semantic_priority": 0,
+      "threshold_label": "q10_90",
+      "d_low": 0.38290708552676095,
+      "d_high": 1.0271607785216392,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "motion_safe_q25_75",
+      "family": "motion_safe",
+      "signal": "speed",
+      "safety_required": true,
+      "semantic": "Motion resumes AND no decoded hazard throughout states0..300",
+      "semantic_priority": 2,
+      "threshold_label": "q25_75",
+      "d_low": 0.2314642400954701,
+      "d_high": 0.7596940547566862,
+      "quantiles": [
+        0.25,
+        0.75
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    },
+    {
+      "id": "motion_safe_q10_90",
+      "family": "motion_safe",
+      "signal": "speed",
+      "safety_required": true,
+      "semantic": "Motion resumes AND no decoded hazard throughout states0..300",
+      "semantic_priority": 2,
+      "threshold_label": "q10_90",
+      "d_low": 0.10620508047248037,
+      "d_high": 1.0249977548232574,
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "dwell": 1,
+      "refractory": 0,
+      "M_MIN": 2
+    }
+  ],
+  "M_MIN": 2,
+  "updates": 400,
+  "eta": 0.01,
+  "shuffle_seeds": [
+    31000,
+    31001,
+    31002,
+    31003,
+    31004,
+    31005,
+    31006,
+    31007,
+    31008,
+    31009
+  ],
+  "ranking": "Event eligibility, budget MAE vs train-mean constant, gap <=.35, then semantic priority; never CP",
+  "semantic_priority": [
+    "clearance",
+    "approach",
+    "motion",
+    "progress"
+  ],
+  "KEEP_does_not_mean": "No guarantee of nondegenerate certificate or infinite recurrence",
+  "formal_future_delta_rule": {
+    "method": "split conformal whole-path upper residual",
+    "alpha": 0.05,
+    "score": "max(0,max_segments(eta*(end-start)-g(x_start))); includes observed tail",
+    "order": "ceil((n_cal_delta+1)*(1-alpha)); k>n -> INVALID_NO_WARRANT, never finite replacement",
+    "prohibit_retraining": true
+  },
+  "candidate_code_hashes": {
+    "experiments/safedreamer_recurrence_screening.py": "d54b739a94858a1ee76b533439bfd19cb56e8d8ed2fde78664cb33dbea0b56ba",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_high_clearance_pilot.py": "b587d7b368cd044a6fbd91ccb8861d133ed5d54d0330919317db30a9db29ea0e",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_finite_recurrence_pilot.py": "fbafe2c3c21bcce61b60150746b697c4177580b5f148304a7dc43e0482938b96",
+    "/home/sunyhg/Documents/SafeWorld/core/finite_recurrence.py": "58389ec358175df96a3bb245ee4f1ad502f9af4939085917248143129fe010e6"
+  }
+}

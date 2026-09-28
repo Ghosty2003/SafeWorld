@@ -1,0 +1,9 @@
+{
+  "frozen_at": "2026-09-24T01:39:22.130604+00:00",
+  "confirmed_at": "2026-09-24T02:05:35.338418+00:00",
+  "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_clear_window_v_linear6000",
+  "source_plan_sha256": "bedacb1e536203206b26683492c7e1da7c1d7cf19bbc1ca24a13452209f895ba",
+  "model_sha256": "6a9f62c89635a044410e1c69b671cc276cb58c2a8ddd1e4aa7b8aad6a4b3d568",
+  "selected_candidate": "linear_max4",
+  "step": 4800
+}

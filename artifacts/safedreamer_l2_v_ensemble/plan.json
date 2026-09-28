@@ -1,0 +1,50 @@
+{
+  "configs": [
+    {
+      "name": "fullbatch_polish",
+      "lr": 8e-05,
+      "margin": 0.02,
+      "batch": 180,
+      "loss": "top",
+      "seed": 51,
+      "steps": 1200
+    },
+    {
+      "name": "smooth_path",
+      "lr": 0.0001,
+      "margin": 0.05,
+      "batch": 48,
+      "loss": "path",
+      "seed": 52,
+      "steps": 2400
+    },
+    {
+      "name": "large_margin",
+      "lr": 0.0001,
+      "margin": 0.1,
+      "batch": 48,
+      "loss": "top",
+      "seed": 53,
+      "steps": 2400
+    }
+  ],
+  "scales": [
+    1.0,
+    2.0,
+    4.0,
+    8.0
+  ],
+  "eta": 0.01,
+  "train_paths": 180,
+  "validation_paths": 100,
+  "combination_modes": [
+    "mean",
+    "min",
+    "max"
+  ],
+  "no_time_feature": true,
+  "selection": "train P2 <=1%; validation noninitial event; validation P2 violations; training P2 violations",
+  "baseline_sha256": "e724087b18d70d3efa86f4336e9cd5184621c8a6131b7478895f52433ce6ae84",
+  "test_seed": 12307,
+  "test_paths": 100
+}

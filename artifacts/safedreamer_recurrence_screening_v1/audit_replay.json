@@ -1,0 +1,10 @@
+{
+  "time": "2026-09-24T12:54:17.672945+00:00",
+  "exact_cases": 2496,
+  "seeded_shuffle_replayed": true,
+  "gate_and_reset_replayed": true,
+  "delta_fit_recomputed": true,
+  "selection_reproduced": true,
+  "calibration_count": 0,
+  "test_count": 0
+}

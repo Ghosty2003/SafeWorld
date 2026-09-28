@@ -1,0 +1,45 @@
+{
+  "at": "2026-09-25T00:49:53.036197+00:00",
+  "selected_replayed": true,
+  "independent_gate_AND": true,
+  "independent_weighted_formula": true,
+  "all_primitive_hashes_checked": true,
+  "failed_internal_paths": [
+    {
+      "path": 13,
+      "completion_t": 45,
+      "p1_failure_times": [
+        8,
+        17,
+        20,
+        24,
+        28,
+        31,
+        32,
+        39,
+        40,
+        41
+      ],
+      "p2_failure_times": [
+        8,
+        17,
+        20,
+        22,
+        24,
+        28,
+        31,
+        32,
+        36,
+        39,
+        40,
+        41
+      ],
+      "max_delta": 0.2858376285397648
+    }
+  ],
+  "selected_bundle_sha256": "e0eb6fb620853f86c8fbab9d8015ab092b8298084a194aa4488acaae955b12d5",
+  "calibration_count": 0,
+  "test_count": 0,
+  "code_sha256": "50af3020c3ee273b7d2ec947d94669c615c6eeb212fcff3d8ecc5ea90a553098",
+  "audit_sha256": "b49097be7205dbebfff060c81c3e53484bc7d465a89bdcefc26bb197b3298766"
+}

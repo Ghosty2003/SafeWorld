@@ -1,0 +1,1974 @@
+{
+  "spec": "A_S48",
+  "kind": "W",
+  "train_margin": 0.1,
+  "name": "A_S48_W_m0.100",
+  "checkpoint": "A_S48_W_m0.100.pt",
+  "sha256": "0fdf6c954ee431c9c23d9f03d4039a51e4c658e9a6eb1802c357761322cb0df9",
+  "baseline": false,
+  "history": [
+    {
+      "step": 1,
+      "loss": 0.20684818923473358,
+      "branch": 0.10027667880058289,
+      "path": 0.1007702574133873,
+      "shape": 0.224745512008667
+    },
+    {
+      "step": 100,
+      "loss": 0.04707097262144089,
+      "branch": 0.0,
+      "path": 0.08824994415044785,
+      "shape": 0.011784003116190434
+    },
+    {
+      "step": 200,
+      "loss": 0.04780559241771698,
+      "branch": 0.0014458715450018644,
+      "path": 0.08708642423152924,
+      "shape": 0.01126603502780199
+    },
+    {
+      "step": 300,
+      "loss": 0.043487515300512314,
+      "branch": 0.001145344227552414,
+      "path": 0.0806993618607521,
+      "shape": 0.007969958707690239
+    },
+    {
+      "step": 400,
+      "loss": 0.045565053820610046,
+      "branch": 0.0006302306428551674,
+      "path": 0.08567972481250763,
+      "shape": 0.008379839360713959
+    }
+  ],
+  "train": {
+    "required": 57,
+    "raw_pass": 57,
+    "train_margin_pass": 54,
+    "fixed_slack_pass": 32,
+    "verification_threshold": -0.01,
+    "reference_sampling_slack": 0.13694762955854156,
+    "distribution": {
+      "min": -0.2576747111743316,
+      "q10": -0.22006924864836036,
+      "median": -0.15474659041501582,
+      "q90": -0.11306869102991188,
+      "max": -0.09431025097728707
+    },
+    "all_anchor_distribution": {
+      "min": -0.2576747111743316,
+      "q10": -0.19869490526616573,
+      "median": -0.09801056608557701,
+      "q90": 0.008704719628440216,
+      "max": 0.02619439217960462
+    },
+    "values": {
+      "min": 0.0053415256552398205,
+      "q10": 0.016359505243599415,
+      "median": 0.03828025050461292,
+      "q90": 0.24821355938911438,
+      "max": 0.9897666573524475
+    },
+    "value_std": 0.15740297734737396,
+    "below_ell_anchor_count": 109,
+    "n_anchors": 111,
+    "initial_below_ell_count": 0,
+    "n_paths": 12,
+    "collapsed_sample_range": false,
+    "anchor_rows": [
+      {
+        "id": "A_S48:47500000:1",
+        "accepting": false,
+        "required": true,
+        "value": 0.8955636620521545,
+        "mean_successor": 0.7556414026767015,
+        "drift": -0.139922259375453,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:8",
+        "accepting": false,
+        "required": true,
+        "value": 0.4897487163543701,
+        "mean_successor": 0.33850777335464954,
+        "drift": -0.15124094299972057,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500000:26",
+        "accepting": false,
+        "required": true,
+        "value": 0.18919315934181213,
+        "mean_successor": 0.06115640001371503,
+        "drift": -0.1280367593280971,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:39",
+        "accepting": false,
+        "required": true,
+        "value": 0.18993279337882996,
+        "mean_successor": 0.05040665116393939,
+        "drift": -0.13952614221489057,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:84",
+        "accepting": true,
+        "required": false,
+        "value": 0.05121660605072975,
+        "mean_successor": 0.04738399537745863,
+        "drift": -0.0038326106732711196,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:141",
+        "accepting": true,
+        "required": false,
+        "value": 0.04711277782917023,
+        "mean_successor": 0.042760092532262206,
+        "drift": -0.004352685296908021,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:144",
+        "accepting": true,
+        "required": false,
+        "value": 0.04593852907419205,
+        "mean_successor": 0.053125320468097925,
+        "drift": 0.007186791393905878,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:155",
+        "accepting": true,
+        "required": false,
+        "value": 0.01824098639190197,
+        "mean_successor": 0.020390164136188105,
+        "drift": 0.002149177744286135,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:169",
+        "accepting": true,
+        "required": false,
+        "value": 0.016457628458738327,
+        "mean_successor": 0.02101158126606606,
+        "drift": 0.0045539528073277324,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500000:179",
+        "accepting": true,
+        "required": false,
+        "value": 0.019831079989671707,
+        "mean_successor": 0.022926467761863023,
+        "drift": 0.003095387772191316,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:2",
+        "accepting": false,
+        "required": true,
+        "value": 0.8231135606765747,
+        "mean_successor": 0.6572346612811089,
+        "drift": -0.16587889939546585,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500002:3",
+        "accepting": false,
+        "required": true,
+        "value": 0.7178164720535278,
+        "mean_successor": 0.5919174067676067,
+        "drift": -0.1258990652859211,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:15",
+        "accepting": false,
+        "required": true,
+        "value": 0.3925109803676605,
+        "mean_successor": 0.2152202008292079,
+        "drift": -0.17729077953845263,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500002:25",
+        "accepting": false,
+        "required": true,
+        "value": 0.26134809851646423,
+        "mean_successor": 0.12159926339518279,
+        "drift": -0.13974883512128145,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:33",
+        "accepting": false,
+        "required": true,
+        "value": 0.2429036647081375,
+        "mean_successor": 0.0881570742931217,
+        "drift": -0.15474659041501582,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500002:55",
+        "accepting": true,
+        "required": false,
+        "value": 0.04566918686032295,
+        "mean_successor": 0.0354889354784973,
+        "drift": -0.010180251381825656,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:101",
+        "accepting": true,
+        "required": false,
+        "value": 0.03202257305383682,
+        "mean_successor": 0.031635609950171784,
+        "drift": -0.00038696310366503894,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:114",
+        "accepting": true,
+        "required": false,
+        "value": 0.07543912529945374,
+        "mean_successor": 0.054423046589363366,
+        "drift": -0.02101607871009037,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:152",
+        "accepting": true,
+        "required": false,
+        "value": 0.06150975450873375,
+        "mean_successor": 0.05533429834758863,
+        "drift": -0.006175456161145121,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500002:178",
+        "accepting": true,
+        "required": false,
+        "value": 0.01983330026268959,
+        "mean_successor": 0.016345744748832658,
+        "drift": -0.0034875555138569325,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6441291570663452,
+        "mean_successor": 0.508564711548388,
+        "drift": -0.1355644455179572,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:16",
+        "accepting": false,
+        "required": true,
+        "value": 0.3957124352455139,
+        "mean_successor": 0.22184175602160394,
+        "drift": -0.17387067922390997,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500003:24",
+        "accepting": false,
+        "required": true,
+        "value": 0.45525798201560974,
+        "mean_successor": 0.23607139696832746,
+        "drift": -0.21918658504728228,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500003:41",
+        "accepting": false,
+        "required": true,
+        "value": 0.317691445350647,
+        "mean_successor": 0.123556062229909,
+        "drift": -0.19413538312073797,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500003:46",
+        "accepting": false,
+        "required": true,
+        "value": 0.2812119126319885,
+        "mean_successor": 0.07179919350892305,
+        "drift": -0.20941271912306547,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500003:80",
+        "accepting": true,
+        "required": false,
+        "value": 0.08736403286457062,
+        "mean_successor": 0.058571666362695396,
+        "drift": -0.02879236650187522,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:91",
+        "accepting": true,
+        "required": false,
+        "value": 0.05700374394655228,
+        "mean_successor": 0.051952491339761764,
+        "drift": -0.005051252606790513,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:109",
+        "accepting": true,
+        "required": false,
+        "value": 0.10768286138772964,
+        "mean_successor": 0.0897405557334423,
+        "drift": -0.017942305654287338,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:149",
+        "accepting": true,
+        "required": false,
+        "value": 0.036395907402038574,
+        "mean_successor": 0.021775467961560935,
+        "drift": -0.01462043944047764,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500003:180",
+        "accepting": true,
+        "required": false,
+        "value": 0.03100758232176304,
+        "mean_successor": 0.04449872195255011,
+        "drift": 0.013491139630787075,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:2",
+        "accepting": false,
+        "required": true,
+        "value": 0.7988869547843933,
+        "mean_successor": 0.6545232720673084,
+        "drift": -0.14436368271708488,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:6",
+        "accepting": false,
+        "required": true,
+        "value": 0.613508939743042,
+        "mean_successor": 0.4761252235621214,
+        "drift": -0.1373837161809206,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:13",
+        "accepting": false,
+        "required": true,
+        "value": 0.46066123247146606,
+        "mean_successor": 0.26196632720530033,
+        "drift": -0.19869490526616573,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500005:45",
+        "accepting": false,
+        "required": true,
+        "value": 0.2649191915988922,
+        "mean_successor": 0.057589352887589484,
+        "drift": -0.20732983871130273,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500005:46",
+        "accepting": false,
+        "required": true,
+        "value": 0.17894205451011658,
+        "mean_successor": 0.03450776293175295,
+        "drift": -0.14443429157836363,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:67",
+        "accepting": true,
+        "required": false,
+        "value": 0.02717939019203186,
+        "mean_successor": 0.03298688743961975,
+        "drift": 0.005807497247587889,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:106",
+        "accepting": true,
+        "required": false,
+        "value": 0.021366510540246964,
+        "mean_successor": 0.03007123016868718,
+        "drift": 0.008704719628440216,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:120",
+        "accepting": true,
+        "required": false,
+        "value": 0.11775758117437363,
+        "mean_successor": 0.12721579568460584,
+        "drift": 0.00945821451023221,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500005:170",
+        "accepting": true,
+        "required": false,
+        "value": 0.0239456407725811,
+        "mean_successor": 0.02661871918826364,
+        "drift": 0.0026730784156825393,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6955918669700623,
+        "mean_successor": 0.5473084216937423,
+        "drift": -0.14828344527631998,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500006:5",
+        "accepting": false,
+        "required": true,
+        "value": 0.6471643447875977,
+        "mean_successor": 0.5204509068280458,
+        "drift": -0.1267134379595518,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:8",
+        "accepting": false,
+        "required": true,
+        "value": 0.5658754706382751,
+        "mean_successor": 0.39989453786984086,
+        "drift": -0.16598093276843429,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500006:10",
+        "accepting": false,
+        "required": true,
+        "value": 0.5081725120544434,
+        "mean_successor": 0.33804378006607294,
+        "drift": -0.17012873198837042,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500006:89",
+        "accepting": true,
+        "required": false,
+        "value": 0.027643462643027306,
+        "mean_successor": 0.028463769529480487,
+        "drift": 0.0008203068864531815,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:102",
+        "accepting": true,
+        "required": false,
+        "value": 0.02338767796754837,
+        "mean_successor": 0.0392665212857537,
+        "drift": 0.015878843318205327,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:118",
+        "accepting": true,
+        "required": false,
+        "value": 0.025074683129787445,
+        "mean_successor": 0.05081729817902669,
+        "drift": 0.025742615049239248,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:136",
+        "accepting": true,
+        "required": false,
+        "value": 0.039061885327100754,
+        "mean_successor": 0.03447893384145573,
+        "drift": -0.004582951485645026,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500006:169",
+        "accepting": true,
+        "required": false,
+        "value": 0.01463332213461399,
+        "mean_successor": 0.021067368710646406,
+        "drift": 0.006434046576032415,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6923865675926208,
+        "mean_successor": 0.5574893085286021,
+        "drift": -0.13489725906401873,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:6",
+        "accepting": false,
+        "required": true,
+        "value": 0.5851702690124512,
+        "mean_successor": 0.4259441322647035,
+        "drift": -0.15922613674774766,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500007:13",
+        "accepting": false,
+        "required": true,
+        "value": 0.3741360306739807,
+        "mean_successor": 0.2664641053415835,
+        "drift": -0.10767192533239722,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:36",
+        "accepting": false,
+        "required": true,
+        "value": 0.3088802397251129,
+        "mean_successor": 0.06589732121210545,
+        "drift": -0.24298291851300746,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500007:97",
+        "accepting": true,
+        "required": false,
+        "value": 0.03794855624437332,
+        "mean_successor": 0.04418797470862046,
+        "drift": 0.006239418464247137,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:118",
+        "accepting": true,
+        "required": false,
+        "value": 0.0395914725959301,
+        "mean_successor": 0.03169263046584092,
+        "drift": -0.007898842130089179,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:134",
+        "accepting": true,
+        "required": false,
+        "value": 0.05201088637113571,
+        "mean_successor": 0.05538581620203331,
+        "drift": 0.0033749298308975995,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500007:168",
+        "accepting": true,
+        "required": false,
+        "value": 0.024082662537693977,
+        "mean_successor": 0.023013383033685386,
+        "drift": -0.0010692795040085912,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500008:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6691598296165466,
+        "mean_successor": 0.5682463943958282,
+        "drift": -0.10091343522071838,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500008:10",
+        "accepting": false,
+        "required": true,
+        "value": 0.5249412059783936,
+        "mean_successor": 0.28771416703239083,
+        "drift": -0.23722703894600272,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500008:20",
+        "accepting": false,
+        "required": true,
+        "value": 0.3870225250720978,
+        "mean_successor": 0.19842793862335384,
+        "drift": -0.18859458644874394,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500008:28",
+        "accepting": false,
+        "required": true,
+        "value": 0.22965097427368164,
+        "mean_successor": 0.10273552080616355,
+        "drift": -0.1269154534675181,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500008:34",
+        "accepting": false,
+        "required": true,
+        "value": 0.27038177847862244,
+        "mean_successor": 0.11509945697616786,
+        "drift": -0.15528232150245458,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500008:112",
+        "accepting": true,
+        "required": false,
+        "value": 0.009573138318955898,
+        "mean_successor": 0.01874389490694739,
+        "drift": 0.009170756587991491,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500008:131",
+        "accepting": true,
+        "required": false,
+        "value": 0.03331383690237999,
+        "mean_successor": 0.03281543729826808,
+        "drift": -0.0004983996041119099,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500008:172",
+        "accepting": true,
+        "required": false,
+        "value": 0.008333984762430191,
+        "mean_successor": 0.015638136712368578,
+        "drift": 0.007304151949938387,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500009:6",
+        "accepting": false,
+        "required": true,
+        "value": 0.5792498588562012,
+        "mean_successor": 0.45338588394224644,
+        "drift": -0.12586397491395473,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500009:11",
+        "accepting": false,
+        "required": true,
+        "value": 0.3646220266819,
+        "mean_successor": 0.25830290862359107,
+        "drift": -0.10631911805830896,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500009:15",
+        "accepting": false,
+        "required": true,
+        "value": 0.3814316391944885,
+        "mean_successor": 0.20615513855591416,
+        "drift": -0.17527650063857436,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500009:20",
+        "accepting": false,
+        "required": true,
+        "value": 0.3452892601490021,
+        "mean_successor": 0.12389601609902456,
+        "drift": -0.2213932440499775,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500009:26",
+        "accepting": false,
+        "required": true,
+        "value": 0.20853978395462036,
+        "mean_successor": 0.06016330354032107,
+        "drift": -0.1483764804142993,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500009:36",
+        "accepting": false,
+        "required": true,
+        "value": 0.2058313637971878,
+        "mean_successor": 0.06773267849348485,
+        "drift": -0.13809868530370295,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500009:68",
+        "accepting": true,
+        "required": false,
+        "value": 0.02333483286201954,
+        "mean_successor": 0.022319294104818255,
+        "drift": -0.0010155387572012842,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500009:142",
+        "accepting": true,
+        "required": false,
+        "value": 0.030892077833414078,
+        "mean_successor": 0.030792705016210675,
+        "drift": -9.937281720340252e-05,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500011:5",
+        "accepting": false,
+        "required": true,
+        "value": 0.6503146290779114,
+        "mean_successor": 0.403410735540092,
+        "drift": -0.24690389353781939,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500011:15",
+        "accepting": false,
+        "required": true,
+        "value": 0.31472814083099365,
+        "mean_successor": 0.12431684450712055,
+        "drift": -0.1904112963238731,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500011:26",
+        "accepting": false,
+        "required": true,
+        "value": 0.2766541540622711,
+        "mean_successor": 0.06189933459972963,
+        "drift": -0.2147548194625415,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500011:29",
+        "accepting": false,
+        "required": true,
+        "value": 0.2732294499874115,
+        "mean_successor": 0.07563104946166277,
+        "drift": -0.19759840052574873,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500011:31",
+        "accepting": false,
+        "required": true,
+        "value": 0.1787087470293045,
+        "mean_successor": 0.07995198771823198,
+        "drift": -0.09875675931107253,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500011:36",
+        "accepting": false,
+        "required": true,
+        "value": 0.20015794038772583,
+        "mean_successor": 0.029000026814173907,
+        "drift": -0.17115791357355192,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500011:49",
+        "accepting": true,
+        "required": false,
+        "value": 0.033072274178266525,
+        "mean_successor": 0.051784965820843354,
+        "drift": 0.01871269164257683,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500011:56",
+        "accepting": true,
+        "required": false,
+        "value": 0.06977585703134537,
+        "mean_successor": 0.08326161233708262,
+        "drift": 0.013485755305737257,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500011:74",
+        "accepting": true,
+        "required": false,
+        "value": 0.043746817857027054,
+        "mean_successor": 0.027955105993896723,
+        "drift": -0.01579171186313033,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500011:167",
+        "accepting": true,
+        "required": false,
+        "value": 0.036056313663721085,
+        "mean_successor": 0.032448143989313394,
+        "drift": -0.0036081696744076908,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:14",
+        "accepting": false,
+        "required": true,
+        "value": 0.3804946839809418,
+        "mean_successor": 0.21670881542377174,
+        "drift": -0.16378586855717003,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500013:15",
+        "accepting": false,
+        "required": true,
+        "value": 0.39385873079299927,
+        "mean_successor": 0.15350447804667056,
+        "drift": -0.2403542527463287,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500013:28",
+        "accepting": false,
+        "required": true,
+        "value": 0.2551409602165222,
+        "mean_successor": 0.13120794360293075,
+        "drift": -0.12393301661359146,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:32",
+        "accepting": false,
+        "required": true,
+        "value": 0.2149171382188797,
+        "mean_successor": 0.07642902704537846,
+        "drift": -0.13848811117350124,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:58",
+        "accepting": true,
+        "required": false,
+        "value": 0.14279699325561523,
+        "mean_successor": 0.14463891927152872,
+        "drift": 0.0018419260159134865,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:83",
+        "accepting": true,
+        "required": false,
+        "value": 0.058707721531391144,
+        "mean_successor": 0.06975175708066672,
+        "drift": 0.011044035549275577,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:119",
+        "accepting": true,
+        "required": false,
+        "value": 0.2082090526819229,
+        "mean_successor": 0.16844584979116917,
+        "drift": -0.039763202890753746,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:128",
+        "accepting": true,
+        "required": false,
+        "value": 0.03132731094956398,
+        "mean_successor": 0.050586744386237115,
+        "drift": 0.019259433436673135,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:162",
+        "accepting": true,
+        "required": false,
+        "value": 0.06526398658752441,
+        "mean_successor": 0.042867422132985666,
+        "drift": -0.022396564454538748,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500013:165",
+        "accepting": true,
+        "required": false,
+        "value": 0.029703089967370033,
+        "mean_successor": 0.05589748214697465,
+        "drift": 0.02619439217960462,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:9",
+        "accepting": false,
+        "required": true,
+        "value": 0.4821014702320099,
+        "mean_successor": 0.29843522468581796,
+        "drift": -0.18366624554619193,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500014:10",
+        "accepting": false,
+        "required": true,
+        "value": 0.4914848208427429,
+        "mean_successor": 0.23381010966841131,
+        "drift": -0.2576747111743316,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500014:20",
+        "accepting": false,
+        "required": true,
+        "value": 0.16026964783668518,
+        "mean_successor": 0.04360311300843023,
+        "drift": -0.11666653482825495,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:43",
+        "accepting": false,
+        "required": true,
+        "value": 0.13154667615890503,
+        "mean_successor": 0.03723642518161796,
+        "drift": -0.09431025097728707,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:60",
+        "accepting": true,
+        "required": false,
+        "value": 0.022064466029405594,
+        "mean_successor": 0.021599434490781277,
+        "drift": -0.00046503153862431645,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:78",
+        "accepting": true,
+        "required": false,
+        "value": 0.04128051921725273,
+        "mean_successor": 0.038815401028841734,
+        "drift": -0.0024651181884109974,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:99",
+        "accepting": true,
+        "required": false,
+        "value": 0.02789689600467682,
+        "mean_successor": 0.025624074187362567,
+        "drift": -0.0022728218173142523,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:134",
+        "accepting": true,
+        "required": false,
+        "value": 0.03577301278710365,
+        "mean_successor": 0.05115005627158098,
+        "drift": 0.015377043484477326,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:161",
+        "accepting": true,
+        "required": false,
+        "value": 0.03254520148038864,
+        "mean_successor": 0.03142187124467455,
+        "drift": -0.0011233302357140929,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500014:170",
+        "accepting": true,
+        "required": false,
+        "value": 0.029667571187019348,
+        "mean_successor": 0.02472109886002727,
+        "drift": -0.00494647232699208,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6845974922180176,
+        "mean_successor": 0.5563775524497032,
+        "drift": -0.12821993976831436,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:5",
+        "accepting": false,
+        "required": true,
+        "value": 0.5979929566383362,
+        "mean_successor": 0.49998239055275917,
+        "drift": -0.09801056608557701,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:30",
+        "accepting": false,
+        "required": true,
+        "value": 0.2950599789619446,
+        "mean_successor": 0.08050431538140401,
+        "drift": -0.21455566358054057,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500016:42",
+        "accepting": false,
+        "required": true,
+        "value": 0.28990763425827026,
+        "mean_successor": 0.0993013969855383,
+        "drift": -0.19060623727273196,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47500016:43",
+        "accepting": false,
+        "required": true,
+        "value": 0.20982393622398376,
+        "mean_successor": 0.07600076065864414,
+        "drift": -0.13382317556533962,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:108",
+        "accepting": true,
+        "required": false,
+        "value": 0.01996089331805706,
+        "mean_successor": 0.012378320505376905,
+        "drift": -0.007582572812680155,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:129",
+        "accepting": true,
+        "required": false,
+        "value": 0.013855925761163235,
+        "mean_successor": 0.012849580743932165,
+        "drift": -0.0010063450172310695,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:165",
+        "accepting": true,
+        "required": false,
+        "value": 0.01144960056990385,
+        "mean_successor": 0.012629559321794659,
+        "drift": 0.0011799587518908083,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47500016:169",
+        "accepting": true,
+        "required": false,
+        "value": 0.009184329770505428,
+        "mean_successor": 0.012733725772704929,
+        "drift": 0.003549396002199501,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      }
+    ],
+    "confidence": null,
+    "scope": "REUSED_DATA_DIAGNOSTIC_NO_NEW_CONFIDENCE"
+  },
+  "development": {
+    "required": 39,
+    "raw_pass": 25,
+    "train_margin_pass": 4,
+    "fixed_slack_pass": 1,
+    "verification_threshold": -0.01,
+    "reference_sampling_slack": 0.13694762955854156,
+    "distribution": {
+      "min": -0.16107294433459174,
+      "q10": -0.10023527364246547,
+      "median": -0.022638750029727817,
+      "q90": 0.04185431943333243,
+      "max": 0.09974789062471245
+    },
+    "all_anchor_distribution": {
+      "min": -0.16107294433459174,
+      "q10": -0.0949692914437037,
+      "median": -0.006516017448120692,
+      "q90": 0.03804792117916806,
+      "max": 0.09974789062471245
+    },
+    "values": {
+      "min": 0.005948330741375685,
+      "q10": 0.015512035414576531,
+      "median": 0.043571798130869865,
+      "q90": 0.1788337081670761,
+      "max": 0.9898513555526733
+    },
+    "value_std": 0.1479862928390503,
+    "below_ell_anchor_count": 72,
+    "n_anchors": 74,
+    "initial_below_ell_count": 0,
+    "n_paths": 8,
+    "collapsed_sample_range": false,
+    "anchor_rows": [
+      {
+        "id": "A_S48:47600000:3",
+        "accepting": false,
+        "required": true,
+        "value": 0.7029131650924683,
+        "mean_successor": 0.6272565950639546,
+        "drift": -0.07565657002851367,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:14",
+        "accepting": false,
+        "required": true,
+        "value": 0.06881894171237946,
+        "mean_successor": 0.07320299058483215,
+        "drift": 0.004384048872452695,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:17",
+        "accepting": false,
+        "required": true,
+        "value": 0.09433363378047943,
+        "mean_successor": 0.07740465835377108,
+        "drift": -0.016928975426708348,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:21",
+        "accepting": false,
+        "required": true,
+        "value": 0.1142583042383194,
+        "mean_successor": 0.052572609354683664,
+        "drift": -0.06168569488363573,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:29",
+        "accepting": false,
+        "required": true,
+        "value": 0.21206222474575043,
+        "mean_successor": 0.16087536900886334,
+        "drift": -0.05118685573688708,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:32",
+        "accepting": false,
+        "required": true,
+        "value": 0.11521019041538239,
+        "mean_successor": 0.16025943562272005,
+        "drift": 0.04504924520733766,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:76",
+        "accepting": true,
+        "required": false,
+        "value": 0.05660751461982727,
+        "mean_successor": 0.03163899277569726,
+        "drift": -0.02496852184413001,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:83",
+        "accepting": true,
+        "required": false,
+        "value": 0.024092301726341248,
+        "mean_successor": 0.04862380931444932,
+        "drift": 0.02453150758810807,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600000:157",
+        "accepting": true,
+        "required": false,
+        "value": 0.006684585008770227,
+        "mean_successor": 0.016141303332915413,
+        "drift": 0.009456718324145186,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:2",
+        "accepting": false,
+        "required": true,
+        "value": 0.8327351212501526,
+        "mean_successor": 0.7329974120948464,
+        "drift": -0.09973770915530622,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:16",
+        "accepting": false,
+        "required": true,
+        "value": 0.09034817665815353,
+        "mean_successor": 0.0784884978129412,
+        "drift": -0.01185967884521233,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:30",
+        "accepting": false,
+        "required": true,
+        "value": 0.015155967324972153,
+        "mean_successor": 0.02527786012069555,
+        "drift": 0.010121892795723397,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:36",
+        "accepting": false,
+        "required": true,
+        "value": 0.05228143930435181,
+        "mean_successor": 0.04666294624621514,
+        "drift": -0.005618493058136664,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:68",
+        "accepting": true,
+        "required": false,
+        "value": 0.02747398242354393,
+        "mean_successor": 0.020956221358574112,
+        "drift": -0.006517761064969818,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:76",
+        "accepting": true,
+        "required": false,
+        "value": 0.017307821661233902,
+        "mean_successor": 0.015470944708795287,
+        "drift": -0.0018368769524386153,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:79",
+        "accepting": true,
+        "required": false,
+        "value": 0.040346480906009674,
+        "mean_successor": 0.0677632412116509,
+        "drift": 0.02741676030564122,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:89",
+        "accepting": true,
+        "required": false,
+        "value": 0.0635099783539772,
+        "mean_successor": 0.059134249877388356,
+        "drift": -0.004375728476588847,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600002:107",
+        "accepting": true,
+        "required": false,
+        "value": 0.2205924540758133,
+        "mean_successor": 0.17436772094515618,
+        "drift": -0.046224733130657114,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:1",
+        "accepting": false,
+        "required": true,
+        "value": 0.8817923665046692,
+        "mean_successor": 0.7964903984684497,
+        "drift": -0.08530196803621948,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:3",
+        "accepting": false,
+        "required": true,
+        "value": 0.7373157739639282,
+        "mean_successor": 0.6521075431955978,
+        "drift": -0.0852082307683304,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.5849880576133728,
+        "mean_successor": 0.5506127262488008,
+        "drift": -0.03437533136457205,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:11",
+        "accepting": false,
+        "required": true,
+        "value": 0.12175272405147552,
+        "mean_successor": 0.18559238358284347,
+        "drift": 0.06383965953136794,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:12",
+        "accepting": false,
+        "required": true,
+        "value": 0.17891870439052582,
+        "mean_successor": 0.156279954360798,
+        "drift": -0.022638750029727817,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:22",
+        "accepting": false,
+        "required": true,
+        "value": 0.014670600183308125,
+        "mean_successor": 0.055726188173139235,
+        "drift": 0.04105558798983111,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:70",
+        "accepting": true,
+        "required": false,
+        "value": 0.13969802856445312,
+        "mean_successor": 0.1165976575575769,
+        "drift": -0.02310037100687623,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:90",
+        "accepting": true,
+        "required": false,
+        "value": 0.07781802862882614,
+        "mean_successor": 0.13317355168692302,
+        "drift": 0.05535552305809688,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:112",
+        "accepting": true,
+        "required": false,
+        "value": 0.039606042206287384,
+        "mean_successor": 0.025026250466908095,
+        "drift": -0.014579791739379289,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600003:125",
+        "accepting": true,
+        "required": false,
+        "value": 0.025595201179385185,
+        "mean_successor": 0.023335630217843573,
+        "drift": -0.0022595709615416126,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:3",
+        "accepting": false,
+        "required": true,
+        "value": 0.7525138854980469,
+        "mean_successor": 0.6318244859576225,
+        "drift": -0.12068939954042435,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:8",
+        "accepting": false,
+        "required": true,
+        "value": 0.2961752116680145,
+        "mean_successor": 0.3163714161491953,
+        "drift": 0.020196204481180757,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:53",
+        "accepting": true,
+        "required": false,
+        "value": 0.16531948745250702,
+        "mean_successor": 0.05527835214525112,
+        "drift": -0.1100411353072559,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:65",
+        "accepting": true,
+        "required": false,
+        "value": 0.06665617227554321,
+        "mean_successor": 0.055945320054888725,
+        "drift": -0.010710852220654488,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:92",
+        "accepting": true,
+        "required": false,
+        "value": 0.03823811560869217,
+        "mean_successor": 0.07831899891607463,
+        "drift": 0.040080883307382464,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:109",
+        "accepting": true,
+        "required": false,
+        "value": 0.07221639901399612,
+        "mean_successor": 0.05467776566001703,
+        "drift": -0.017538633353979094,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600004:122",
+        "accepting": true,
+        "required": false,
+        "value": 0.06106831878423691,
+        "mean_successor": 0.07497151714051142,
+        "drift": 0.013903198356274515,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:2",
+        "accepting": false,
+        "required": true,
+        "value": 0.7991788387298584,
+        "mean_successor": 0.6969533071387559,
+        "drift": -0.10222553159110248,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:5",
+        "accepting": false,
+        "required": true,
+        "value": 0.5733854174613953,
+        "mean_successor": 0.47036362712970003,
+        "drift": -0.10302179033169523,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:15",
+        "accepting": false,
+        "required": true,
+        "value": 0.049014125019311905,
+        "mean_successor": 0.07336759501777124,
+        "drift": 0.02435346999845933,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:24",
+        "accepting": false,
+        "required": true,
+        "value": 0.028679030016064644,
+        "mean_successor": 0.04979737439134624,
+        "drift": 0.021118344375281595,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:33",
+        "accepting": false,
+        "required": true,
+        "value": 0.08538124710321426,
+        "mean_successor": 0.10780382886878215,
+        "drift": 0.022422581765567884,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:48",
+        "accepting": true,
+        "required": false,
+        "value": 0.05055703595280647,
+        "mean_successor": 0.044042762121534906,
+        "drift": -0.0065142738312715665,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:86",
+        "accepting": true,
+        "required": false,
+        "value": 0.02240169234573841,
+        "mean_successor": 0.025542394314470585,
+        "drift": 0.0031407019687321736,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:88",
+        "accepting": true,
+        "required": false,
+        "value": 0.05524619668722153,
+        "mean_successor": 0.03754807615405298,
+        "drift": -0.01769812053316855,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:105",
+        "accepting": true,
+        "required": false,
+        "value": 0.038686297833919525,
+        "mean_successor": 0.06784178422094556,
+        "drift": 0.02915548638702603,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600005:119",
+        "accepting": true,
+        "required": false,
+        "value": 0.02806295081973076,
+        "mean_successor": 0.06136729369973182,
+        "drift": 0.03330434288000106,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:2",
+        "accepting": false,
+        "required": true,
+        "value": 0.7970689535140991,
+        "mean_successor": 0.6989893205463886,
+        "drift": -0.0980796329677105,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:11",
+        "accepting": false,
+        "required": true,
+        "value": 0.1998724788427353,
+        "mean_successor": 0.15190691540192347,
+        "drift": -0.04796556344081182,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:13",
+        "accepting": false,
+        "required": true,
+        "value": 0.11138441413640976,
+        "mean_successor": 0.10966952588205459,
+        "drift": -0.0017148882543551736,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:16",
+        "accepting": false,
+        "required": true,
+        "value": 0.1203327402472496,
+        "mean_successor": 0.069452165356779,
+        "drift": -0.0508805748904706,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:25",
+        "accepting": false,
+        "required": true,
+        "value": 0.01879010908305645,
+        "mean_successor": 0.0338663658585574,
+        "drift": 0.015076256775500951,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:38",
+        "accepting": false,
+        "required": true,
+        "value": 0.11581205576658249,
+        "mean_successor": 0.041393885570869315,
+        "drift": -0.07441817019571317,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:72",
+        "accepting": true,
+        "required": false,
+        "value": 0.03244968131184578,
+        "mean_successor": 0.07377548465592554,
+        "drift": 0.04132580334407976,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:101",
+        "accepting": true,
+        "required": false,
+        "value": 0.05551644042134285,
+        "mean_successor": 0.061609396019775886,
+        "drift": 0.006092955598433036,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:132",
+        "accepting": true,
+        "required": false,
+        "value": 0.045078095048666,
+        "mean_successor": 0.04127854593389202,
+        "drift": -0.0037995491147739813,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600006:177",
+        "accepting": true,
+        "required": false,
+        "value": 0.05184559524059296,
+        "mean_successor": 0.02240173250902444,
+        "drift": -0.029443862731568515,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:4",
+        "accepting": false,
+        "required": true,
+        "value": 0.6556038856506348,
+        "mean_successor": 0.5596591611392796,
+        "drift": -0.09594472451135516,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:7",
+        "accepting": false,
+        "required": true,
+        "value": 0.3985578417778015,
+        "mean_successor": 0.3855268792831339,
+        "drift": -0.01303096249466762,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:10",
+        "accepting": false,
+        "required": true,
+        "value": 0.43032121658325195,
+        "mean_successor": 0.2692482722486602,
+        "drift": -0.16107294433459174,
+        "raw_pass": true,
+        "fixed_slack_pass": true
+      },
+      {
+        "id": "A_S48:47600007:17",
+        "accepting": false,
+        "required": true,
+        "value": 0.07557574659585953,
+        "mean_successor": 0.06131764133897377,
+        "drift": -0.014258105256885756,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:27",
+        "accepting": false,
+        "required": true,
+        "value": 0.05602382495999336,
+        "mean_successor": 0.11120978357212152,
+        "drift": 0.05518595861212816,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:28",
+        "accepting": false,
+        "required": true,
+        "value": 0.049170512706041336,
+        "mean_successor": 0.1489184033307538,
+        "drift": 0.09974789062471245,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:61",
+        "accepting": true,
+        "required": false,
+        "value": 0.014283699914813042,
+        "mean_successor": 0.021727085737438756,
+        "drift": 0.007443385822625714,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:66",
+        "accepting": true,
+        "required": false,
+        "value": 0.013749010860919952,
+        "mean_successor": 0.021550502913669334,
+        "drift": 0.007801492052749381,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:87",
+        "accepting": true,
+        "required": false,
+        "value": 0.015704674646258354,
+        "mean_successor": 0.024913051229304983,
+        "drift": 0.009208376583046629,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600007:117",
+        "accepting": true,
+        "required": false,
+        "value": 0.018613053485751152,
+        "mean_successor": 0.018241521618620027,
+        "drift": -0.0003715318671311252,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:6",
+        "accepting": false,
+        "required": true,
+        "value": 0.4789826571941376,
+        "mean_successor": 0.4629111561807804,
+        "drift": -0.016071501013357192,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:8",
+        "accepting": false,
+        "required": true,
+        "value": 0.4857664108276367,
+        "mean_successor": 0.3930731298751198,
+        "drift": -0.09269328095251694,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:21",
+        "accepting": false,
+        "required": true,
+        "value": 0.1821778267621994,
+        "mean_successor": 0.14720410278096097,
+        "drift": -0.034973723981238436,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:23",
+        "accepting": false,
+        "required": true,
+        "value": 0.1355188935995102,
+        "mean_successor": 0.10396904018125497,
+        "drift": -0.031549853418255225,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:49",
+        "accepting": true,
+        "required": false,
+        "value": 0.15055997669696808,
+        "mean_successor": 0.12160823967133183,
+        "drift": -0.02895173702563625,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:54",
+        "accepting": true,
+        "required": false,
+        "value": 0.03905715048313141,
+        "mean_successor": 0.05363266440326697,
+        "drift": 0.014575513920135563,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:61",
+        "accepting": true,
+        "required": false,
+        "value": 0.05724631994962692,
+        "mean_successor": 0.03118102020744118,
+        "drift": -0.026065299742185744,
+        "raw_pass": true,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:87",
+        "accepting": true,
+        "required": false,
+        "value": 0.020270945504307747,
+        "mean_successor": 0.020270684861316113,
+        "drift": -2.606429916340858e-07,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      },
+      {
+        "id": "A_S48:47600008:101",
+        "accepting": true,
+        "required": false,
+        "value": 0.02046910859644413,
+        "mean_successor": 0.0246923300474009,
+        "drift": 0.004223221450956771,
+        "raw_pass": false,
+        "fixed_slack_pass": false
+      }
+    ],
+    "confidence": null,
+    "scope": "REUSED_DATA_DIAGNOSTIC_NO_NEW_CONFIDENCE"
+  }
+}

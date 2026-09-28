@@ -1,0 +1,33 @@
+{
+  "saved_at": "2026-09-24T22:40:04.900261+00:00",
+  "plan_sha256": "03364edb94c2279a88dbc2f3b7721e6f01838cbe52c22afa3202b3da49d45d62",
+  "model_sha256": "6a9f62c89635a044410e1c69b671cc276cb58c2a8ddd1e4aa7b8aad6a4b3d568",
+  "result_sha256": "b5c8173d8742cd6edc3ae72f53b2200391134e0b35e6051d1430bc6b10428c74",
+  "decision": {
+    "required_probability": 0.95,
+    "confidence": 0.95,
+    "lower_bound": 0.9738652881320734,
+    "probability_threshold_met": true,
+    "no_observed_region_counterevidence": true,
+    "result": "FINITE_EVENT_THRESHOLD_MET",
+    "reasons": [],
+    "scope": "Finite model-only certificate AND completion probability under fixed initial distribution and policy. Not infinite-horizon safety or support-wide proof."
+  },
+  "verdict": "SAFE",
+  "certificate": {
+    "successes": 493,
+    "trials": 500,
+    "rate": 0.986,
+    "cp_lower": 0.9738652881320734,
+    "confidence": 0.95
+  },
+  "completion": {
+    "successes": 500,
+    "trials": 500,
+    "rate": 1.0,
+    "cp_lower": 0.9940264484836504,
+    "confidence": 0.95
+  },
+  "next_test_count": 1000,
+  "scope": "64-step finite model-only certificate AND completion; not infinite safety or support-wide L2 proof"
+}

@@ -1,0 +1,29 @@
+{
+  "time": "2026-09-24T13:31:44.713883+00:00",
+  "source_raw_hashes_verified": true,
+  "seed_replay_exact": true,
+  "seeds_disjoint": true,
+  "latents_not_duplicated": true,
+  "validation_opened_after_all_freezes": true,
+  "exact_metric_replay": true,
+  "cases_replayed": 420,
+  "total_budget_cap_verified": true,
+  "impossible_gaps_fail_closed": true,
+  "selection_replayed": true,
+  "cal_delta": 0,
+  "cal_CP": 0,
+  "test": 0,
+  "hashes": {
+    "path_results.csv": "5b3e5f72f9019c5db52c47507075cc41438bd662f74706f997be6474c70936c3",
+    "report.json": "3c3fe23e95f4dab26ff8738051b334f779db63887ad2297aada2c90a0f54fd08",
+    "prior_model_reference.json": "bea177e4d708a0c7fff139c62c51e78004837df944317c2f0e454685c4fae4df",
+    "stratified.pt": "270768ec1bde692a9da5b02c13e06471efa58c99f3aae461d1fe6a02134493bf",
+    "segment_results.csv": "f1936f6c1fed9279136d87d93638123296fc9aa6d9295efe4c3de8be312cf1f9",
+    "selected_candidate.json": "e383ccc81d3aa72f6c3fe57e2708011423ea9f34d45376074f3dbb5038b37509",
+    "validation_opened.json": "a7e766ce026f7dfec3474ee6a64c62e08e5cce6bd30167f13b042cf2b7d490da",
+    "bounded_uniform.pt": "0bd7d361f8544656af40bc5ecb7087d5d7cbc34c069c8ee7cd3e0d41667f5d6b",
+    "stratified_wide_penalty.pt": "83b4fcab8744fc1587c0e4fa11b335c1ce805b86d66cce18ce8ac02a3dd8f0e0",
+    "all_candidates_frozen.json": "f420db628328d74b67d687f99782e786fcd0732b906fe3122452dbce9cf62234",
+    "training_plan.json": "9b56ade7a20808462bcce25deb57bfaf1e00ebf210c033faa5a7d289f5637ff8"
+  }
+}

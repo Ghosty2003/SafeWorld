@@ -1,0 +1,703 @@
+{
+  "completed": "2026-09-24T13:30:43.866359+00:00",
+  "summaries": [
+    {
+      "name": "bounded_uniform",
+      "delta_fit": 1.3310189962387087,
+      "weights_sha256": "0bd7d361f8544656af40bc5ecb7087d5d7cbc34c069c8ee7cd3e0d41667f5d6b",
+      "train_fit": {
+        "n_paths": 80,
+        "count_pass": 49,
+        "full_pass": 47,
+        "full_pass_rate": 0.5875,
+        "budget_pass": 61,
+        "event_counts": {
+          "3": 15,
+          "2": 16,
+          "1": 24,
+          "4": 10,
+          "0": 7,
+          "5": 6,
+          "7": 1,
+          "6": 1
+        },
+        "cap_impossible_paths": 19,
+        "cap_impossible_and_count_sufficient": 2,
+        "reset_completed_raw_error": {
+          "n": 184,
+          "MAE": 0.2620036773359322,
+          "mean_underestimation": 0.12993308259984077,
+          "underestimate_fraction": 0.5489130434782609,
+          "underestimation_p90": 0.3907887666225447,
+          "latency_MAE_steps": 26.20036773359322,
+          "underestimation_steps": 12.993308259984076
+        },
+        "reset_completed_allocated_error": {
+          "n": 184,
+          "MAE": 1.2289277066476645,
+          "mean_underestimation": 0.005489130434782613,
+          "underestimate_fraction": 0.021739130434782608,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 122.89277066476645,
+          "underestimation_steps": 0.5489130434782613
+        },
+        "all_completed_state_raw_error": {
+          "n": 13587,
+          "MAE": 0.15490779693051104,
+          "mean_underestimation": 0.07452357631781005,
+          "underestimate_fraction": 0.4783984691248988,
+          "underestimation_p90": 0.24320905339717863,
+          "latency_MAE_steps": 15.490779693051104,
+          "underestimation_steps": 7.4523576317810045
+        },
+        "mean_allocated_budget": 2.027123532653875,
+        "capped_allocation_fraction": 0.33460076045627374,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 19,
+          "REGION_GATE_FAIL": 19,
+          "TRANSITION_SOUNDNESS_FAIL": 19,
+          "INSUFFICIENT_EVENTS": 31
+        }
+      },
+      "internal_validation": {
+        "n_paths": 20,
+        "count_pass": 13,
+        "full_pass": 11,
+        "full_pass_rate": 0.55,
+        "budget_pass": 13,
+        "event_counts": {
+          "2": 8,
+          "1": 5,
+          "3": 3,
+          "4": 1,
+          "0": 2,
+          "7": 1
+        },
+        "cap_impossible_paths": 5,
+        "cap_impossible_and_count_sufficient": 0,
+        "reset_completed_raw_error": {
+          "n": 41,
+          "MAE": 0.6976204083896265,
+          "mean_underestimation": 0.1833299268164286,
+          "underestimate_fraction": 0.21951219512195122,
+          "underestimation_p90": 0.6992490386962891,
+          "latency_MAE_steps": 69.76204083896265,
+          "underestimation_steps": 18.33299268164286
+        },
+        "reset_completed_allocated_error": {
+          "n": 41,
+          "MAE": 1.4406994725727453,
+          "mean_underestimation": 0.013104371791932632,
+          "underestimate_fraction": 0.024390243902439025,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 144.06994725727452,
+          "underestimation_steps": 1.3104371791932632
+        },
+        "all_completed_state_raw_error": {
+          "n": 3170,
+          "MAE": 0.6589643781677545,
+          "mean_underestimation": 0.1972428779912061,
+          "underestimate_fraction": 0.35110410094637223,
+          "underestimation_p90": 0.7543045485019684,
+          "latency_MAE_steps": 65.89643781677546,
+          "underestimation_steps": 19.72428779912061
+        },
+        "mean_allocated_budget": 2.1807526478513344,
+        "capped_allocation_fraction": 0.4262295081967213,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 7,
+          "REGION_GATE_FAIL": 7,
+          "TRANSITION_SOUNDNESS_FAIL": 7,
+          "INSUFFICIENT_EVENTS": 7
+        }
+      },
+      "validation_controls": {
+        "matched_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 10,
+          "full_pass_rate": 0.5,
+          "budget_pass": 11,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.2864285538583748,
+            "mean_underestimation": 0.016237876455908542,
+            "underestimate_fraction": 0.04878048780487805,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 128.6428553858375,
+            "underestimation_steps": 1.6237876455908542
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.2864285538583748,
+            "mean_underestimation": 0.016237876455908542,
+            "underestimate_fraction": 0.04878048780487805,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 128.6428553858375,
+            "underestimation_steps": 1.6237876455908542
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.4054299047545287,
+            "mean_underestimation": 0.004992302769569879,
+            "underestimate_fraction": 0.02145110410094637,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 140.54299047545285,
+            "underestimation_steps": 0.49923027695698785
+          },
+          "mean_allocated_budget": 2.027123532653875,
+          "capped_allocation_fraction": 0.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 9,
+            "REGION_GATE_FAIL": 9,
+            "TRANSITION_SOUNDNESS_FAIL": 9,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        },
+        "cap_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 13,
+          "full_pass_rate": 0.65,
+          "budget_pass": 15,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.7692870662460567,
+            "mean_underestimation": 0.0004826498422712943,
+            "underestimate_fraction": 0.005362776025236593,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 176.92870662460567,
+            "underestimation_steps": 0.04826498422712943
+          },
+          "mean_allocated_budget": 2.4000000000000004,
+          "capped_allocation_fraction": 1.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 5,
+            "REGION_GATE_FAIL": 5,
+            "TRANSITION_SOUNDNESS_FAIL": 5,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "stratified",
+      "delta_fit": 1.8790088891983032,
+      "weights_sha256": "270768ec1bde692a9da5b02c13e06471efa58c99f3aae461d1fe6a02134493bf",
+      "train_fit": {
+        "n_paths": 80,
+        "count_pass": 49,
+        "full_pass": 47,
+        "full_pass_rate": 0.5875,
+        "budget_pass": 61,
+        "event_counts": {
+          "3": 15,
+          "2": 16,
+          "1": 24,
+          "4": 10,
+          "0": 7,
+          "5": 6,
+          "7": 1,
+          "6": 1
+        },
+        "cap_impossible_paths": 19,
+        "cap_impossible_and_count_sufficient": 2,
+        "reset_completed_raw_error": {
+          "n": 184,
+          "MAE": 0.4467391532562349,
+          "mean_underestimation": 0.052912846745356276,
+          "underestimate_fraction": 0.2717391304347826,
+          "underestimation_p90": 0.213082373380661,
+          "latency_MAE_steps": 44.67391532562349,
+          "underestimation_steps": 5.2912846745356275
+        },
+        "reset_completed_allocated_error": {
+          "n": 184,
+          "MAE": 1.6432425744669592,
+          "mean_underestimation": 0.005489130434782613,
+          "underestimate_fraction": 0.021739130434782608,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 164.32425744669592,
+          "underestimation_steps": 0.5489130434782613
+        },
+        "all_completed_state_raw_error": {
+          "n": 13587,
+          "MAE": 0.22011670859285587,
+          "mean_underestimation": 0.037770454990352295,
+          "underestimate_fraction": 0.2895414734672849,
+          "underestimation_p90": 0.1458817167282104,
+          "latency_MAE_steps": 22.011670859285587,
+          "underestimation_steps": 3.7770454990352293
+        },
+        "mean_allocated_budget": 2.3685345024550366,
+        "capped_allocation_fraction": 0.8022813688212928,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 19,
+          "REGION_GATE_FAIL": 19,
+          "TRANSITION_SOUNDNESS_FAIL": 19,
+          "INSUFFICIENT_EVENTS": 31
+        }
+      },
+      "internal_validation": {
+        "n_paths": 20,
+        "count_pass": 13,
+        "full_pass": 13,
+        "full_pass_rate": 0.65,
+        "budget_pass": 15,
+        "event_counts": {
+          "2": 8,
+          "1": 5,
+          "3": 3,
+          "4": 1,
+          "0": 2,
+          "7": 1
+        },
+        "cap_impossible_paths": 5,
+        "cap_impossible_and_count_sufficient": 0,
+        "reset_completed_raw_error": {
+          "n": 41,
+          "MAE": 0.8050228787922278,
+          "mean_underestimation": 0.11844975433698514,
+          "underestimate_fraction": 0.21951219512195122,
+          "underestimation_p90": 0.4368341636657713,
+          "latency_MAE_steps": 80.50228787922278,
+          "underestimation_steps": 11.844975433698513
+        },
+        "reset_completed_allocated_error": {
+          "n": 41,
+          "MAE": 1.6205420254788747,
+          "mean_underestimation": 0.004146341463414633,
+          "underestimate_fraction": 0.024390243902439025,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 162.05420254788746,
+          "underestimation_steps": 0.41463414634146323
+        },
+        "all_completed_state_raw_error": {
+          "n": 3170,
+          "MAE": 0.5306391512820209,
+          "mean_underestimation": 0.1919044829716066,
+          "underestimate_fraction": 0.3637223974763407,
+          "underestimation_p90": 0.7692067548632622,
+          "latency_MAE_steps": 53.06391512820209,
+          "underestimation_steps": 19.190448297160657
+        },
+        "mean_allocated_budget": 2.376034228625845,
+        "capped_allocation_fraction": 0.8032786885245902,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 5,
+          "REGION_GATE_FAIL": 5,
+          "TRANSITION_SOUNDNESS_FAIL": 5,
+          "INSUFFICIENT_EVENTS": 7
+        }
+      },
+      "validation_controls": {
+        "matched_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 11,
+          "full_pass_rate": 0.55,
+          "budget_pass": 13,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.6051913559938151,
+            "mean_underestimation": 0.004913792623047883,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 160.5191355993815,
+            "underestimation_steps": 0.49137926230478834
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.6051913559938151,
+            "mean_underestimation": 0.004913792623047883,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 160.5191355993815,
+            "underestimation_steps": 0.49137926230478834
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.7382006068389133,
+            "mean_underestimation": 0.000672168911181146,
+            "underestimate_fraction": 0.006624605678233439,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 173.8200606838913,
+            "underestimation_steps": 0.06721689111811459
+          },
+          "mean_allocated_budget": 2.3685345024550375,
+          "capped_allocation_fraction": 0.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 7,
+            "REGION_GATE_FAIL": 7,
+            "TRANSITION_SOUNDNESS_FAIL": 7,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        },
+        "cap_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 13,
+          "full_pass_rate": 0.65,
+          "budget_pass": 15,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.7692870662460567,
+            "mean_underestimation": 0.0004826498422712943,
+            "underestimate_fraction": 0.005362776025236593,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 176.92870662460567,
+            "underestimation_steps": 0.04826498422712943
+          },
+          "mean_allocated_budget": 2.4000000000000004,
+          "capped_allocation_fraction": 1.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 5,
+            "REGION_GATE_FAIL": 5,
+            "TRANSITION_SOUNDNESS_FAIL": 5,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "stratified_wide_penalty",
+      "delta_fit": 1.5595289611816407,
+      "weights_sha256": "83b4fcab8744fc1587c0e4fa11b335c1ce805b86d66cce18ce8ac02a3dd8f0e0",
+      "train_fit": {
+        "n_paths": 80,
+        "count_pass": 49,
+        "full_pass": 47,
+        "full_pass_rate": 0.5875,
+        "budget_pass": 61,
+        "event_counts": {
+          "3": 15,
+          "2": 16,
+          "1": 24,
+          "4": 10,
+          "0": 7,
+          "5": 6,
+          "7": 1,
+          "6": 1
+        },
+        "cap_impossible_paths": 19,
+        "cap_impossible_and_count_sufficient": 2,
+        "reset_completed_raw_error": {
+          "n": 184,
+          "MAE": 0.5256295123485767,
+          "mean_underestimation": 0.06037930081557969,
+          "underestimate_fraction": 0.28804347826086957,
+          "underestimation_p90": 0.24159927320480368,
+          "latency_MAE_steps": 52.56295123485767,
+          "underestimation_steps": 6.037930081557969
+        },
+        "reset_completed_allocated_error": {
+          "n": 184,
+          "MAE": 1.528409201005555,
+          "mean_underestimation": 0.005489130434782613,
+          "underestimate_fraction": 0.021739130434782608,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 152.8409201005555,
+          "underestimation_steps": 0.5489130434782613
+        },
+        "all_completed_state_raw_error": {
+          "n": 13587,
+          "MAE": 0.19344634463089216,
+          "mean_underestimation": 0.033979938477859024,
+          "underestimate_fraction": 0.2890998748804004,
+          "underestimation_p90": 0.13333745622634888,
+          "latency_MAE_steps": 19.344634463089218,
+          "underestimation_steps": 3.3979938477859024
+        },
+        "mean_allocated_budget": 2.2623700647809657,
+        "capped_allocation_fraction": 0.5627376425855514,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 19,
+          "REGION_GATE_FAIL": 19,
+          "TRANSITION_SOUNDNESS_FAIL": 19,
+          "INSUFFICIENT_EVENTS": 31
+        }
+      },
+      "internal_validation": {
+        "n_paths": 20,
+        "count_pass": 13,
+        "full_pass": 10,
+        "full_pass_rate": 0.5,
+        "budget_pass": 12,
+        "event_counts": {
+          "2": 8,
+          "1": 5,
+          "3": 3,
+          "4": 1,
+          "0": 2,
+          "7": 1
+        },
+        "cap_impossible_paths": 5,
+        "cap_impossible_and_count_sufficient": 0,
+        "reset_completed_raw_error": {
+          "n": 41,
+          "MAE": 0.8310454805595119,
+          "mean_underestimation": 0.09858297542827886,
+          "underestimate_fraction": 0.2682926829268293,
+          "underestimation_p90": 0.3648117256164549,
+          "latency_MAE_steps": 83.10454805595118,
+          "underestimation_steps": 9.858297542827886
+        },
+        "reset_completed_allocated_error": {
+          "n": 41,
+          "MAE": 1.5926735062424726,
+          "mean_underestimation": 0.004146341463414633,
+          "underestimate_fraction": 0.024390243902439025,
+          "underestimation_p90": 0.0,
+          "latency_MAE_steps": 159.26735062424726,
+          "underestimation_steps": 0.41463414634146323
+        },
+        "all_completed_state_raw_error": {
+          "n": 3170,
+          "MAE": 0.5264712992601496,
+          "mean_underestimation": 0.1923446257882972,
+          "underestimate_fraction": 0.35930599369085175,
+          "underestimation_p90": 0.7638927690982819,
+          "latency_MAE_steps": 52.647129926014955,
+          "underestimation_steps": 19.23446257882972
+        },
+        "mean_allocated_budget": 2.3193666002007784,
+        "capped_allocation_fraction": 0.7049180327868853,
+        "failure_breakdown": {
+          "DELTA_MARGIN_FAIL": 8,
+          "REGION_GATE_FAIL": 8,
+          "TRANSITION_SOUNDNESS_FAIL": 8,
+          "INSUFFICIENT_EVENTS": 7
+        }
+      },
+      "validation_controls": {
+        "matched_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 11,
+          "full_pass_rate": 0.55,
+          "budget_pass": 13,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.5042056713770162,
+            "mean_underestimation": 0.00750316915168376,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 150.42056713770162,
+            "underestimation_steps": 0.750316915168376
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.5042056713770162,
+            "mean_underestimation": 0.00750316915168376,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 150.42056713770162,
+            "underestimation_steps": 0.750316915168376
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.6337748143025994,
+            "mean_underestimation": 0.0015414914800599576,
+            "underestimate_fraction": 0.009779179810725552,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.37748143025993,
+            "underestimation_steps": 0.15414914800599575
+          },
+          "mean_allocated_budget": 2.2623700647809644,
+          "capped_allocation_fraction": 0.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 7,
+            "REGION_GATE_FAIL": 7,
+            "TRANSITION_SOUNDNESS_FAIL": 7,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        },
+        "cap_constant": {
+          "n_paths": 20,
+          "count_pass": 13,
+          "full_pass": 13,
+          "full_pass_rate": 0.65,
+          "budget_pass": 15,
+          "event_counts": {
+            "2": 8,
+            "1": 5,
+            "3": 3,
+            "4": 1,
+            "0": 2,
+            "7": 1
+          },
+          "cap_impossible_paths": 5,
+          "cap_impossible_and_count_sufficient": 0,
+          "reset_completed_raw_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "reset_completed_allocated_error": {
+            "n": 41,
+            "MAE": 1.6351219512195123,
+            "mean_underestimation": 0.004146341463414633,
+            "underestimate_fraction": 0.024390243902439025,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 163.51219512195124,
+            "underestimation_steps": 0.41463414634146323
+          },
+          "all_completed_state_raw_error": {
+            "n": 3170,
+            "MAE": 1.7692870662460567,
+            "mean_underestimation": 0.0004826498422712943,
+            "underestimate_fraction": 0.005362776025236593,
+            "underestimation_p90": 0.0,
+            "latency_MAE_steps": 176.92870662460567,
+            "underestimation_steps": 0.04826498422712943
+          },
+          "mean_allocated_budget": 2.4000000000000004,
+          "capped_allocation_fraction": 1.0,
+          "failure_breakdown": {
+            "DELTA_MARGIN_FAIL": 5,
+            "REGION_GATE_FAIL": 5,
+            "TRANSITION_SOUNDNESS_FAIL": 5,
+            "INSUFFICIENT_EVENTS": 7
+          }
+        }
+      }
+    }
+  ],
+  "selection": {
+    "criteria": [
+      "validation_mean_underestimation",
+      "validation_MAE",
+      "1-validation_certificate_pass"
+    ],
+    "values": [
+      [
+        0.1833299268164286,
+        0.6976204083896265,
+        0.44999999999999996
+      ],
+      [
+        0.11844975433698514,
+        0.8050228787922278,
+        0.35
+      ],
+      [
+        0.09858297542827886,
+        0.8310454805595119,
+        0.5
+      ]
+    ],
+    "pareto_candidates": [
+      "bounded_uniform",
+      "stratified",
+      "stratified_wide_penalty"
+    ],
+    "normalized_sums": [
+      1.6666666666666665,
+      1.0393893820887958,
+      2.0
+    ],
+    "chosen": "stratified"
+  },
+  "scope": "FIT_ONLY",
+  "cal_delta": 0,
+  "cal_CP": 0,
+  "test": 0,
+  "elapsed_training_and_eval": 3.260714322794229,
+  "limitations": [
+    "Validation used for model selection, not an independent final accuracy estimate.",
+    "Observed gaps >240 steps are incompatible with the predeclared total budget cap.",
+    "Magnitude penalty and cap limit allocation but do not prove certificate nondegeneracy.",
+    "Censored labels are lower bounds on unobserved return time, not completed returns.",
+    "Finite pathwise budget not an infinite recurrence proof."
+  ]
+}

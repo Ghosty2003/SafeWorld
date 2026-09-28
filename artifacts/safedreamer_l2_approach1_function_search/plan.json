@@ -1,0 +1,121 @@
+{
+  "created_at": "2026-09-23T05:36:57.647350+00:00",
+  "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_outside_v",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy_config_sha256": "8a5e0449b4bdc6ad330f820802d9dcd3fd87fbe7dc3378deeba98297980f0037",
+  "action_source": "policy",
+  "source_imagination_device": "gpu",
+  "training_device": "cpu",
+  "horizon": 64,
+  "eta": 0.01,
+  "radius": 1.0,
+  "spec": "F_[0,64](norm(decoded goal vector)<1.0)",
+  "initial_condition": "norm(decoded initial goal vector)>=1.0",
+  "condition_scope": "Decoded model state, not verified real environment distance",
+  "value_inputs": "577 latent and planner-state features plus goal-history q; no time input",
+  "candidates": [
+    {
+      "name": "linear_v0",
+      "family": "linear",
+      "width": 128,
+      "seed": 24510,
+      "path_weight": 0.0
+    },
+    {
+      "name": "linear_v1",
+      "family": "linear",
+      "width": 128,
+      "seed": 24511,
+      "path_weight": 4.0
+    },
+    {
+      "name": "quadratic_v0",
+      "family": "quadratic",
+      "width": 128,
+      "seed": 24512,
+      "path_weight": 0.0
+    },
+    {
+      "name": "quadratic_v1",
+      "family": "quadratic",
+      "width": 128,
+      "seed": 24513,
+      "path_weight": 4.0
+    },
+    {
+      "name": "rbf_v0",
+      "family": "rbf",
+      "width": 128,
+      "seed": 24514,
+      "path_weight": 0.0
+    },
+    {
+      "name": "rbf_v1",
+      "family": "rbf",
+      "width": 128,
+      "seed": 24515,
+      "path_weight": 4.0
+    },
+    {
+      "name": "tanh_v0",
+      "family": "tanh",
+      "width": 128,
+      "seed": 24516,
+      "path_weight": 0.0
+    },
+    {
+      "name": "tanh_v1",
+      "family": "tanh",
+      "width": 128,
+      "seed": 24517,
+      "path_weight": 4.0
+    },
+    {
+      "name": "residual_v0",
+      "family": "residual",
+      "width": 128,
+      "seed": 24518,
+      "path_weight": 0.0
+    },
+    {
+      "name": "residual_v1",
+      "family": "residual",
+      "width": 128,
+      "seed": 24519,
+      "path_weight": 4.0
+    },
+    {
+      "name": "fourier_v0",
+      "family": "fourier",
+      "width": 128,
+      "seed": 24520,
+      "path_weight": 0.0
+    },
+    {
+      "name": "fourier_v1",
+      "family": "fourier",
+      "width": 128,
+      "seed": 24521,
+      "path_weight": 4.0
+    }
+  ],
+  "updates_per_candidate": 1600,
+  "evaluate_every": 200,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 32
+  },
+  "loss": "mean transition hinge + path_weight*mean worst transition hinge; training margin 2*eta; learned accepting-scalar anchor + pending-sublevel penalty",
+  "selection": "max(dev P1P2 among goal paths, full C&goal, all-path P1P2, -pending sublevel, -P2 count, -P1 count, -mean transition loss)",
+  "warrant_threshold": 0.95,
+  "future_calibration_confidence": 0.95,
+  "inferential_status": "TRAIN_DEVELOPMENT_ONLY; no probability confidence claim",
+  "source_spec_screening_note": "Radius selected after earlier exploratory screening. Old calibration/test data are not independent confirmatory evidence for this spec.",
+  "source_model_sha256": "a279edd15c346c4029c250970b0fc66ba9b4ec75012613d5335a1a9e93241c35",
+  "search": "Original V plus six alternative state-only families, two fits each",
+  "extension": "All alternative waiting functions wrapped in softplus; learned constant accepting branch retained, no forced goal zero. RBF centers only from training waiting states; Fourier frequencies random and fixed.",
+  "inference": "Development-only selection; no holdouts or inferential bounds used"
+}

@@ -1,0 +1,85 @@
+{
+  "time": "2026-09-24T05:52:34.203615+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_spec_ablation_v1",
+  "source_plan_sha256": "3a970201423bcf9152389c492ec8c264d504514cc520075728ec045c02916ecd",
+  "source_frozen_sha256": "c367001969770f6de66711b4471a09ff1255554263674481254a16f3fa85057a",
+  "spec": "B_S24",
+  "fit_paths": 12,
+  "dev_paths": 8,
+  "fit_anchors": 111,
+  "dev_anchors": 74,
+  "fit_kappas": [
+    32,
+    128
+  ],
+  "extra_successors": 96,
+  "dev_kappa": 256,
+  "seed_base": 81500000,
+  "steps": 400,
+  "W_margins": [
+    0.01,
+    0.05,
+    0.1
+  ],
+  "U_margins": [
+    0.001,
+    0.03
+  ],
+  "W_family": "wide",
+  "U_family": "sublevel",
+  "B": 1.0,
+  "ell": 0.8,
+  "verify_W_epsilon": 0.01,
+  "verify_U_epsilon": 0.0,
+  "dev_gate": {
+    "W_raw": 0.9,
+    "U_raw": 0.9,
+    "W_q90_less_than": -0.05
+  },
+  "scope": "ADAPTIVE_DEVELOPMENT_ONLY",
+  "H2_core": "I=F candidate; no proof exemption",
+  "final_validation": "NOT_RUN",
+  "source_signature": {
+    "fit_counts": [
+      12
+    ],
+    "dev_paths": 8,
+    "kappas": [
+      8,
+      16,
+      32,
+      64,
+      128,
+      256
+    ],
+    "steps": 400,
+    "seed_base": 47500000,
+    "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+    "policy": {
+      "action_source": "policy",
+      "expl_behavior": "CCEPlanner",
+      "planner": {
+        "horizon": 15,
+        "num_samples": 500,
+        "num_elites": 50,
+        "iterations": 6,
+        "mixture_coef": 0.05,
+        "momentum": 0.1,
+        "init_std": 1.0
+      },
+      "cost_limit": 0.0,
+      "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+      "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+    },
+    "code_sha256": {
+      "experiments/l3_wu_data_ablation.py": "24d975b7f8e7c3313138c2f4e189befd265ce76c22f24df332dd57b0089772d4",
+      "experiments/l3_wu_search.py": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+      "experiments/l3_safedreamer_clear_pipeline.py": "3676129511a336a839622d6b407b8defc2d1549ac7f783778e875ea7274e97fb",
+      "wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+    }
+  },
+  "code_sha256": {
+    "experiments/l3_expected_drift_ablation.py": "ce0b9aab7f6a564082ae7ef9f5b1e04237dbdcf189de4e4d028e30744667a0f4",
+    "experiments/l3_margin_sweep.py": "2c710e1fc91dc3f83c51130a67825cb5e96a0c63f3c7ad0fe37bca5d3e226251"
+  }
+}

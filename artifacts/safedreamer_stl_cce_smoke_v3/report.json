@@ -1,0 +1,34 @@
+{
+  "scope": "MODEL_ONLY_BOUNDED_STL",
+  "results": {
+    "stl_hazard_avoidance": {
+      "calibration": {
+        "n": 1,
+        "successes": 1,
+        "empirical_rate": 1.0,
+        "cp_lower": 0.05,
+        "confidence": 0.95,
+        "rho_star": 0.3897054672241211,
+        "margins": [
+          0.3897054672241211
+        ],
+        "observed_nonpositive_margins": 0,
+        "decision": "NO_WARRANT"
+      },
+      "test": {
+        "n": 1,
+        "successes": 1,
+        "empirical_rate": 1.0,
+        "cp_lower": 0.05,
+        "confidence": 0.95,
+        "rho_star": 0.04241839349269866,
+        "margins": [
+          0.04241839349269866
+        ],
+        "observed_nonpositive_margins": 0
+      },
+      "empirical_rate_gap": 0.0,
+      "note": "Test proportions are observations, not guaranteed future batch counts; no reselection."
+    }
+  }
+}

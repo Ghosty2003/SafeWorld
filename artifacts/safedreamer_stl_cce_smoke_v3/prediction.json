@@ -1,0 +1,15 @@
+{
+  "stl_hazard_avoidance": {
+    "n": 1,
+    "successes": 1,
+    "empirical_rate": 1.0,
+    "cp_lower": 0.05,
+    "confidence": 0.95,
+    "rho_star": 0.3897054672241211,
+    "margins": [
+      0.3897054672241211
+    ],
+    "observed_nonpositive_margins": 0,
+    "decision": "NO_WARRANT"
+  }
+}

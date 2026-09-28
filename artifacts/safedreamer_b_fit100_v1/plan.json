@@ -1,0 +1,94 @@
+{
+  "created": "2026-09-24T13:18:59.734211+00:00",
+  "scope": "NEW_FIT_ONLY_B_LATENCY_STUDY",
+  "source_freeze_sha256": "bcd704243728596da2e3b8177b7545f63eee37c7f320078c7e951617afcfa70b",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "detector": {
+    "id": "clearance_q25_75",
+    "family": "clearance",
+    "signal": "clearance",
+    "semantic": "LOW clearance -> HIGH clearance; relative clearance recovery",
+    "d_low": 0.4735981774226446,
+    "d_high": 0.7910375755438274,
+    "M_MIN": 2,
+    "dwell": 1,
+    "refractory": 0,
+    "safety_required": false
+  },
+  "H": 300,
+  "eta": 0.01,
+  "M_MIN": 2,
+  "budget_cap": 2.4,
+  "budget_cap_note": "Total post-residual allocation <=2.4; observed gaps>240 necessarily fail",
+  "delta_rule": "Train-only maximum whole-path residual preview; clip total budget to cap after adding; not calibration",
+  "start_distribution": "fresh independently seeded environment reset, encoded initial goal distance>=1.0",
+  "roles": {
+    "train_fit": {
+      "n": 80,
+      "seed_base": 131000000
+    },
+    "internal_validation": {
+      "n": 20,
+      "seed_base": 132000000
+    },
+    "cal_delta": {
+      "n": 0,
+      "status": "LOCKED"
+    },
+    "cal_CP": {
+      "n": 0,
+      "status": "LOCKED"
+    },
+    "test": {
+      "n": 0,
+      "status": "LOCKED"
+    }
+  },
+  "sampling": "No future filtering. Train batching stratified by completed remaining latency <=48,49..120,121..240,>240 plus censored; long bins oversampled",
+  "candidates": [
+    {
+      "name": "bounded_uniform",
+      "width": 64,
+      "weighted": false,
+      "under_weight": 1.0,
+      "magnitude": 0.01
+    },
+    {
+      "name": "stratified",
+      "width": 64,
+      "weighted": true,
+      "under_weight": 3.0,
+      "magnitude": 0.01
+    },
+    {
+      "name": "stratified_wide_penalty",
+      "width": 128,
+      "weighted": true,
+      "under_weight": 3.0,
+      "magnitude": 0.05
+    }
+  ],
+  "updates": 1200,
+  "training_seed": 918,
+  "model_selection": "Pareto on validation underestimation mean, MAE (completed reset segments), full certificate pass; then normalized sum of only these three",
+  "selection_note": "No performance claim from used-for-selection validation; no calibration/Test1",
+  "collection_code_sha256": "5eda8fccc6879a9484814d0aef824700cd48d349f1e1918dcbd20bce225f1c48",
+  "wrapper_sha256": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+}

@@ -1,6 +1,10 @@
 """
 experiments/l1_pipeline.py
 
+Direct execution now runs CCEPlanner model-only STL via l1_policy_stl.py.
+The run_l1() API and BASE_EXTRA below are retained ONLY for historical
+random-action transfer baselines. They do not verify the deployed policy.
+
 L1 (bounded STL) verification pipeline matching the new paper draft's
 Algorithm 1 / Table 1 exactly:
 
@@ -100,6 +104,9 @@ def run_l1(
     seed_err: int = 2,
     seed_test: int = 3,
 ) -> L1Result:
+    import warnings
+    warnings.warn("Legacy random-action transfer baseline, not CCE policy verification. "
+                  "Use experiments/l1_policy_stl.py for policy imagination.", stacklevel=2)
     spec = get_spec_by_id(spec_id)
 
     # --- N_cal: MODEL-side only rollouts -> q_hat_delta_cp ---
@@ -150,10 +157,5 @@ def format_result(r: L1Result) -> str:
 
 
 if __name__ == "__main__":
-    w = SafeDreamerWrapper(RolloutConfig(horizon=10, n_rollouts=20, seed=0, extra=dict(BASE_EXTRA)))
-    print(">>> loading...")
-    w.load()
-    print(">>> running L1 pipeline for stl_hazard_avoidance (small scale: 20/20/20)...")
-    result = run_l1(w, "stl_hazard_avoidance", horizon=10, n_cal=20, n_err=20, n_test=20)
-    print()
-    print(format_result(result))
+    from experiments.l1_policy_stl import main
+    main()

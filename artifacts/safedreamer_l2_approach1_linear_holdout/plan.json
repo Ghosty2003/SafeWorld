@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-09-23T05:45:27.541624+00:00",
+  "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_function_search",
+  "model_sha256": "70b3a8a122cfc65a8a11e4f0da584824cd0675909da70ea78576df8ec9b47090",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy_config_sha256": "8a5e0449b4bdc6ad330f820802d9dcd3fd87fbe7dc3378deeba98297980f0037",
+  "horizon": 64,
+  "eta": 0.01,
+  "radius": 1.0,
+  "action_source": "policy",
+  "device": "gpu",
+  "initial_condition": "norm(decoded initial goal vector)>=1.0",
+  "spec": "F_[0,64](norm(decoded goal vector)<1.0)",
+  "counts": {
+    "calibration": 100,
+    "test": 100
+  },
+  "batch_size": 20,
+  "max_batches_per_split": 50,
+  "seeds": {
+    "calibration": 25503000,
+    "test": 25504000
+  },
+  "sampling": "Take first 100 eligible paths in chronological draw order per split; eligibility uses ONLY decoded t=0 distance>=1.0. Keep raw batches and exclusions.",
+  "reset_rng_note": "New simulator resets per draw; imagination RNG explicit, simulator reset RNG not completely controlled by recorded imagination seeds.",
+  "primary_event": "All 64 real model transitions satisfy P1/P2, endpoint V<eta, and decoded goal reached within 64 steps",
+  "warrant_threshold": 0.95,
+  "confidence": 0.95,
+  "decision": "Compare individual one-sided 95% CP lower bound of the primary event with .95",
+  "inference": "Assumes iid same-distribution draws conditional on initial eligibility; other reported bounds are individual, not simultaneous. No real-world guarantee.",
+  "sequencing": "V frozen before calibration; prediction persisted before test; no refitting"
+}

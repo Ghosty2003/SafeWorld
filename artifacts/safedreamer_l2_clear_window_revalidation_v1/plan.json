@@ -1,0 +1,73 @@
+{
+  "created": "2026-09-24T18:29:10.220830+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_clear_window_holdout",
+  "source_plan_sha256": "023e29ae019e2985708d5af5a055d255faecb5b07bd4d4547bea7a99b164971b",
+  "spec": "F[1,17] G[0,47](decoded hazard_margin>=0)",
+  "H": 64,
+  "eta": 0.01,
+  "model_sha256": "6a9f62c89635a044410e1c69b671cc276cb58c2a8ddd1e4aa7b8aad6a4b3d568",
+  "original_freeze": {
+    "frozen_at": "2026-09-24T01:39:22.130604+00:00",
+    "confirmed_at": "2026-09-24T02:05:35.338418+00:00",
+    "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_clear_window_v_linear6000",
+    "source_plan_sha256": "bedacb1e536203206b26683492c7e1da7c1d7cf19bbc1ca24a13452209f895ba",
+    "model_sha256": "6a9f62c89635a044410e1c69b671cc276cb58c2a8ddd1e4aa7b8aad6a4b3d568",
+    "selected_candidate": "linear_max4",
+    "step": 4800
+  },
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy_sha256": "8a5e0449b4bdc6ad330f820802d9dcd3fd87fbe7dc3378deeba98297980f0037",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "initial_condition": "norm(decoded initial goal vector)>=1.0",
+  "counts": {
+    "calibration": 500,
+    "test": 1000
+  },
+  "seeds": {
+    "calibration": 151000000,
+    "test": 152000000
+  },
+  "max_raw_draws": {
+    "calibration": 2500,
+    "test": 5000
+  },
+  "seed_rule": "reset=base+2*draw; imagination=reset+1; actual gym reset explicitly seeded",
+  "sampling": "First N eligible in draw order; only initial decoded goal_dist margin>=0.70; no future filtering",
+  "inference": "Fixed-N iid same-distribution conditional-draw assumption; individual one-sided95% CP lower; no pooled or simultaneous claim",
+  "action_law": "Unmodified CCEPlanner.policy()",
+  "warrant_threshold": 0.95,
+  "confidence": 0.95,
+  "event": "All64 P1/P2 AND completion AND endpoint V<eta AND sampled sublevel closure/exclusion AND finite/nonnegative",
+  "decision": "Calibration CP lower>=.95 AND no observed sublevel-region counterevidence; SAFE finite-model-scope else ABSTAIN",
+  "scope": "64-step finite model-only certificate AND completion; not infinite safety or support-wide L2 proof",
+  "evaluate_test": "Same frozen event, 1000 independent paths; own CP bound; never tune on test",
+  "freeze_before_sampling": true,
+  "code_sha256": {
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_clear_window_holdout.py": "75024fcedd38870e1cdcf94b3e46ffd44bff002f32578ed0f9825a03fda1b297",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_approach1_holdout.py": "0a6f0f03b8a71618367ef06de5fb13e247292b5c2ce991699dd73e5a6fe6ad3b",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_clear_window_v.py": "53da978ffaef97f505c8c6bdce02f1d7fad924869325a5d8442d3a45a6230f6e",
+    "/home/sunyhg/Documents/SafeWorld/core/lppm/value_families.py": "a88c8464245d6d4830a2c490e623f50c40b291b4fbddd660b21381ec75cf498b",
+    "/home/sunyhg/Documents/SafeWorld/core/lppm/learned_sublevel.py": "9e0183ac9f96528cb477e978c260e175d467af473fc45416b5869d1506616dcb",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_achievement64.py": "c820b00436ae77e849e23ff96e9abb1c425567ef09cefe95359b3198d8740f97",
+    "/home/sunyhg/Documents/SafeWorld/wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_clear_window_revalidation.py": "75b850f3dc43022e4cbd5d7b4cb92d78e664671bfbc607ca87098fb8b83d6f25",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_finite_recurrence_pilot.py": "fbafe2c3c21bcce61b60150746b697c4177580b5f148304a7dc43e0482938b96"
+  },
+  "prior_identities_sha256": "18523efa50a921892606707ff97499fa42451417800e0152805abdd6cb805bb2"
+}

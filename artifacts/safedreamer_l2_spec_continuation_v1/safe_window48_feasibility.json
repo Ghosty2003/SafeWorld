@@ -1,0 +1,10 @@
+{
+  "nodes": 24080,
+  "edges": 24000,
+  "bad_edges": 3807,
+  "positive_cycle_edges": 0,
+  "feasible": true,
+  "identity": "exact full RSSM + planner carry + decoded features + automaton state; no approximate merge",
+  "scope": "finite sampled graph only; unseen edges and infinite paths not established",
+  "witness_max": 0.5400000000000003
+}

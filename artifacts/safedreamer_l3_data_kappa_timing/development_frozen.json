@@ -1,0 +1,77 @@
+{
+  "time": "2026-09-24T05:11:28.925519+00:00",
+  "frozen": {
+    "models": {
+      "12": {
+        "W": "6c8bbc4391b8cf977501625adba477d7d5c568a2ac92e3da1323bae530f30424",
+        "U": "2975e085170a84f2303ad7eb68f19d04a9175d0cea213dc9a803661796d83827"
+      }
+    },
+    "anchors": [
+      {
+        "path": "development/path_0000.json",
+        "sha": "1b3ac0b69ef86abcdcbadafe200d9bb5e4c106f449c2caefb661b27ba8f5f37f",
+        "times": [
+          43,
+          170
+        ]
+      },
+      {
+        "path": "development/path_0002.json",
+        "sha": "f9d4078ef8afbae9d7f1f0be65d17641cbb4c03356ec8ba85176cd4a3112e4cc",
+        "times": [
+          2,
+          99
+        ]
+      },
+      {
+        "path": "development/path_0003.json",
+        "sha": "4f2becacd2796692dc42d4dd4328de542631907d7bea2d3cf6e35d7217e1bea1",
+        "times": [
+          39,
+          180
+        ]
+      },
+      {
+        "path": "development/path_0004.json",
+        "sha": "2fbf4327e00bca70cfef7ce110798ee34562bcd63060fe0c36c9ccba53ac0ecd",
+        "times": [
+          45,
+          157
+        ]
+      },
+      {
+        "path": "development/path_0005.json",
+        "sha": "dd595873513b098bdf159a003ae847819db554864213a6a0a2de82d3fe477be0",
+        "times": [
+          45,
+          120
+        ]
+      },
+      {
+        "path": "development/path_0006.json",
+        "sha": "445436b3419acb6a52de67e6ad2334ad06820ac8c36a2e0be0adeb36f57c6931",
+        "times": [
+          5,
+          89
+        ]
+      },
+      {
+        "path": "development/path_0007.json",
+        "sha": "2f0c06d5b7a25b655f160a680acca21c339cc635919541dcf8a8958f474310bc",
+        "times": [
+          13,
+          118
+        ]
+      },
+      {
+        "path": "development/path_0008.json",
+        "sha": "612164f81b983b8f20364495b724b86d12f4c72bc3364882b1cbd966010d3cab",
+        "times": [
+          20,
+          172
+        ]
+      }
+    ]
+  }
+}

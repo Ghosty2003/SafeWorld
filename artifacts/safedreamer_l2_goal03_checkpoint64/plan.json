@@ -1,0 +1,35 @@
+{
+  "created_at": "2026-09-23T01:52:13.449730+00:00",
+  "checkpoints": {
+    "0": {
+      "path": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+      "sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa"
+    },
+    "5": {
+      "path": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_5.ckpt",
+      "sha256": "82be709964c8f466a05becd57ca0300e4c4e2c80fb2c2418f8e04655b3355095"
+    },
+    "10": {
+      "path": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_10.ckpt",
+      "sha256": "b307ec1a655b6216f7414e1322d6500d319b7a12a39af3fee88539fe8d2ea0e0"
+    }
+  },
+  "horizon": 64,
+  "radius": 0.3,
+  "action_source": "random",
+  "counts": {
+    "train": 120,
+    "validation": 60,
+    "calibration": 100,
+    "test": 100
+  },
+  "seed_base": 17500,
+  "updates_per_variant": 1500,
+  "variants": [
+    "paper",
+    "anchored_accepting_scalar"
+  ],
+  "cpus_per_worker": 8,
+  "selection": "Select V on each development set; report all three checkpoints.",
+  "confidence": "Individual 95% CP plus six-claim Bonferroni 95% lower bounds; no test-based selection"
+}

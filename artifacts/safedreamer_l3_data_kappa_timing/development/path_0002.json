@@ -1,0 +1,12 @@
+{
+  "seed": 47600002,
+  "accepted": true,
+  "initial_goal": 1.7691110372543335,
+  "path_fingerprint": "c82f09c8c81166a55c4b91fe7ca5290882f326fed27998c7b8127b7c940f44c8",
+  "anchor_times": [
+    2,
+    99
+  ],
+  "elapsed_seconds": 3.0370461160782725,
+  "sha256": "f9d4078ef8afbae9d7f1f0be65d17641cbb4c03356ec8ba85176cd4a3112e4cc"
+}

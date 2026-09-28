@@ -1,0 +1,12 @@
+{
+  "frozen": "2026-09-24T18:22:16.714512+00:00",
+  "sha256": "6cbbd6cc821ed08cab02fb0f33c0eebdb119de25e4c5c16189f944ac4208966f",
+  "code_sha256": "e77aa1901d31c8b88143944b8bcdd6675a23fc8d2d170cb2506d09559c4ad208",
+  "uses": "TRAIN ONLY; diagnostic, fixed compact radial basis centers",
+  "centers": 5559,
+  "radius_fraction": 0.25,
+  "target_rule": "1.5*sampled graph rank+2eta",
+  "default": 4.519999999999969,
+  "validation_role": "After fitting only; not calibration/test",
+  "warning": "May memorize train; outside all training balls V is constant"
+}

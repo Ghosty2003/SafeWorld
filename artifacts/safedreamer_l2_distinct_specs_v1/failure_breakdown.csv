@@ -1,0 +1,9 @@
+spec,function,gain,path_P1P2_failures,endpoint_failures,region_failures,closure_failures,bad_in_zfree,safety_rejected
+recover,recover_linear,4.0,11,2,0,0,0,0
+motion_burst,motion_burst_elu128,4.0,2,0,0,0,0,0
+slow_down,slow_down_elu128,4.0,9,0,0,0,0,0
+goal_approach,goal_approach_elu128,4.0,16,11,0,0,0,0
+goal_revisit,goal_revisit_linear,4.0,20,13,0,0,0,0
+leave_start,leave_start_linear,4.0,10,0,0,0,0,0
+return_start,return_start_linear,4.0,20,4,0,0,0,0
+safe_recover,safe_recover_linear,4.0,15,8,0,0,0,6

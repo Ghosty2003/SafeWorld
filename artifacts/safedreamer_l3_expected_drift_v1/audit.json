@@ -1,0 +1,13 @@
+{
+  "time": "2026-09-24T05:56:19.685961+00:00",
+  "exact_replay": true,
+  "models": 19,
+  "new_fit_chunks": 333,
+  "new_fit_successors": 10656,
+  "nested_kappa_prefix_exact": true,
+  "source_code_and_weight_hashes_checked": true,
+  "cross_role_query_seeds_disjoint": true,
+  "final_validation": "NOT_RUN",
+  "H2_invariance": "NOT_ESTABLISHED",
+  "note": "Development outcomes deliberately reused; not independent of adaptive model selection."
+}

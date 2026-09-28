@@ -1,0 +1,77 @@
+{
+  "created_at": "2026-09-23T04:04:30.994650+00:00",
+  "horizon": 64,
+  "eta": 0.01,
+  "radii": [
+    0.3
+  ],
+  "counts": {
+    "train": 120,
+    "validation": 60,
+    "calibration": 100,
+    "test": 100
+  },
+  "seeds": {
+    "train": 21501,
+    "validation": 21502,
+    "calibration": 22503,
+    "test": 22504
+  },
+  "updates_per_candidate": 1600,
+  "variants": [
+    "anchored_accepting_scalar"
+  ],
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "spec": "F_[0,64](norm(decoded goal vector) < radius), label includes t=0 and t=64",
+  "action_source": "policy",
+  "device": "gpu",
+  "certificate_training_device": "cpu",
+  "initial_distribution": "encoded independent simulator resets",
+  "value_inputs": "latent + planner mean/std/initialized + q",
+  "policy_scope": "Local CCEPlanner in latent imagination, not real-observation-feedback deployment",
+  "reset_rng_note": "Imagination seeds explicit; simulator reset RNG is not fully specified by these seeds.",
+  "paper_objective": "Reference only; this refinement uses refinement_objective below",
+  "extension": "Learned latent-independent accepting scalar; add 0.1*mean_done(log(V/(eta/4))^2) + mean_waiting(ReLU(2*eta-V)); no output floor, no forced zero, no time input",
+  "selection": "max(dev complete-path P1P2, C&goal, -pending sublevel states, -P2 violations, -P1 violations, -mean transition loss)",
+  "candidate_updates": "Original V plus four variants, dev evaluation every 200 updates",
+  "inference": "Fresh calibration/test only after selection and freeze; finite model-only evidence, not support-wide proof",
+  "baseline": "0.3 is original goal, 0.6 and 1.0 are relaxed approach tasks, NOT original success",
+  "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_policy64_gpu",
+  "refinement_candidates": [
+    {
+      "name": "warm_max4",
+      "width": 128,
+      "warm": true,
+      "lr": 0.0003,
+      "path_weight": 4.0,
+      "margin": 2.0
+    },
+    {
+      "name": "warm_max12",
+      "width": 128,
+      "warm": true,
+      "lr": 0.0003,
+      "path_weight": 12.0,
+      "margin": 2.0
+    },
+    {
+      "name": "cold128_max4",
+      "width": 128,
+      "warm": false,
+      "lr": 0.001,
+      "path_weight": 4.0,
+      "margin": 2.0
+    },
+    {
+      "name": "cold256_max4",
+      "width": 256,
+      "warm": false,
+      "lr": 0.001,
+      "path_weight": 4.0,
+      "margin": 2.0
+    }
+  ],
+  "source_model_sha256": "8b1ef54d4956ca05485169a64e518ff72c4875a925f9b0ba8b7db883567e1351",
+  "refinement_objective": "mean edge hinge + weighted mean per-path maximum hinge; training descent margin 2*eta, accepting anchor and pending sublevel penalty; AdamW weight decay 1e-4; all training paths retained; no time input"
+}

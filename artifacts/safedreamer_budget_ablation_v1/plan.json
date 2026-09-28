@@ -1,0 +1,35 @@
+{
+  "created": "2026-09-24T12:13:39.806413+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2",
+  "source_plan_sha256": "b7dab8e12ab4f4009df93f44bbc6cced910ead503216dc66299dc43066cd424b",
+  "source_report_sha256": "9dfff54e62fbae0608719d24cacc62fa42803766faa0582db9d835a204ebeedc",
+  "source_model_sha256": "33278faaeb9c3faaa5612f39e62f665c4a95788cfc125a03edc5031b25c74fe0",
+  "code_sha256": "091f79e304898307b6f73c0ec45cb30466b354d577544411e525b14d984d6859",
+  "M_MIN": 6,
+  "M_MIN_scope": "USER_SELECTED_FOR_SUBSEQUENT_PILOT_ONLY",
+  "final_experiment_frozen": false,
+  "scales": [
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    2.0
+  ],
+  "delta_fit_only": 0.13169090032577513,
+  "primary_arm": "g_only: B_s=scale*g_init(x_s)+fixed Delta_fit",
+  "sensitivity_arm": "whole_budget: B_s=scale*(g_init(x_s)+Delta_fit)",
+  "fixed": [
+    "16 paths",
+    "g_init weights",
+    "eta=.01",
+    "events",
+    "empirical region",
+    "CV/sliding disabled"
+  ],
+  "scope": "FIT_ONLY_ABLATION_NOT_CALIBRATION",
+  "new_rollouts": 0,
+  "cal_delta_count": 0,
+  "cal_CP_count": 0,
+  "test_count": 0
+}

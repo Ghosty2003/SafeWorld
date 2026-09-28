@@ -1,0 +1,38 @@
+{
+  "spec": "ltl_goal_reach",
+  "formula": "F(goal_dist < 0)",
+  "horizon_transitions": 50,
+  "states_per_path": 51,
+  "eta": 0.01,
+  "gamma": 0.05,
+  "threshold": 0.8,
+  "splits": {
+    "train": {
+      "n": 60,
+      "seed": 7301
+    },
+    "validation": {
+      "n": 40,
+      "seed": 7302
+    },
+    "calibration": {
+      "n": 100,
+      "seed": 7303
+    },
+    "test": {
+      "n": 100,
+      "seed": 7304
+    }
+  },
+  "action_source": "random",
+  "initial_states": "encoded simulator resets",
+  "environment_comparison": false,
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "candidate_families": [
+    "normalized_mlp",
+    "gaussian_kernel_ridge"
+  ],
+  "selection": "validation full-path event, then P2 pass rate; train fit gate",
+  "semantics": "q_t has consumed label(z_t); edges are (z_t,q_t)->(z_t+1,q_t+1)",
+  "limitation": "finite observed model transitions; no support-wide deductive proof"
+}

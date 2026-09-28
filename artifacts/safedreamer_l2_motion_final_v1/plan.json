@@ -1,0 +1,107 @@
+{
+  "at": "2026-09-25T01:11:38.800612+00:00",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "spec": {
+    "id": "motion_burst",
+    "name": "\u4f4e\u901f\u540e\u8fdb\u5165\u9ad8\u901f",
+    "stages": [
+      {
+        "signal": "speed",
+        "op": "le",
+        "threshold": 0.22450116704240514
+      },
+      {
+        "signal": "speed",
+        "op": "ge",
+        "threshold": 0.7390221068978473
+      }
+    ],
+    "safety_until_completion": false,
+    "n_states": 3,
+    "accepting": 2,
+    "reject": null,
+    "bad_set": [
+      0,
+      1
+    ],
+    "mp_class": "Guarantee (bounded)",
+    "H": 300,
+    "specification": "ordered events within [0,300]: [{\"signal\": \"speed\", \"op\": \"le\", \"threshold\": 0.22450116704240514}, {\"signal\": \"speed\", \"op\": \"ge\", \"threshold\": 0.7390221068978473}]",
+    "automaton": "q counts completed predicates; at most one stage per state; accept absorbing; safety rejection absorbing if enabled",
+    "completion": "all ordered stages consumed by t=300",
+    "interpretation": "Decoded-model event only, not real-world task achievement or infinite recurrence"
+  },
+  "H": 300,
+  "eta": 0.01,
+  "tolerance": 0.0,
+  "counts": {
+    "calibration": 500,
+    "test": 1000
+  },
+  "seeds": {
+    "calibration": 171000000,
+    "test": 172000000
+  },
+  "max_draws": {
+    "calibration": 2500,
+    "test": 5000
+  },
+  "model_sha256": "a3e8da79013b39cb22cd076117bb52e8677eab60f495f7183d15836199d4ccbe",
+  "region_sha256": "b67ef218ca939a2fe429fdc05ee6c58cf78e70dfeb4aef76e9ef82d195286a84",
+  "prior_identities_sha256": "cb729ce5f6c1f89d8f24ff5383a3345f232d572e0e6ea3b285a445d4064a1562",
+  "code_sha256": {
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_motion_final.py": "f5ee2942c727e35fc267dddacff6561b01742bf6bb43ccea5663a66495e83c3a",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_motion_v_wide_search.py": "c68c19c015e18addbdd2d7240f66709cec627c36099e08ae81872be431d32722",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_motion_v_refine.py": "7104d266a670d437703951d42ed9b82b49722e64254e6361c35d512657ddb0f8",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_motion_v_ensemble.py": "50af3020c3ee273b7d2ec947d94669c615c6eeb212fcff3d8ecc5ea90a553098",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_distinct_spec_screen.py": "260c4118c383a7d9d4e467e66c5414e4d989c31c54c4ee97c31192aee6e38cf9",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_l2_spec_search.py": "8976efedd1b00fe880a63776cfe5ef3dc8425c4b38046f7d59f6fa38232345ef",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_spec_continuation.py": "cd0bcc5d780e70cd4bdc6cd9b8ba46e7ed373c7bf73c3f5171644dfb6233b60a",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_spec_continuation_audit.py": "5a824479815b22eb2fd35c535eb13854528a1a07cd61009ddd42c02da9dd65d5",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_finite_recurrence_pilot.py": "fbafe2c3c21bcce61b60150746b697c4177580b5f148304a7dc43e0482938b96",
+    "/home/sunyhg/Documents/SafeWorld/experiments/l2_safedreamer.py": "8cb557973a168bc74e43def0eca446ee0784319545eec0af796e1aff71da6b0b",
+    "/home/sunyhg/Documents/SafeWorld/wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+  },
+  "source_plan_sha256": "d044a219abbf2707ac9ca4bfbd9bf96e085fa0bfa5653512629359f571d2803d",
+  "candidate": {
+    "id": "softplus_s3_mix0.5",
+    "kind": "blend",
+    "weight": 0.5
+  },
+  "development": "80/80 fit, 19/20 reused internal; double100 qualification NOT met; user-authorized frozen evaluation",
+  "start_distribution": "fresh independently seeded environment reset, encoded initial goal distance>=1.0",
+  "eligibility": "decoded initial goal distance >=1.0 only; first N eligible; no future filtering",
+  "gates": [
+    "P1 all300",
+    "P2 all source-bad transitions",
+    "completion and endpoint V<eta",
+    "Zfree bad exclusion",
+    "sampled Zfree closure",
+    "original fit-only region",
+    "finite nonnegative V"
+  ],
+  "z_free": "V(x)<.01; absorbing completed q=2; not a physical forever-safe region",
+  "warrant_threshold": 0.95,
+  "confidence": 0.95,
+  "decision": "Calibration certificate CP>=.95 and no exclusion/closure counterevidence -> SAFE (statistical finite-model only); else ABSTAIN",
+  "test": "1000 fresh seeds after immutable calibration prediction, separate CP; no pooling or selection",
+  "inference": "Fixed N, iid conditional reset/imagination draws assumed. Each reported CP is marginal, not simultaneous.",
+  "limitation": "Not sampled double100 qualified, not global P1/P2 proof, not real-environment or infinite-horizon safety"
+}

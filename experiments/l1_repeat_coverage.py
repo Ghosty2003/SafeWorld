@@ -1,6 +1,9 @@
 """
 experiments/l1_repeat_coverage.py
 
+LEGACY random-action/environment-transfer diagnostic, NOT CCE policy STL.
+For policy-conditioned model-only experiments use l1_policy_stl.py.
+
 Repeats the L1 pipeline (experiments/l1_pipeline.py::run_l1) K times with
 disjoint seeds each time, and checks how often the claimed lower bound
 (1 - delta_cp - delta_err) actually held against that run's independent

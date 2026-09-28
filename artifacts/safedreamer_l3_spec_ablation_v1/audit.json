@@ -1,0 +1,30 @@
+{
+  "exact_replay": true,
+  "dev_anchors": 74,
+  "development_chunks": 592,
+  "fit_chunks": 111,
+  "all_dev_queries_after_freeze": true,
+  "matched_nonaccepting_W": {
+    "A_S48": {
+      "n": 21,
+      "raw_pass": 13,
+      "sampling_corrected_pass": 0
+    },
+    "B_S16": {
+      "n": 21,
+      "raw_pass": 15,
+      "sampling_corrected_pass": 0
+    },
+    "B_S24": {
+      "n": 21,
+      "raw_pass": 16,
+      "sampling_corrected_pass": 0
+    },
+    "B_S32": {
+      "n": 21,
+      "raw_pass": 14,
+      "sampling_corrected_pass": 0
+    }
+  },
+  "note": "Descriptive common physical-anchor subset for S16/S24/S32/S48 only; no significance or recurrence probability claim."
+}

@@ -1,0 +1,17 @@
+candidate,train_P1_bad,train_P2_bad,train_paths,internal_P1_bad,internal_P2_bad,internal_paths,internal_completion,internal_certificate,initially_complete,status,monitor_only_allpass
+high_linear,2033,4574,35,534,1104,8,18,8,5,BORDERLINE,False
+high_elu128,2035,4503,38,530,1112,10,18,10,5,BORDERLINE,False
+return_linear,3344,7358,9,1003,2155,3,15,3,0,BORDERLINE,False
+return_elu128,3272,7351,10,1029,2163,5,15,5,0,BORDERLINE,False
+goal_linear,3264,7302,15,644,1388,6,17,6,0,BORDERLINE,False
+goal_elu128,3264,7495,15,662,1446,5,17,5,0,BORDERLINE,False
+recovery8_linear,6243,12745,1,1729,3539,0,11,0,0,BORDERLINE,False
+recovery8_elu128,6088,13149,3,1681,3643,0,11,0,0,BORDERLINE,False
+persist_safe_linear,11191,0,0,2801,0,0,,0,,BORDERLINE,False
+persist_safe_elu128,11539,0,0,2898,0,0,,0,,BORDERLINE,False
+persist_high_linear,12029,9282,0,3021,2435,0,,0,,BORDERLINE,False
+persist_high_elu128,12004,10108,0,2988,2650,0,,0,,BORDERLINE,False
+safe_window24_linear,0,0,80,11,14,11,20,11,0,BORDERLINE,False
+safe_window24_elu128,0,0,80,8,13,11,20,11,0,BORDERLINE,False
+safe_window48_linear,1,6,74,16,24,6,20,6,0,BORDERLINE,False
+safe_window48_elu128,1,2,78,23,30,7,20,7,0,BORDERLINE,False

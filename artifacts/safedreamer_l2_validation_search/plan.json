@@ -1,0 +1,78 @@
+{
+  "configs": [
+    {
+      "name": "pca16",
+      "rank": 16,
+      "width": 128,
+      "multistep": 0.0,
+      "noise": 0.0,
+      "seed": 71
+    },
+    {
+      "name": "pca32",
+      "rank": 32,
+      "width": 128,
+      "multistep": 0.0,
+      "noise": 0.0,
+      "seed": 72
+    },
+    {
+      "name": "pca64",
+      "rank": 64,
+      "width": 256,
+      "multistep": 0.0,
+      "noise": 0.0,
+      "seed": 73
+    },
+    {
+      "name": "pca128",
+      "rank": 128,
+      "width": 256,
+      "multistep": 0.0,
+      "noise": 0.0,
+      "seed": 74
+    },
+    {
+      "name": "pca32_multistep",
+      "rank": 32,
+      "width": 128,
+      "multistep": 0.3,
+      "noise": 0.0,
+      "seed": 75
+    },
+    {
+      "name": "pca64_multistep",
+      "rank": 64,
+      "width": 256,
+      "multistep": 0.3,
+      "noise": 0.0,
+      "seed": 76
+    },
+    {
+      "name": "deter_multistep",
+      "rank": 0,
+      "width": 256,
+      "multistep": 0.3,
+      "noise": 0.0,
+      "seed": 77
+    },
+    {
+      "name": "deter_smooth",
+      "rank": 0,
+      "width": 256,
+      "multistep": 0.3,
+      "noise": 0.02,
+      "seed": 78
+    }
+  ],
+  "updates": 2400,
+  "eta": 0.01,
+  "margin": 0.05,
+  "train_paths": 180,
+  "validation_paths": 100,
+  "test_access": false,
+  "validation_used_for": "hyperparameter/checkpoint selection only; no gradients",
+  "selection": "train P2 <=1%, then minimum validation P2, then training P2",
+  "inference_inputs": "current latent/AP and accepting automaton state; no clock/path id",
+  "confidence_status": "not estimated on repeatedly selected development data"
+}

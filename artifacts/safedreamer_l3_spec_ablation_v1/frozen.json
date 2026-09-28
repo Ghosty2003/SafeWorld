@@ -1,0 +1,26 @@
+{
+  "time": "2026-09-24T05:21:22.269928+00:00",
+  "plan_sha256": "3a970201423bcf9152389c492ec8c264d504514cc520075728ec045c02916ecd",
+  "models": {
+    "A_S48": {
+      "W": "02d3b41dbf8fe8b03bcf243abc13bfc39ca9e8a2f5b60a7195b0b96fbcff3e71",
+      "U": "7da7bf3adff0ea17d76a1d934c275930afd000d8ab76641484b5e2e022fb08f1"
+    },
+    "B_S16": {
+      "W": "109d1d87ff874597fa518a312026a99e6dafb2c6df3fe3077e876d62fb5279f2",
+      "U": "e8a672c242fc2c0f4b135843f36eb69141cce5ad5ec116a29fe866d37e37cad2"
+    },
+    "B_S24": {
+      "W": "9d7349812419e2200f3d86bcbbe584ece82db2cdbd9afe1e97853e36b0023517",
+      "U": "82e9e2770f74b8726a8379dab3faa32171e6229a5397409ec189dda1b186ad12"
+    },
+    "B_S32": {
+      "W": "f362fafb0730bbf1b6c1579d4424d8a2ebea0f136af8710dea2ab0e96a75a4cb",
+      "U": "1fe12e8b12543f186b7a766969b7399e6890a5a9a36633a559c974e6b19c55ba"
+    },
+    "C_clearance": {
+      "W": "476d091a545084b81f4dbc27d1a6e7520beb2e8e224b270447b270e71b1384f5",
+      "U": "34edfa721ccf823889adc48130242061ea6cbe90153affa1e92136c64fd4c2d4"
+    }
+  }
+}

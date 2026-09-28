@@ -1,0 +1,16 @@
+{
+  "action_source": "policy",
+  "expl_behavior": "CCEPlanner",
+  "planner": {
+    "horizon": 15,
+    "num_samples": 500,
+    "num_elites": 50,
+    "iterations": 6,
+    "mixture_coef": 0.05,
+    "momentum": 0.1,
+    "init_std": 1.0
+  },
+  "cost_limit": 0.0,
+  "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+  "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+}

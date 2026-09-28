@@ -1,0 +1,222 @@
+[
+  {
+    "file": "draw_0000.npz",
+    "sha256": "7ccb9fde84bd1408887e5c5a3fd45627cf2fa8a2a9c6d8a28b1e8bb17481f243",
+    "reset_seed": 141000000,
+    "imagination_seed": 141000001,
+    "eligible": true,
+    "initial_goal": 1.1837704181671143,
+    "fingerprint": "b43b947d07c044bd3ac3a5170dda4903677f2968d9d812f093dad91fad169ddf",
+    "time": "2026-09-24T16:39:48.602304+00:00"
+  },
+  {
+    "file": "draw_0001.npz",
+    "sha256": "0d2bb23df8d4e64e6e95486ac561be5e09b0d3c3f33f37451d5502465068d700",
+    "reset_seed": 141000002,
+    "imagination_seed": 141000003,
+    "eligible": false,
+    "initial_goal": 0.9101040959358215,
+    "fingerprint": "1a5eec5b63caab8ae28d8a7034d732231e3693b4301d9e63378f38c38e7e1d9f",
+    "time": "2026-09-24T16:39:53.009036+00:00"
+  },
+  {
+    "file": "draw_0002.npz",
+    "sha256": "a039d8eb039605e4975da5c4d7ff7aa80bc0aa272c1b55467b8fbbd318e1fd9b",
+    "reset_seed": 141000004,
+    "imagination_seed": 141000005,
+    "eligible": true,
+    "initial_goal": 1.3168755769729614,
+    "fingerprint": "8f1d5eb2c47fee61aec32c1b893203bbfeb725fdd46435c7d6bd1fbc25927493",
+    "time": "2026-09-24T16:39:57.412485+00:00"
+  },
+  {
+    "file": "draw_0003.npz",
+    "sha256": "e40ba7cc844181a7d71305ab2ce1db65301334712486bfce1d72d578c23a1c31",
+    "reset_seed": 141000006,
+    "imagination_seed": 141000007,
+    "eligible": true,
+    "initial_goal": 1.3358668088912964,
+    "fingerprint": "27af21798cfb740b7afeb13fdba392ade2b79b9fa9a2e705be58c6c72410bb70",
+    "time": "2026-09-24T16:40:01.814958+00:00"
+  },
+  {
+    "file": "draw_0004.npz",
+    "sha256": "a3931c54bb2c7e6a76e7674e3a3c3b626c6565b0ac65252920e37d4a0887cf0b",
+    "reset_seed": 141000008,
+    "imagination_seed": 141000009,
+    "eligible": true,
+    "initial_goal": 1.2676995992660522,
+    "fingerprint": "e8bb7d2b1aa583bf943a99d8f2d7e63e1a5e951ed79850b91c907e9b1e502fb3",
+    "time": "2026-09-24T16:40:06.325745+00:00"
+  },
+  {
+    "file": "draw_0005.npz",
+    "sha256": "2014472bb66862e09293433054b3813b3d525cd9881957b9d2822413fbd66fb3",
+    "reset_seed": 141000010,
+    "imagination_seed": 141000011,
+    "eligible": true,
+    "initial_goal": 1.1055889129638672,
+    "fingerprint": "995b915dbd5d3fcce263b34379485730da2b215c14b14bc815fb1097bd52509e",
+    "time": "2026-09-24T16:40:10.724594+00:00"
+  },
+  {
+    "file": "draw_0006.npz",
+    "sha256": "ac377fafb2d29de2d4bb6ce93b3db6df7e4da8de606381dc803ab98321fdcc55",
+    "reset_seed": 141000012,
+    "imagination_seed": 141000013,
+    "eligible": true,
+    "initial_goal": 1.6127009391784668,
+    "fingerprint": "f157edba7a876a9ddacf41bf7d3818ebf5dc2734de306e3885926f4c594ce835",
+    "time": "2026-09-24T16:40:15.134054+00:00"
+  },
+  {
+    "file": "draw_0007.npz",
+    "sha256": "0c6d85436bfb66f1775c1d8049b58188f7dff1837851a79259258d349c8e5ad8",
+    "reset_seed": 141000014,
+    "imagination_seed": 141000015,
+    "eligible": false,
+    "initial_goal": 0.4882778227329254,
+    "fingerprint": "11f8766fc8949a911aa1a9ac6c79fb1ea96e1284391305302d90f5e4ff6ec0c3",
+    "time": "2026-09-24T16:40:19.531229+00:00"
+  },
+  {
+    "file": "draw_0008.npz",
+    "sha256": "06c5e5ba0451ff25777d846ba3ccf2bc7d38cf4ab8f2007195bf79f16c39a728",
+    "reset_seed": 141000016,
+    "imagination_seed": 141000017,
+    "eligible": true,
+    "initial_goal": 1.8864057064056396,
+    "fingerprint": "485c837bb23602dd70bcdbfdfd9424277572974b7b0e38185a28629668b0b18b",
+    "time": "2026-09-24T16:40:23.945871+00:00"
+  },
+  {
+    "file": "draw_0009.npz",
+    "sha256": "390322f697a952b49da622a641e47c813a2f2e1f73fa9f8f298a2ddea9d4a9c5",
+    "reset_seed": 141000018,
+    "imagination_seed": 141000019,
+    "eligible": true,
+    "initial_goal": 1.8869484663009644,
+    "fingerprint": "d8bd49e5a54ffe1ad4349f6e53fc37e34601dc96c4ab0fbfc3a2c0959b232331",
+    "time": "2026-09-24T16:40:28.358695+00:00"
+  },
+  {
+    "file": "draw_0010.npz",
+    "sha256": "e021dc66b76539b9dbb33892270cb31a311a6fdc04d642bf4d0e68f8a89feee5",
+    "reset_seed": 141000020,
+    "imagination_seed": 141000021,
+    "eligible": true,
+    "initial_goal": 1.2384278774261475,
+    "fingerprint": "d9424c36207284bcf37a500884e9c315694d4e47d01f9f84ef933f1baef121ae",
+    "time": "2026-09-24T16:40:32.761966+00:00"
+  },
+  {
+    "file": "draw_0011.npz",
+    "sha256": "037a669c4fbde9684828b069f9b2ba625be3c9980e8ebb65ea81258d8186aeaf",
+    "reset_seed": 141000022,
+    "imagination_seed": 141000023,
+    "eligible": false,
+    "initial_goal": 0.23248879611492157,
+    "fingerprint": "bf0b01e834654d4932d8412bbbaa686c4f950265e8bfd33050b42ea476455bbb",
+    "time": "2026-09-24T16:40:37.276914+00:00"
+  },
+  {
+    "file": "draw_0012.npz",
+    "sha256": "42269bff2005b3b71dca1efe58d5c93716fe2eba2d133b45e15755df2953f445",
+    "reset_seed": 141000024,
+    "imagination_seed": 141000025,
+    "eligible": false,
+    "initial_goal": 0.8865569829940796,
+    "fingerprint": "7a9104dcae390f75adfc324472e1f405430ca044aba8e94a13719b1f2b6d68ee",
+    "time": "2026-09-24T16:40:41.682019+00:00"
+  },
+  {
+    "file": "draw_0013.npz",
+    "sha256": "94ad97c95786368b11d76caec82eca9d92d90ac860348142ddba1d1f7c07db06",
+    "reset_seed": 141000026,
+    "imagination_seed": 141000027,
+    "eligible": false,
+    "initial_goal": 0.8682432770729065,
+    "fingerprint": "20e1ce2c55d5f2eecebeb216a21fbcc034719383601f0773c2f805d173a7c8a3",
+    "time": "2026-09-24T16:40:46.081330+00:00"
+  },
+  {
+    "file": "draw_0014.npz",
+    "sha256": "2ef5a0509503c284dd56c09581eb871c440011d46763288ebc4e0e1dfc2d27cb",
+    "reset_seed": 141000028,
+    "imagination_seed": 141000029,
+    "eligible": true,
+    "initial_goal": 1.4983174800872803,
+    "fingerprint": "4bdd520765d1b0b9ea451831f19d0855cfef81e19d8d4d9370e3350f9050a2b2",
+    "time": "2026-09-24T16:40:50.481385+00:00"
+  },
+  {
+    "file": "draw_0015.npz",
+    "sha256": "e870992e32383ce89b5090a6d8e2f4bbcb4af48058cdd5df49ceac3da3b003c9",
+    "reset_seed": 141000030,
+    "imagination_seed": 141000031,
+    "eligible": false,
+    "initial_goal": 0.31517818570137024,
+    "fingerprint": "5b975098dd9aa8a0c7b0565d24b7b473fcecc53a8be6a1b21ad642d01cad00ef",
+    "time": "2026-09-24T16:40:54.885958+00:00"
+  },
+  {
+    "file": "draw_0016.npz",
+    "sha256": "dc30bb73c824ec60d71a949dbd866e3371237ace1a15a4e228f5fbe4e105824f",
+    "reset_seed": 141000032,
+    "imagination_seed": 141000033,
+    "eligible": false,
+    "initial_goal": 0.7685394883155823,
+    "fingerprint": "d676a8efe33735966ff2638cb9128caa30b5a93a0c5f0f7319e3f0e4b6388996",
+    "time": "2026-09-24T16:40:59.328737+00:00"
+  },
+  {
+    "file": "draw_0017.npz",
+    "sha256": "bf109af0f04e38eba55a88c741c809b31b6fb37aae02867540ee9cd057d8be1e",
+    "reset_seed": 141000034,
+    "imagination_seed": 141000035,
+    "eligible": true,
+    "initial_goal": 1.3109958171844482,
+    "fingerprint": "f12f099901c890846ac87398066f4cb2c61230742fe630ba77719efe883636a1",
+    "time": "2026-09-24T16:41:03.738742+00:00"
+  },
+  {
+    "file": "draw_0018.npz",
+    "sha256": "79899411b387c8dd17740265e1b0a261a8a60be3f2e23e03a9d0bc3eb5ed1c1e",
+    "reset_seed": 141000036,
+    "imagination_seed": 141000037,
+    "eligible": false,
+    "initial_goal": 0.6514542698860168,
+    "fingerprint": "775a203bec89241bb4c48a567f6550efd40ea12705b475abb4c47e60bed99db9",
+    "time": "2026-09-24T16:41:08.247168+00:00"
+  },
+  {
+    "file": "draw_0019.npz",
+    "sha256": "38038ae4ff50ca92a60b201442184aef77579568d945b9618c11accc4e08c485",
+    "reset_seed": 141000038,
+    "imagination_seed": 141000039,
+    "eligible": true,
+    "initial_goal": 1.4749805927276611,
+    "fingerprint": "3a53695142343c0a9244862f3cc9426be0c05e2e5cdaaf4ef66e4f1405af8081",
+    "time": "2026-09-24T16:41:12.662091+00:00"
+  },
+  {
+    "file": "draw_0020.npz",
+    "sha256": "9d6f989ab658f7c237d9bbd3e6ea02fa2063565386b0b2cfc0981e6d5f40837e",
+    "reset_seed": 141000040,
+    "imagination_seed": 141000041,
+    "eligible": false,
+    "initial_goal": 0.9605833888053894,
+    "fingerprint": "c0e9eac86097a0de32280d1b6899bff914d8fc64c268b64984a8e0df952c137e",
+    "time": "2026-09-24T16:41:17.086993+00:00"
+  },
+  {
+    "file": "draw_0021.npz",
+    "sha256": "4e2d9ba808326c1a7e4a608291929c0c2462622274a55267920a5e32d6997aa3",
+    "reset_seed": 141000042,
+    "imagination_seed": 141000043,
+    "eligible": true,
+    "initial_goal": 1.0109120607376099,
+    "fingerprint": "c05468f441f59891e87cc442d87af5256627688b02a457b52fb70b02cd505c9d",
+    "time": "2026-09-24T16:41:21.494729+00:00"
+  }
+]

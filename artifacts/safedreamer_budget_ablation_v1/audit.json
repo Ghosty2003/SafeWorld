@@ -1,0 +1,10 @@
+{
+  "time": "2026-09-24T12:13:39.936945+00:00",
+  "source_baseline_exact_replay": true,
+  "all16_analytic_boundaries_checked": true,
+  "source_model_and_path_hashes_checked": true,
+  "report_sha256": "85d76a425ba5a561192064de08b156f61b68a6c7afc81540e45fc3d0d9965c41",
+  "code_sha256": "091f79e304898307b6f73c0ec45cb30466b354d577544411e525b14d984d6859",
+  "new_rollouts": 0,
+  "source_files_modified": false
+}

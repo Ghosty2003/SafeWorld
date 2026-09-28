@@ -8,9 +8,9 @@
     "name": "safetygymcoor_SafetyPointGoal1-v0"
   },
   "rollout": {
-    "horizon": 50,
+    "horizon": 64,
     "n_rollouts": 20,
-    "action_source": "random",
+    "action_source": "policy",
     "seed": 0,
     "device": "cpu"
   },

@@ -16,7 +16,7 @@ A reachable non-trivial accepting SCC in P witnesses a potential VIOLATION of φ
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Tuple
 
 from .abstraction import AbstractSystem, active_aps_for_abstract_state
 from .buchi import BuchiAutomaton
@@ -24,7 +24,7 @@ from .buchi import BuchiAutomaton
 
 # ─── types ────────────────────────────────────────────────────────────────────
 
-ProductKey = tuple[int, str]   # (abstract_idx, buchi_state)
+ProductKey = Tuple[int, str]   # (abstract_idx, buchi_state)
 
 
 @dataclass

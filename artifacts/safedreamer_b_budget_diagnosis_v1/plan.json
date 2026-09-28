@@ -1,0 +1,44 @@
+{
+  "created": "2026-09-24T12:39:46.716204+00:00",
+  "candidate": "B",
+  "d_low": 0.4735981822013855,
+  "d_high": 0.7910375893115997,
+  "threshold_scope": "FROZEN_FOR_THIS_DIAGNOSIS_NOT_FORMAL_CALIBRATION",
+  "M_MIN_main": 2,
+  "M_MIN_control": 1,
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_high_clearance_pilot_v1",
+  "model_sha256": "b6d7b65fb3a9ea8ed7451e32e470a611254f70cb3f8e7e6dfe507532fa3bf70e",
+  "code_sha256": "48f899dbc5604cdb47d23029ab6fa9c71b75e78690e79f08602f2f8af8b2a472",
+  "source_report_sha256": "2550586edac7aa94e47160ec2adfdc2de88232fdfbefc5052bea776f1082b077",
+  "delta_fit_only": 0.24276604652404776,
+  "fixed": [
+    "16 cached fit paths",
+    "weights",
+    "events",
+    "eta=.01",
+    "H=300",
+    "original gate definitions"
+  ],
+  "scales": [
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    2.0
+  ],
+  "matched_constant_train_mean_budget": 1.3210967669884361,
+  "constant_train_max_observed_segment": 2.89,
+  "constant_H_eta": 3.0,
+  "constant_regression_train_completed_mean": 1.0091666666666665,
+  "split_counts": {
+    "fit": 16,
+    "cal_delta": 0,
+    "cal_CP": 0,
+    "test": 0
+  },
+  "retraining": false,
+  "new_sampling": false,
+  "confidence": null,
+  "formal_M_MIN": null
+}

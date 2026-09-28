@@ -1,0 +1,1613 @@
+{
+  "summary": [
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 16,
+      "full_pass": 16,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 16,
+      "full_pass": 12,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_H_eta",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 16,
+      "budget_failure_after_Mth_event": 6,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 4,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 8,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 16,
+      "budget_failure_after_Mth_event": 10,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 7,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 3,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 3,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 8,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.125,
+      "event_sufficient_but_budget_fail": 14,
+      "budget_failure_after_Mth_event": 8,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 14,
+        "REGION_GATE_FAIL": 14,
+        "TRANSITION_SOUNDNESS_FAIL": 14
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 1,
+      "full_pass": 1,
+      "full_pass_rate": 0.08333333333333333,
+      "event_sufficient_but_budget_fail": 11,
+      "budget_failure_after_Mth_event": 6,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 11,
+        "REGION_GATE_FAIL": 11,
+        "TRANSITION_SOUNDNESS_FAIL": 11
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 1,
+      "full_pass": 1,
+      "full_pass_rate": 0.25,
+      "event_sufficient_but_budget_fail": 3,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 3,
+        "REGION_GATE_FAIL": 3,
+        "TRANSITION_SOUNDNESS_FAIL": 3
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.125,
+      "event_sufficient_but_budget_fail": 10,
+      "budget_failure_after_Mth_event": 3,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 14,
+        "REGION_GATE_FAIL": 14,
+        "TRANSITION_SOUNDNESS_FAIL": 14,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 1,
+      "full_pass": 1,
+      "full_pass_rate": 0.08333333333333333,
+      "event_sufficient_but_budget_fail": 7,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 11,
+        "REGION_GATE_FAIL": 11,
+        "TRANSITION_SOUNDNESS_FAIL": 11,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 1,
+      "full_pass": 1,
+      "full_pass_rate": 0.25,
+      "event_sufficient_but_budget_fail": 3,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 3,
+        "REGION_GATE_FAIL": 3,
+        "TRANSITION_SOUNDNESS_FAIL": 3
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 6,
+      "full_pass": 6,
+      "full_pass_rate": 0.375,
+      "event_sufficient_but_budget_fail": 10,
+      "budget_failure_after_Mth_event": 5,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 10,
+        "REGION_GATE_FAIL": 10,
+        "TRANSITION_SOUNDNESS_FAIL": 10
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 0.3333333333333333,
+      "event_sufficient_but_budget_fail": 8,
+      "budget_failure_after_Mth_event": 4,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 8,
+        "REGION_GATE_FAIL": 8,
+        "TRANSITION_SOUNDNESS_FAIL": 8
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 6,
+      "full_pass": 6,
+      "full_pass_rate": 0.375,
+      "event_sufficient_but_budget_fail": 6,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 10,
+        "REGION_GATE_FAIL": 10,
+        "TRANSITION_SOUNDNESS_FAIL": 10,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 0.3333333333333333,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 8,
+        "REGION_GATE_FAIL": 8,
+        "TRANSITION_SOUNDNESS_FAIL": 8,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 9,
+      "full_pass": 9,
+      "full_pass_rate": 0.5625,
+      "event_sufficient_but_budget_fail": 7,
+      "budget_failure_after_Mth_event": 5,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 7,
+        "REGION_GATE_FAIL": 7,
+        "TRANSITION_SOUNDNESS_FAIL": 7
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 6,
+      "full_pass": 6,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 6,
+      "budget_failure_after_Mth_event": 4,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 6,
+        "REGION_GATE_FAIL": 6,
+        "TRANSITION_SOUNDNESS_FAIL": 6
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 9,
+      "full_pass": 9,
+      "full_pass_rate": 0.5625,
+      "event_sufficient_but_budget_fail": 3,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 7,
+        "REGION_GATE_FAIL": 7,
+        "TRANSITION_SOUNDNESS_FAIL": 7,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 6,
+      "full_pass": 6,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 6,
+        "REGION_GATE_FAIL": 6,
+        "TRANSITION_SOUNDNESS_FAIL": 6,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 13,
+      "full_pass": 13,
+      "full_pass_rate": 0.8125,
+      "event_sufficient_but_budget_fail": 3,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 3,
+        "REGION_GATE_FAIL": 3,
+        "TRANSITION_SOUNDNESS_FAIL": 3
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 10,
+      "full_pass": 10,
+      "full_pass_rate": 0.8333333333333334,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 13,
+      "full_pass": 11,
+      "full_pass_rate": 0.6875,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 3,
+        "REGION_GATE_FAIL": 3,
+        "TRANSITION_SOUNDNESS_FAIL": 3,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 10,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_matched",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 16,
+      "full_pass": 16,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 16,
+      "full_pass": 12,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "constant_train_max",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 4,
+      "full_pass": 4,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 16,
+      "budget_failure_after_Mth_event": 5,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 2,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 3,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 16,
+        "REGION_GATE_FAIL": 16,
+        "TRANSITION_SOUNDNESS_FAIL": 16,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 8,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.5,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 4,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 4,
+        "REGION_GATE_FAIL": 4,
+        "TRANSITION_SOUNDNESS_FAIL": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.125,
+      "event_sufficient_but_budget_fail": 14,
+      "budget_failure_after_Mth_event": 8,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 14,
+        "REGION_GATE_FAIL": 14,
+        "TRANSITION_SOUNDNESS_FAIL": 14
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 12,
+      "budget_failure_after_Mth_event": 7,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.125,
+      "event_sufficient_but_budget_fail": 10,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 14,
+        "REGION_GATE_FAIL": 14,
+        "TRANSITION_SOUNDNESS_FAIL": 14,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 0,
+      "full_pass": 0,
+      "full_pass_rate": 0.0,
+      "event_sufficient_but_budget_fail": 8,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 12,
+        "REGION_GATE_FAIL": 12,
+        "TRANSITION_SOUNDNESS_FAIL": 12,
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 0.75,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 14,
+      "full_pass": 14,
+      "full_pass_rate": 0.875,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 1,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 14,
+      "full_pass": 10,
+      "full_pass_rate": 0.625,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4,
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 2,
+      "full_pass": 2,
+      "full_pass_rate": 0.5,
+      "event_sufficient_but_budget_fail": 2,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 2,
+        "REGION_GATE_FAIL": 2,
+        "TRANSITION_SOUNDNESS_FAIL": 2
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 15,
+      "full_pass": 15,
+      "full_pass_rate": 0.9375,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 15,
+      "full_pass": 11,
+      "full_pass_rate": 0.6875,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4,
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.25,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 15,
+      "full_pass": 15,
+      "full_pass_rate": 0.9375,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 15,
+      "full_pass": 11,
+      "full_pass_rate": 0.6875,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4,
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 1.5,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 16,
+      "budget_pass": 15,
+      "full_pass": 15,
+      "full_pass_rate": 0.9375,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 12,
+      "budget_pass": 12,
+      "full_pass": 12,
+      "full_pass_rate": 1.0,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {}
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 1,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "all",
+      "n": 16,
+      "count_pass": 12,
+      "budget_pass": 15,
+      "full_pass": 11,
+      "full_pass_rate": 0.6875,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4,
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "train",
+      "n": 12,
+      "count_pass": 8,
+      "budget_pass": 12,
+      "full_pass": 8,
+      "full_pass_rate": 0.6666666666666666,
+      "event_sufficient_but_budget_fail": 0,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "INSUFFICIENT_EVENTS": 4
+      }
+    },
+    {
+      "arm": "learned",
+      "scale": 2.0,
+      "M_MIN": 2,
+      "partition": "internal_check",
+      "n": 4,
+      "count_pass": 4,
+      "budget_pass": 3,
+      "full_pass": 3,
+      "full_pass_rate": 0.75,
+      "event_sufficient_but_budget_fail": 1,
+      "budget_failure_after_Mth_event": 0,
+      "failure_breakdown": {
+        "DELTA_MARGIN_FAIL": 1,
+        "REGION_GATE_FAIL": 1,
+        "TRANSITION_SOUNDNESS_FAIL": 1
+      }
+    }
+  ],
+  "metrics": {
+    "train": {
+      "prediction": {
+        "n": 24,
+        "learned_mae": 0.07049765760699908,
+        "constant_mae": 0.573125,
+        "correlation": 0.9920895461854398,
+        "note": "Completed segments only; segments within paths are correlated, descriptive not confidence estimates."
+      },
+      "completed_lengths": {
+        "n": 24,
+        "mean": 100.91666666666667,
+        "min": 10.0,
+        "q10": 22.200000000000003,
+        "q25": 44.25,
+        "median": 86.5,
+        "q75": 138.75,
+        "q90": 207.2,
+        "max": 289.0
+      },
+      "tail_lengths": {
+        "n": 12,
+        "mean": 98.16666666666667,
+        "min": 10.0,
+        "q10": 11.3,
+        "q25": 26.75,
+        "median": 64.5,
+        "q75": 159.25,
+        "q90": 214.3,
+        "max": 275.0
+      },
+      "mean_budget": {
+        "n": 36,
+        "mean": 1.3210967669884361,
+        "min": 0.3742894023656844,
+        "q10": 0.4798205137252807,
+        "q25": 0.6798359841108321,
+        "median": 1.1951080799102782,
+        "q75": 1.6902831137180327,
+        "q90": 2.4243918895721435,
+        "max": 3.1286067008972167
+      },
+      "completed_margin": {
+        "n": 24,
+        "mean": 0.23522592355807614,
+        "min": 0.0035396093130110606,
+        "q10": 0.11395317125320431,
+        "q25": 0.19242483794689172,
+        "median": 0.23659508258104311,
+        "q75": 0.3018104672431945,
+        "q90": 0.3454958519935607,
+        "max": 0.37573829591274255
+      },
+      "tail_margin": {
+        "n": 12,
+        "mean": 0.4928384538491566,
+        "min": 0.0,
+        "q10": 0.16839295375347127,
+        "q25": 0.32293889641761775,
+        "median": 0.4236218261718749,
+        "q75": 0.5800893607735633,
+        "q90": 0.680272696852684,
+        "max": 1.6348895692825316
+      }
+    },
+    "internal_check": {
+      "prediction": {
+        "n": 10,
+        "learned_mae": 0.5797223592400551,
+        "constant_mae": 0.6396666666666666,
+        "correlation": 0.516934260799671,
+        "note": "Completed segments only; segments within paths are correlated, descriptive not confidence estimates."
+      },
+      "completed_lengths": {
+        "n": 10,
+        "mean": 90.6,
+        "min": 14.0,
+        "q10": 25.7,
+        "q25": 32.0,
+        "median": 67.0,
+        "q75": 121.5,
+        "q90": 183.09999999999997,
+        "max": 265.0
+      },
+      "tail_lengths": {
+        "n": 4,
+        "mean": 73.5,
+        "min": 21.0,
+        "q10": 26.4,
+        "q25": 34.5,
+        "median": 54.5,
+        "q75": 93.5,
+        "q90": 135.8,
+        "max": 164.0
+      },
+      "mean_budget": {
+        "n": 14,
+        "mean": 1.6391746714711186,
+        "min": 0.47652179896831504,
+        "q10": 0.5525086164474486,
+        "q25": 0.7800368905067443,
+        "median": 1.6620521187782287,
+        "q75": 2.2522740006446837,
+        "q90": 2.5719824314117434,
+        "max": 3.9029873847961425
+      },
+      "completed_margin": {
+        "n": 10,
+        "mean": 0.45147189968824375,
+        "min": -1.0853317940235139,
+        "q10": -0.33171013557910917,
+        "q25": 0.23561542227864254,
+        "median": 0.4441854554414748,
+        "q75": 0.7252116733789442,
+        "q90": 1.4529150838851927,
+        "max": 1.5990685844421386
+      },
+      "tail_margin": {
+        "n": 4,
+        "mean": 1.6084316009283062,
+        "min": 0.5314586853981017,
+        "q10": 0.7333588583469389,
+        "q25": 1.0362091177701949,
+        "median": 1.733723323345184,
+        "q75": 2.3059458065032956,
+        "q90": 2.383270965576172,
+        "max": 2.434821071624756
+      }
+    }
+  },
+  "constant_matched": 1.3210967669884361,
+  "constant_train_max": 2.89,
+  "constant_regression": 1.0091666666666665,
+  "status": "FIT_ONLY_DIAGNOSIS_NO_WARRANT_NO_CALIBRATION",
+  "limitations": [
+    "No independent predictive accuracy estimate: all paths are development data.",
+    "Matched budget averages reset allocations on TRAIN observed segment starts, not unconditional state distribution.",
+    "Large constant dominance in pass rate is mathematical, not evidence of superior prediction.",
+    "Full-horizon gate may fail after the Mth event; event completion and certificate are distinct.",
+    "Finite pathwise constructed drift is not an infinite recurrence theorem."
+  ]
+}

@@ -1,0 +1,6 @@
+spec,finite_2windows,dev_paths,exit_return_paths,W_raw,W_required,U_raw,U_required,W_sampling_corrected,U_sampling_corrected
+A_S48,8,8,0,19,39,42,74,0,0
+B_S16,8,8,0,15,21,41,74,0,0
+B_S24,8,8,0,17,28,44,74,0,0
+B_S32,8,8,0,17,36,45,74,0,0
+C_clearance,8,8,6,7,19,40,74,1,0

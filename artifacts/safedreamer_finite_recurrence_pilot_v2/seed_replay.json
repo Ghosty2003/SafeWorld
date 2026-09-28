@@ -1,0 +1,17 @@
+{
+  "reset_seed": 121000000,
+  "imagination_seed": 121000001,
+  "exact": {
+    "latent": true,
+    "decoded": true,
+    "actions": true,
+    "initial_observation": true,
+    "planner_action_mean": true,
+    "planner_action_std": true,
+    "planner_initialized": true,
+    "rssm_deter": true,
+    "rssm_stoch": true,
+    "rssm_logit": true
+  },
+  "all_exact": true
+}

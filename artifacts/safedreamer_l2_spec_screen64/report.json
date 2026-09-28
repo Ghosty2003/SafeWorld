@@ -1,0 +1,978 @@
+{
+  "status": "EXPLORATORY_SPEC_SCREENING_NOT_CALIBRATED",
+  "horizon": 64,
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "policy": "unchanged local CCEPlanner",
+  "source_initial_condition": "decoded d0 >= 1.0",
+  "inputs": {
+    "train": {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_more_data/train.npz",
+      "sha256": "0cf15ffdaa064df25140d3a35dfea7bde4cba745fbe11b6654147bcb23b752a1"
+    },
+    "validation": {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_more_data/validation.npz",
+      "sha256": "cf658865c06c37e82fafa5e88b695c2ad4041047adf03bb713a4d4523204f77f"
+    }
+  },
+  "results": {
+    "train": {
+      "F[0,64](d<0.3); all": {
+        "successes": 166,
+        "total": 300,
+        "rate": 0.5533333333333333,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.3); initial_outside": {
+        "successes": 166,
+        "total": 300,
+        "rate": 0.5533333333333333,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.5); all": {
+        "successes": 231,
+        "total": 300,
+        "rate": 0.77,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.5); initial_outside": {
+        "successes": 231,
+        "total": 300,
+        "rate": 0.77,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1); all": {
+        "successes": 254,
+        "total": 300,
+        "rate": 0.8466666666666667,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1); initial_outside": {
+        "successes": 254,
+        "total": 300,
+        "rate": 0.8466666666666667,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.25); all": {
+        "successes": 261,
+        "total": 300,
+        "rate": 0.87,
+        "initial_target_members": 85
+      },
+      "F[0,64](d<1.25); initial_outside": {
+        "successes": 176,
+        "total": 215,
+        "rate": 0.8186046511627907,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.5); all": {
+        "successes": 278,
+        "total": 300,
+        "rate": 0.9266666666666666,
+        "initial_target_members": 171
+      },
+      "F[0,64](d<1.5); initial_outside": {
+        "successes": 107,
+        "total": 129,
+        "rate": 0.8294573643410853,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.75); all": {
+        "successes": 285,
+        "total": 300,
+        "rate": 0.95,
+        "initial_target_members": 236
+      },
+      "F[0,64](d<1.75); initial_outside": {
+        "successes": 49,
+        "total": 64,
+        "rate": 0.765625,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2); all": {
+        "successes": 295,
+        "total": 300,
+        "rate": 0.9833333333333333,
+        "initial_target_members": 272
+      },
+      "F[0,64](d<2); initial_outside": {
+        "successes": 23,
+        "total": 28,
+        "rate": 0.8214285714285714,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2.25); all": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": 298
+      },
+      "F[0,64](d<2.25); initial_outside": {
+        "successes": 2,
+        "total": 2,
+        "rate": 1.0,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2.5); all": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": 300
+      },
+      "F[0,64](d<2.5); initial_outside": {
+        "successes": 0,
+        "total": 0,
+        "rate": null,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.25": {
+        "successes": 61,
+        "total": 85,
+        "rate": 0.7176470588235294,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.25": {
+        "successes": 71,
+        "total": 85,
+        "rate": 0.8352941176470589,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.25": {
+        "successes": 81,
+        "total": 85,
+        "rate": 0.9529411764705882,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.5": {
+        "successes": 113,
+        "total": 171,
+        "rate": 0.6608187134502924,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.5": {
+        "successes": 140,
+        "total": 171,
+        "rate": 0.8187134502923976,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.5": {
+        "successes": 154,
+        "total": 171,
+        "rate": 0.9005847953216374,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.75": {
+        "successes": 140,
+        "total": 236,
+        "rate": 0.5932203389830508,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.75": {
+        "successes": 190,
+        "total": 236,
+        "rate": 0.8050847457627118,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.75": {
+        "successes": 211,
+        "total": 236,
+        "rate": 0.8940677966101694,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.25<=d0<1.75": {
+        "successes": 79,
+        "total": 151,
+        "rate": 0.5231788079470199,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.25<=d0<1.75": {
+        "successes": 119,
+        "total": 151,
+        "rate": 0.7880794701986755,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.25<=d0<1.75": {
+        "successes": 130,
+        "total": 151,
+        "rate": 0.8609271523178808,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.5<=d0<2": {
+        "successes": 42,
+        "total": 101,
+        "rate": 0.4158415841584158,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.5<=d0<2": {
+        "successes": 73,
+        "total": 101,
+        "rate": 0.7227722772277227,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.5<=d0<2": {
+        "successes": 82,
+        "total": 101,
+        "rate": 0.8118811881188119,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.75<=d0<2.5": {
+        "successes": 26,
+        "total": 64,
+        "rate": 0.40625,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.75<=d0<2.5": {
+        "successes": 41,
+        "total": 64,
+        "rate": 0.640625,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.75<=d0<2.5": {
+        "successes": 43,
+        "total": 64,
+        "rate": 0.671875,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.01)": {
+        "successes": 276,
+        "total": 300,
+        "rate": 0.92,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.05)": {
+        "successes": 276,
+        "total": 300,
+        "rate": 0.92,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.1)": {
+        "successes": 274,
+        "total": 300,
+        "rate": 0.9133333333333333,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.2)": {
+        "successes": 265,
+        "total": 300,
+        "rate": 0.8833333333333333,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.3)": {
+        "successes": 258,
+        "total": 300,
+        "rate": 0.86,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.5)": {
+        "successes": 248,
+        "total": 300,
+        "rate": 0.8266666666666667,
+        "initial_target_members": 0
+      },
+      "G[0,64](hazard_margin>=0)": {
+        "successes": 236,
+        "total": 300,
+        "rate": 0.7866666666666666,
+        "initial_target_members": null
+      },
+      "F[1,60](G[0,4](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,60](G[0,4](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,55](G[0,9](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,55](G[0,9](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,49](G[0,15](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,49](G[0,15](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,41](G[0,23](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,41](G[0,23](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,33](G[0,31](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,33](G[0,31](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,17](G[0,47](hazard_margin>=0))": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,17](G[0,47](hazard_margin>=0)); initial_hazard": {
+        "successes": 26,
+        "total": 26,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,1](G[0,63](hazard_margin>=0))": {
+        "successes": 253,
+        "total": 300,
+        "rate": 0.8433333333333334,
+        "initial_target_members": null
+      },
+      "F[1,1](G[0,63](hazard_margin>=0)); initial_hazard": {
+        "successes": 17,
+        "total": 26,
+        "rate": 0.6538461538461539,
+        "initial_target_members": null
+      },
+      "G[4,64](hazard_margin>=0)": {
+        "successes": 283,
+        "total": 300,
+        "rate": 0.9433333333333334,
+        "initial_target_members": null
+      },
+      "G[8,64](hazard_margin>=0)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[12,64](hazard_margin>=0)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[16,64](hazard_margin>=0)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[17,64](hazard_margin>=0)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[0,64](d<2)": {
+        "successes": 198,
+        "total": 300,
+        "rate": 0.66,
+        "initial_target_members": null
+      },
+      "G[0,64](d<2.5)": {
+        "successes": 263,
+        "total": 300,
+        "rate": 0.8766666666666667,
+        "initial_target_members": null
+      },
+      "G[0,64](d<3)": {
+        "successes": 289,
+        "total": 300,
+        "rate": 0.9633333333333334,
+        "initial_target_members": null
+      },
+      "G[0,64](d<3.5)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[0,64](d<4)": {
+        "successes": 300,
+        "total": 300,
+        "rate": 1.0,
+        "initial_target_members": null
+      }
+    },
+    "validation": {
+      "F[0,64](d<0.3); all": {
+        "successes": 55,
+        "total": 100,
+        "rate": 0.55,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.3); initial_outside": {
+        "successes": 55,
+        "total": 100,
+        "rate": 0.55,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.5); all": {
+        "successes": 69,
+        "total": 100,
+        "rate": 0.69,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<0.5); initial_outside": {
+        "successes": 69,
+        "total": 100,
+        "rate": 0.69,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1); all": {
+        "successes": 78,
+        "total": 100,
+        "rate": 0.78,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1); initial_outside": {
+        "successes": 78,
+        "total": 100,
+        "rate": 0.78,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.25); all": {
+        "successes": 84,
+        "total": 100,
+        "rate": 0.84,
+        "initial_target_members": 27
+      },
+      "F[0,64](d<1.25); initial_outside": {
+        "successes": 57,
+        "total": 73,
+        "rate": 0.7808219178082192,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.5); all": {
+        "successes": 92,
+        "total": 100,
+        "rate": 0.92,
+        "initial_target_members": 51
+      },
+      "F[0,64](d<1.5); initial_outside": {
+        "successes": 41,
+        "total": 49,
+        "rate": 0.8367346938775511,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<1.75); all": {
+        "successes": 97,
+        "total": 100,
+        "rate": 0.97,
+        "initial_target_members": 83
+      },
+      "F[0,64](d<1.75); initial_outside": {
+        "successes": 14,
+        "total": 17,
+        "rate": 0.8235294117647058,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2); all": {
+        "successes": 98,
+        "total": 100,
+        "rate": 0.98,
+        "initial_target_members": 94
+      },
+      "F[0,64](d<2); initial_outside": {
+        "successes": 4,
+        "total": 6,
+        "rate": 0.6666666666666666,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2.25); all": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": 99
+      },
+      "F[0,64](d<2.25); initial_outside": {
+        "successes": 1,
+        "total": 1,
+        "rate": 1.0,
+        "initial_target_members": 0
+      },
+      "F[0,64](d<2.5); all": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": 100
+      },
+      "F[0,64](d<2.5); initial_outside": {
+        "successes": 0,
+        "total": 0,
+        "rate": null,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.25": {
+        "successes": 14,
+        "total": 27,
+        "rate": 0.5185185185185185,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.25": {
+        "successes": 21,
+        "total": 27,
+        "rate": 0.7777777777777778,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.25": {
+        "successes": 25,
+        "total": 27,
+        "rate": 0.9259259259259259,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.5": {
+        "successes": 27,
+        "total": 51,
+        "rate": 0.5294117647058824,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.5": {
+        "successes": 36,
+        "total": 51,
+        "rate": 0.7058823529411765,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.5": {
+        "successes": 42,
+        "total": 51,
+        "rate": 0.8235294117647058,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1<=d0<1.75": {
+        "successes": 48,
+        "total": 83,
+        "rate": 0.5783132530120482,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1<=d0<1.75": {
+        "successes": 61,
+        "total": 83,
+        "rate": 0.7349397590361446,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1<=d0<1.75": {
+        "successes": 69,
+        "total": 83,
+        "rate": 0.8313253012048193,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.25<=d0<1.75": {
+        "successes": 34,
+        "total": 56,
+        "rate": 0.6071428571428571,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.25<=d0<1.75": {
+        "successes": 40,
+        "total": 56,
+        "rate": 0.7142857142857143,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.25<=d0<1.75": {
+        "successes": 44,
+        "total": 56,
+        "rate": 0.7857142857142857,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.5<=d0<2": {
+        "successes": 26,
+        "total": 43,
+        "rate": 0.6046511627906976,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.5<=d0<2": {
+        "successes": 31,
+        "total": 43,
+        "rate": 0.7209302325581395,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.5<=d0<2": {
+        "successes": 34,
+        "total": 43,
+        "rate": 0.7906976744186046,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.3); 1.75<=d0<2.5": {
+        "successes": 7,
+        "total": 17,
+        "rate": 0.4117647058823529,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<0.5); 1.75<=d0<2.5": {
+        "successes": 8,
+        "total": 17,
+        "rate": 0.47058823529411764,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<1); 1.75<=d0<2.5": {
+        "successes": 9,
+        "total": 17,
+        "rate": 0.5294117647058824,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.01)": {
+        "successes": 94,
+        "total": 100,
+        "rate": 0.94,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.05)": {
+        "successes": 92,
+        "total": 100,
+        "rate": 0.92,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.1)": {
+        "successes": 91,
+        "total": 100,
+        "rate": 0.91,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.2)": {
+        "successes": 88,
+        "total": 100,
+        "rate": 0.88,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.3)": {
+        "successes": 85,
+        "total": 100,
+        "rate": 0.85,
+        "initial_target_members": 0
+      },
+      "F[1,64](d<d0-0.5)": {
+        "successes": 79,
+        "total": 100,
+        "rate": 0.79,
+        "initial_target_members": 0
+      },
+      "G[0,64](hazard_margin>=0)": {
+        "successes": 81,
+        "total": 100,
+        "rate": 0.81,
+        "initial_target_members": null
+      },
+      "F[1,60](G[0,4](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,60](G[0,4](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,55](G[0,9](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,55](G[0,9](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,49](G[0,15](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,49](G[0,15](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,41](G[0,23](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,41](G[0,23](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,33](G[0,31](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,33](G[0,31](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,17](G[0,47](hazard_margin>=0))": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,17](G[0,47](hazard_margin>=0)); initial_hazard": {
+        "successes": 6,
+        "total": 6,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "F[1,1](G[0,63](hazard_margin>=0))": {
+        "successes": 86,
+        "total": 100,
+        "rate": 0.86,
+        "initial_target_members": null
+      },
+      "F[1,1](G[0,63](hazard_margin>=0)); initial_hazard": {
+        "successes": 5,
+        "total": 6,
+        "rate": 0.8333333333333334,
+        "initial_target_members": null
+      },
+      "G[4,64](hazard_margin>=0)": {
+        "successes": 94,
+        "total": 100,
+        "rate": 0.94,
+        "initial_target_members": null
+      },
+      "G[8,64](hazard_margin>=0)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[12,64](hazard_margin>=0)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[16,64](hazard_margin>=0)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[17,64](hazard_margin>=0)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[0,64](d<2)": {
+        "successes": 63,
+        "total": 100,
+        "rate": 0.63,
+        "initial_target_members": null
+      },
+      "G[0,64](d<2.5)": {
+        "successes": 88,
+        "total": 100,
+        "rate": 0.88,
+        "initial_target_members": null
+      },
+      "G[0,64](d<3)": {
+        "successes": 98,
+        "total": 100,
+        "rate": 0.98,
+        "initial_target_members": null
+      },
+      "G[0,64](d<3.5)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      },
+      "G[0,64](d<4)": {
+        "successes": 100,
+        "total": 100,
+        "rate": 1.0,
+        "initial_target_members": null
+      }
+    }
+  },
+  "diagnostics": {
+    "train": {
+      "hazard_counts_by_time": [
+        26,
+        28,
+        27,
+        25,
+        17,
+        7,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "minimum_hazard_margin_from_t17": 0.048690516501665115
+    },
+    "validation": {
+      "hazard_counts_by_time": [
+        6,
+        7,
+        6,
+        6,
+        6,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "minimum_hazard_margin_from_t17": 0.05199052765965462
+    }
+  },
+  "notes": [
+    "Training and repeatedly used development data only; no fresh test.",
+    "Adaptive specification selection: no confidence bounds or warrant issued.",
+    "All quantities are decoded imagination APs, not real-environment cost.",
+    "Window indices are inclusive state indices; 64 transitions give 65 states.",
+    "Post-hoc narrowed initial distributions require fresh conditional sampling.",
+    "A long clear window permits earlier or later hazards; it is not full-horizon safety.",
+    "No V was trained for the newly screened formulas."
+  ]
+}

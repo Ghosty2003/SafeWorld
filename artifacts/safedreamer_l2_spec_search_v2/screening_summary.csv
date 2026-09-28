@@ -1,0 +1,7 @@
+spec,MP_class,width,train_P1_violations,train_P2_violations,train_P1P2_paths,internal_P1_violations,internal_P2_violations,internal_P1P2_paths,internal_bad_transitions,internal_completion,certificate_preview,status
+F(clearance >= high),Guarantee,256,2163,4576,40,545,1126,10,1350,18,10,BORDERLINE
+F(LOW & F HIGH),Guarantee,128,3511,7553,11,1069,2206,4,2544,15,4,BORDERLINE
+F(goal_distance < 0.3),Guarantee,0,3428,7000,19,619,1309,6,1833,17,6,BORDERLINE
+"F(LOW & F G[0,7](clearance >= high))",Guarantee,0,6218,11031,3,1712,3117,0,3983,11,0,BORDERLINE
+F G(clearance >= 0.2),Persistence / co-Buchi,0,11306,0,0,2862,0,0,14,,0,BORDERLINE
+F G(clearance >= high),Persistence / co-Buchi,0,11192,13640,0,2818,3584,0,4718,,0,BORDERLINE

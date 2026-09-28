@@ -1,0 +1,10 @@
+{
+  "time": "2026-09-24T12:25:03.104907+00:00",
+  "exact_saved_weight_replay": true,
+  "traces_checked": 192,
+  "decisions_checked": 1200,
+  "full_source_and_reset_metadata_checked": true,
+  "source_hashes_checked": true,
+  "fit_only_delta_recomputed": true,
+  "calibration_and_test_not_run": true
+}

@@ -1,0 +1,8 @@
+candidate,train_P1_bad,train_P2_bad,train_paths,dev_P1_bad,dev_P2_bad,dev_paths,dev_certificate,status
+warm_elu_hard,1767,3922,46,534,971,11,11,BORDERLINE
+elu_gain10_hard,1913,4469,40,510,1104,11,11,BORDERLINE
+tanh_gain10_hard,1850,4371,41,558,1088,9,9,BORDERLINE
+deter_elu_hard,1407,4320,42,482,1059,13,13,BORDERLINE
+elu_rank_supervision,2738,2813,24,653,668,6,6,BORDERLINE
+residual_hard,1953,4440,42,553,1096,11,11,BORDERLINE
+original_high_w256,2163,4576,40,545,1126,10,10,BORDERLINE

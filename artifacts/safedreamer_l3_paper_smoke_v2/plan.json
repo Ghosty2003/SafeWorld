@@ -1,0 +1,56 @@
+{
+  "created": "2026-09-24T04:25:40.013375+00:00",
+  "spec": "GF G[0,47](decoded_hazard_margin>=0)",
+  "scope": "MODEL_ONLY_PAPER_H1_CANDIDATE_AND_POINT_VALIDATION_NOT_GLOBAL_PROOF",
+  "smoke_only": true,
+  "horizon": 60,
+  "kappa": 4,
+  "train_paths": 2,
+  "validation_paths": 3,
+  "epochs": 5,
+  "seed_base": 35500000,
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "retention": "H1: U checked at ALL sampled source states in C, including accepting states",
+  "region": "C={U<=0.8}; candidate only, no certified covering/containment",
+  "ell": 0.8,
+  "eps_W": 0.01,
+  "training_eps_U": 0.001,
+  "validation_U_margin": 0.0,
+  "delta_pointwise": 0.05,
+  "initial_distribution": "decoded initial goal distance>=1.0",
+  "anchor_distribution": "uniform t in [1,H-1], one anchor per retained path",
+  "labels": "decoder minimum hazard-vector norm minus 0.20 >=0",
+  "independence": "freeze W/U before validation paths; fresh path/branch seeds; no tuning on validation",
+  "caveats": [
+    "Simulator reset RNG is not fully controlled by the explicit imagination seed.",
+    "Sampled successors include exits; no successor truncation/rejection.",
+    "No global closed-loop envelope, covering, containment, collar or initial-support certificate.",
+    "Pointwise confidence cannot be substituted for recurrence probability.",
+    "Small pilot sample counts measure interface/diagnostics, not benchmark performance."
+  ],
+  "code_sha256": {
+    "experiments/l3_safedreamer_paper.py": "337b3054089dfdf91e9795cceca21c9e556bce0d2032d7c4fd9803c5895238f1",
+    "experiments/l3_safedreamer_clear_pipeline.py": "3676129511a336a839622d6b407b8defc2d1549ac7f783778e875ea7274e97fb",
+    "experiments/l3_safedreamer_clear_recurrence.py": "1f14ec555b54c589c903768e16f0ff7cc8896993352a01a8f438297e109dcb24",
+    "wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e",
+    "core/lbsm/sampled_recurrence.py": "1b632e1840d13849c5647bc0a7f14bcdf3341ace471a50ab3671b0cbaa97f73a",
+    "core/lbsm/operator_model.py": "8d341c9cc365d312773039b62e5dca66ece4bfb66a789b3e0510fa745c1d1577"
+  }
+}

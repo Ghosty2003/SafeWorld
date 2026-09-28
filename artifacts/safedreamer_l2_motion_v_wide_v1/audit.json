@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-25T01:01:51.419781+00:00",
+  "candidate_paths_replayed": 43300,
+  "controls_evaluated": 3464,
+  "independent_AND": true,
+  "fit_internal_hashes_disjoint": true,
+  "weights_verified": true,
+  "selected_bundle_sha256": "a3e8da79013b39cb22cd076117bb52e8677eab60f495f7183d15836199d4ccbe",
+  "code_sha256": "c68c19c015e18addbdd2d7240f66709cec627c36099e08ae81872be431d32722",
+  "audit_sha256": "543f209c09e85cb41bd37cae9258922bf89e64e0862122332fd60ddf6089c984",
+  "calibration_count": 0,
+  "test_count": 0
+}

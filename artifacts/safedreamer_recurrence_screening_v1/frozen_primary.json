@@ -1,0 +1,65 @@
+{
+  "frozen": "2026-09-24T12:52:34.334787+00:00",
+  "selection_status": "BORDERLINE",
+  "scope": "FROZEN_FINITE_EXPERIMENT_DESIGN_NOT_A_VALIDATED_CERTIFICATE",
+  "definition": {
+    "id": "clearance_q25_75",
+    "family": "clearance",
+    "signal": "clearance",
+    "semantic": "LOW clearance -> HIGH clearance; relative clearance recovery",
+    "d_low": 0.4735981774226446,
+    "d_high": 0.7910375755438274,
+    "M_MIN": 2,
+    "dwell": 1,
+    "refractory": 0,
+    "safety_required": false
+  },
+  "hysteresis": "Initial state may arm. Only subsequent LOW->HIGH emits once then unarms. Inclusive <=low, >=high.",
+  "horizon": 300,
+  "eta": 0.01,
+  "model": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_recurrence_screening_v1/clearance_q25_75.pt",
+  "model_sha256": "34dd6ca7c1968b0fda149eb7d225ba4adc94d7ffaf9b7d319b80da446684c98c",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "start_distribution": "fresh independently seeded environment reset, encoded initial goal distance>=1.0",
+  "feature_rule": "RSSM + planner carry + current causal scalar signal + ARMED",
+  "budget_rule": "At t0 and legal returns g(x)+Delta; subtract .01 each edge before optional reset; no other resets",
+  "gate_rule": "All300 edges: drift AND margin AND empirical-region/low-budget-source AND soundness AND event-source AND count>=2 AND safety if selected; CV/sliding disabled",
+  "region_rule": "Frozen train feature normalization and max normalized L2 norm envelope, not invariant proof",
+  "region_radius": 58.15872573852539,
+  "delta_rule": {
+    "method": "split conformal whole-path upper residual",
+    "alpha": 0.05,
+    "score": "max(0,max_segments(eta*(end-start)-g(x_start))); includes observed tail",
+    "order": "ceil((n_cal_delta+1)*(1-alpha)); k>n -> INVALID_NO_WARRANT, never finite replacement",
+    "prohibit_retraining": true
+  },
+  "delta_fit_preview_not_for_formal_use": 0.23635934650897983,
+  "formal_delta_value": null,
+  "code_sha256": {
+    "experiments/safedreamer_recurrence_screening.py": "d54b739a94858a1ee76b533439bfd19cb56e8d8ed2fde78664cb33dbea0b56ba",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_high_clearance_pilot.py": "b587d7b368cd044a6fbd91ccb8861d133ed5d54d0330919317db30a9db29ea0e",
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_finite_recurrence_pilot.py": "fbafe2c3c21bcce61b60150746b697c4177580b5f148304a7dc43e0482938b96",
+    "/home/sunyhg/Documents/SafeWorld/core/finite_recurrence.py": "58389ec358175df96a3bb245ee4f1ad502f9af4939085917248143129fe010e6"
+  },
+  "calibration_started": false,
+  "test_started": false,
+  "heldout_use": "Future roles require disjoint path seeds from all existing fit/dev/cal/test; no tuning after release",
+  "readiness": "Budget degeneracy remains; freeze does not establish predictive or infinite-time guarantee"
+}

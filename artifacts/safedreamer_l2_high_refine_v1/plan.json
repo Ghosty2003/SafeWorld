@@ -1,0 +1,121 @@
+{
+  "created": "2026-09-24T18:18:48.763111+00:00",
+  "scope": "Fixed-spec V development; no calibration/test",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_spec_search_v2",
+  "source_plan_sha256": "e729b99e06d3709a5f1d7e31b58ab6cb13c69af11ad1fd47fc8a04ad815c8513",
+  "spec": {
+    "id": "high",
+    "kind": "high",
+    "specification": "F(clearance >= high)",
+    "n_states": 2,
+    "accepting": 1,
+    "bad_set": [
+      0
+    ],
+    "persistence": false,
+    "low": 0.47877358293460015,
+    "high": 0.8225157078153651,
+    "mp_class": "Guarantee",
+    "completion": "Absorbing accepting q=1",
+    "automaton": "Causal deterministic finite monitor, accepting state absorbing; see monitor() and tests",
+    "monitor_clock": "q_t after reading z_t, P2 uses q_t on the real edge z_t -> z_(t+1)"
+  },
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "H": 300,
+  "eta": 0.01,
+  "tolerance": 0.0,
+  "fit_n": 80,
+  "dev_n": 20,
+  "internal_validation": "Reused 20 internal-development paths; never used for gradients; NOT fresh final validation",
+  "inputs": "Full RSSM+planner+current decoded features+causal monitor; optional omission of stochastic block",
+  "inference_prohibitions": [
+    "time index",
+    "remaining horizon",
+    "trajectory ID",
+    "future labels"
+  ],
+  "configs": [
+    {
+      "id": "warm_elu_hard",
+      "family": "elu",
+      "width": 256,
+      "gain": 1.0,
+      "features": "full",
+      "warm": true,
+      "pretrain": 0
+    },
+    {
+      "id": "elu_gain10_hard",
+      "family": "elu",
+      "width": 256,
+      "gain": 10.0,
+      "features": "full",
+      "warm": false,
+      "pretrain": 0
+    },
+    {
+      "id": "tanh_gain10_hard",
+      "family": "tanh",
+      "width": 256,
+      "gain": 10.0,
+      "features": "full",
+      "warm": false,
+      "pretrain": 0
+    },
+    {
+      "id": "deter_elu_hard",
+      "family": "elu",
+      "width": 256,
+      "gain": 10.0,
+      "features": "deter",
+      "warm": false,
+      "pretrain": 0
+    },
+    {
+      "id": "elu_rank_supervision",
+      "family": "elu",
+      "width": 256,
+      "gain": 10.0,
+      "features": "full",
+      "warm": false,
+      "pretrain": 1000
+    },
+    {
+      "id": "residual_hard",
+      "family": "residual",
+      "width": 128,
+      "gain": 10.0,
+      "features": "full",
+      "warm": false,
+      "pretrain": 0
+    }
+  ],
+  "updates": 4000,
+  "training_seed": 145100000,
+  "training": "All pending edges; eta-normalized squared hinge with training margin1.5eta; hard-edge replay updated each200 steps; train-only rank auxiliary",
+  "hard_sampling": "25% uniform +75% proportional min(positive residual/eta+.1,20) across all pending edges",
+  "selection": "maximize dev whole-path P1/P2, then fewer P2/P1 violations; train checkpoints chosen by same train-only rule",
+  "qualification": "Both splits strict zero P1/P2 violations, non-vacuous bad transitions, constant/shuffled/random controls do not all-pass",
+  "region": "unchanged source region",
+  "z_free": "V<eta; accepting q absorbing with V=0, pending V>=eta",
+  "code_sha256": "713d51d6e4502f3df21ade2792e9f062b2c39d1ef04cebb45300b6dd0b61fabf",
+  "calibration_count": 0,
+  "test_count": 0
+}

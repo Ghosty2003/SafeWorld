@@ -1,0 +1,13 @@
+arm,scale,n,successes,train_successes,check_successes,first_failure_time,minimum_budget_margin,failure_breakdown
+g_only,0.5,16,0,0,0,"{'n': 16, 'mean': 37.875, 'min': 36.0, 'q10': 36.0, 'median': 37.0, 'q90': 40.5, 'max': 45.0}",-0.26177647709846513,"{'DELTA_MARGIN_FAIL': 16, 'REGION_GATE_FAIL': 16, 'TRANSITION_SOUNDNESS_FAIL': 16}"
+g_only,0.75,16,0,0,0,"{'n': 16, 'mean': 83.3125, 'min': 47.0, 'q10': 47.0, 'median': 83.0, 'q90': 117.0, 'max': 237.0}",-0.2185101658105852,"{'DELTA_MARGIN_FAIL': 16, 'REGION_GATE_FAIL': 16, 'TRANSITION_SOUNDNESS_FAIL': 16}"
+g_only,1.0,16,12,12,0,"{'n': 4, 'mean': 89.75, 'min': 86.0, 'q10': 87.2, 'median': 90.0, 'q90': 92.1, 'max': 93.0}",-0.17524385452270524,"{'DELTA_MARGIN_FAIL': 4, 'REGION_GATE_FAIL': 4, 'TRANSITION_SOUNDNESS_FAIL': 4}"
+g_only,1.25,16,13,12,1,"{'n': 3, 'mean': 107.33333333333333, 'min': 92.0, 'q10': 92.8, 'median': 96.0, 'q90': 126.4, 'max': 134.0}",-0.1319775432348253,"{'DELTA_MARGIN_FAIL': 3, 'REGION_GATE_FAIL': 3, 'TRANSITION_SOUNDNESS_FAIL': 3}"
+g_only,1.5,16,14,12,2,"{'n': 2, 'mean': 161.5, 'min': 139.0, 'q10': 143.5, 'median': 161.5, 'q90': 179.5, 'max': 184.0}",-0.08871123194694541,"{'DELTA_MARGIN_FAIL': 2, 'REGION_GATE_FAIL': 2, 'TRANSITION_SOUNDNESS_FAIL': 2}"
+g_only,2.0,16,15,12,3,"{'n': 1, 'mean': 192.0, 'min': 192.0, 'q10': 192.0, 'median': 192.0, 'q90': 192.0, 'max': 192.0}",-0.0021786093711856115,"{'DELTA_MARGIN_FAIL': 1, 'REGION_GATE_FAIL': 1, 'TRANSITION_SOUNDNESS_FAIL': 1}"
+whole_budget,0.5,16,0,0,0,"{'n': 16, 'mean': 31.5, 'min': 29.0, 'q10': 30.0, 'median': 30.5, 'q90': 34.0, 'max': 39.0}",-0.3276219272613527,"{'DELTA_MARGIN_FAIL': 16, 'REGION_GATE_FAIL': 16, 'TRANSITION_SOUNDNESS_FAIL': 16}"
+whole_budget,0.75,16,0,0,0,"{'n': 16, 'mean': 50.1875, 'min': 44.0, 'q10': 44.0, 'median': 45.5, 'q90': 65.5, 'max': 82.0}",-0.25143289089202897,"{'DELTA_MARGIN_FAIL': 16, 'REGION_GATE_FAIL': 16, 'TRANSITION_SOUNDNESS_FAIL': 16}"
+whole_budget,1.0,16,12,12,0,"{'n': 4, 'mean': 89.75, 'min': 86.0, 'q10': 87.2, 'median': 90.0, 'q90': 92.1, 'max': 93.0}",-0.17524385452270524,"{'DELTA_MARGIN_FAIL': 4, 'REGION_GATE_FAIL': 4, 'TRANSITION_SOUNDNESS_FAIL': 4}"
+whole_budget,1.25,16,13,12,1,"{'n': 3, 'mean': 125.66666666666667, 'min': 95.0, 'q10': 103.4, 'median': 137.0, 'q90': 143.4, 'max': 145.0}",-0.09905481815338156,"{'DELTA_MARGIN_FAIL': 3, 'REGION_GATE_FAIL': 3, 'TRANSITION_SOUNDNESS_FAIL': 3}"
+whole_budget,1.5,16,15,12,3,"{'n': 1, 'mean': 190.0, 'min': 190.0, 'q10': 190.0, 'median': 190.0, 'q90': 190.0, 'max': 190.0}",-0.022865781784057918,"{'DELTA_MARGIN_FAIL': 1, 'REGION_GATE_FAIL': 1, 'TRANSITION_SOUNDNESS_FAIL': 1}"
+whole_budget,2.0,16,16,12,4,,0.12951229095458938,{}

@@ -1,0 +1,14 @@
+{
+  "model_sha256": "e724087b18d70d3efa86f4336e9cd5184621c8a6131b7478895f52433ce6ae84",
+  "model": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/selected.pt",
+  "spec": "ltl_goal_reach",
+  "n_calibration": 100,
+  "n_test": 100,
+  "seed_calibration": 11301,
+  "seed_test": 11302,
+  "horizon": 50,
+  "eta": 0.01,
+  "action_source": "random",
+  "created_at": "2026-09-22T03:57:55.519059+00:00",
+  "design": "write forecast before collecting test; no training or selection"
+}

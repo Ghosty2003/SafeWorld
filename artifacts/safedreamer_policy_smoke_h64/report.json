@@ -1,0 +1,43 @@
+{
+  "horizon": 64,
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "action_source": "policy",
+  "planner": {
+    "horizon": 15,
+    "num_samples": 500,
+    "num_elites": 50,
+    "iterations": 6,
+    "mixture_coef": 0.05,
+    "momentum": 0.1,
+    "init_std": 1.0
+  },
+  "cost_limit": 0.0,
+  "features_shape": [
+    1,
+    65,
+    577
+  ],
+  "actual_actions_match_each_planned_first_action": true,
+  "planner_memory_preserved": true,
+  "first_actions": [
+    [
+      -0.22508327662944794,
+      0.4336777627468109
+    ],
+    [
+      0.21736137568950653,
+      -0.7332203984260559
+    ],
+    [
+      0.29577356576919556,
+      -0.6788414716720581
+    ],
+    [
+      0.2653678357601166,
+      0.44623827934265137
+    ]
+  ],
+  "imagination_and_compile_seconds": 105.12861213088036,
+  "total_seconds": 113.05969539587386,
+  "scope": "Integration smoke only; not success-rate or certificate evidence"
+}

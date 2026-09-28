@@ -1,0 +1,46 @@
+{
+  "configs": [
+    {
+      "name": "path_max",
+      "lr": 0.0002,
+      "margin": 0.015,
+      "decay": 0.0001,
+      "objective": "path",
+      "seed": 31
+    },
+    {
+      "name": "larger_margin",
+      "lr": 0.0002,
+      "margin": 0.03,
+      "decay": 0.0001,
+      "objective": "path",
+      "seed": 32
+    },
+    {
+      "name": "transition_replay",
+      "lr": 0.0002,
+      "margin": 0.015,
+      "decay": 0.001,
+      "objective": "top",
+      "seed": 33
+    }
+  ],
+  "updates": 3600,
+  "batch_paths": 32,
+  "extra_train": {
+    "n": 120,
+    "seed": 10301
+  },
+  "extra_validation": {
+    "n": 60,
+    "seed": 10302
+  },
+  "fresh_test": {
+    "n": 100,
+    "seed": 10303
+  },
+  "eta": 0.01,
+  "spec": "ltl_goal_reach",
+  "selection": "train P2 <=1%, then validation noninitial event and P2 pass rate",
+  "data_rule": "all new training paths retained; previous tests excluded from fit and selection"
+}

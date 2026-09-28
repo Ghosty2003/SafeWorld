@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-25T03:45:26.274906+00:00",
+  "weights_code_verified": true,
+  "complete_AND_replayed": 1500,
+  "manual_detector_agrees": true,
+  "raw_fingerprints_unique": true,
+  "seeds_disjoint": true,
+  "calibration_prediction_before_test": true,
+  "counts": {
+    "calibration": 500,
+    "test": 1000
+  },
+  "model_sha256": "a3e8da79013b39cb22cd076117bb52e8677eab60f495f7183d15836199d4ccbe"
+}

@@ -4,6 +4,42 @@ For the consolidated implementation status, empirical results, paper-alignment
 gaps, artifact inventory, and reproduction commands, see
 [`CURRENT_PROJECT_STATUS.md`](CURRENT_PROJECT_STATUS.md).
 
+## SafeDreamer update (2026-09-28)
+
+New experiments cover CCE-policy bounded STL, L2 specification/V development
+and independent final evaluation, and exploratory L3/finite-recurrence studies.
+See the [experiment guide](experiments/README.md#final-l2-results-2026-09-28).
+
+The completed L2 runs use a fixed SafeDreamer checkpoint and
+`CCEPlanner.policy()` on `SafetyPointGoal1-v0`. Rollouts are RSSM imagination,
+initialized from simulator reset observations, not real-environment executions.
+Each run freezes its specification, V and gates before collecting 500 fresh
+calibration paths and 1,000 independent Test1 paths. The warrant threshold is 0.95.
+
+| Layer | Specification | MP class | Backend / carrier | H | Verdict | p_hat_gamma (CP lower, 95%) | Test 1 (N=1000) |
+|---|---|---|---|---:|---|---:|---|
+| L2 | F[1,17] G[0,47](not hazard) | Guarantee (bounded) | SafeDreamer / SafetyPointGoal1-v0 | 64 | SAFE* | 0.9739 | 970/1000, 0.9595 |
+| L2 | LOW speed then strictly later HIGH speed, by step 300 | Guarantee (bounded) | SafeDreamer / SafetyPointGoal1-v0 | 300 | ABSTAIN | 0.8664 | 898/1000, 0.8809 |
+
+Counts and probability bounds above refer to the **complete certificate event**.
+Both tasks completed on 1,000/1,000 test paths; neither certificate passed on
+every path. Test1's bound does not replace calibration. All 95% bounds are
+individual, not a simultaneous claim across rows.
+
+*SAFE means a finite-horizon, model-only statistical warrant under the frozen
+policy and initial distribution, not a real-world safety or support-wide
+infinite-horizon proof. Current SafeDreamer L3 development does not establish
+the full infinite-recurrence theorem.*
+
+Checkpoint weights, raw trajectory arrays and logs are not bundled with the
+source distribution. Reproduction needs the matching frozen inputs. Never
+reuse final calibration/Test1 data to select specifications or V.
+For another computer, follow the
+[transfer and reproduction checklist](experiments/SAFEDREAMER_REPRODUCTION.md),
+including external data, runtime versions and historical absolute-path caveats.
+
+## Configuration layers
+
 SAFEWORLD V2 uses three configuration layers:
 
 | Layer | Location | Purpose |

@@ -1,0 +1,40 @@
+{
+  "time": "2026-09-24T05:01:16.083778+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_paper_pilot192",
+  "source_plan_sha256": "38f40b9ebad30482bdc839029759224f43f6455e1e449a8a5a43b7f275417c4c",
+  "spec": "GF G[0,47](decoded_hazard_margin>=0)",
+  "horizon": 192,
+  "eps_W": 0.01,
+  "ell": 0.8,
+  "structural_bound": 1.0,
+  "matrix": {
+    "W": [
+      "plain",
+      "wide",
+      "mode",
+      "progress"
+    ],
+    "U": [
+      "plain",
+      "sublevel",
+      "mode",
+      "quadratic"
+    ]
+  },
+  "seeds": [
+    41,
+    73
+  ],
+  "epochs": 400,
+  "train_paths": 12,
+  "development_paths": 20,
+  "source_code_sha256": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+  "roles": "Original validation is now development; no fresh calibration or final test in this search.",
+  "selection": "Require initial C coverage, >=95% dev state C coverage, noncollapsed U; maximize minimum W/U raw anchor pass rate, then joint pass rate.",
+  "caveats": [
+    "Only four nonaccepting development anchors in this pilot; ranking is unstable.",
+    "Right-censored return targets omitted, not labeled as never returning.",
+    "No H2 bypass or certified invariant core; synthetic U shaping is a heuristic.",
+    "Even all sampled passes do not establish global recurrence."
+  ]
+}

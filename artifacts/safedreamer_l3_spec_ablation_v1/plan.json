@@ -1,0 +1,412 @@
+{
+  "time": "2026-09-24T05:19:59.617327+00:00",
+  "scope": "SPECIFICATION_DEVELOPMENT_ABLATION",
+  "specs": [
+    {
+      "id": "A_S48",
+      "window": 48,
+      "threshold": 0.0
+    },
+    {
+      "id": "B_S16",
+      "window": 16,
+      "threshold": 0.0
+    },
+    {
+      "id": "B_S24",
+      "window": 24,
+      "threshold": 0.0
+    },
+    {
+      "id": "B_S32",
+      "window": 32,
+      "threshold": 0.0
+    },
+    {
+      "id": "C_clearance",
+      "window": 1,
+      "threshold": 0.2
+    }
+  ],
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing",
+  "source_plan_sha256": "e889e9bf8042e3e7835759a8b511ea80977946d391bf678fd0812d8b9dcba195",
+  "source_signature": {
+    "fit_counts": [
+      12
+    ],
+    "dev_paths": 8,
+    "kappas": [
+      8,
+      16,
+      32,
+      64,
+      128,
+      256
+    ],
+    "steps": 400,
+    "seed_base": 47500000,
+    "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+    "policy": {
+      "action_source": "policy",
+      "expl_behavior": "CCEPlanner",
+      "planner": {
+        "horizon": 15,
+        "num_samples": 500,
+        "num_elites": 50,
+        "iterations": 6,
+        "mixture_coef": 0.05,
+        "momentum": 0.1,
+        "init_std": 1.0
+      },
+      "cost_limit": 0.0,
+      "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+      "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+    },
+    "code_sha256": {
+      "experiments/l3_wu_data_ablation.py": "24d975b7f8e7c3313138c2f4e189befd265ce76c22f24df332dd57b0089772d4",
+      "experiments/l3_wu_search.py": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+      "experiments/l3_safedreamer_clear_pipeline.py": "3676129511a336a839622d6b407b8defc2d1549ac7f783778e875ea7274e97fb",
+      "wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+    }
+  },
+  "horizon": 192,
+  "fit_paths": 12,
+  "dev_paths": 8,
+  "fit_kappa": 32,
+  "dev_kappa": 256,
+  "steps": 400,
+  "W": "wide",
+  "U": "sublevel",
+  "eps_W": 0.01,
+  "ell": 0.8,
+  "B": 1.0,
+  "seed_base": 67500000,
+  "W_shaping": "Same .48*(1-normalized_monitor_progress) target for every spec; not a theorem.",
+  "C_choice": "hazard margin>=0.2; chosen from training-only screening (11/12 paths with exits).",
+  "counters": "Each monitor separately normalized by its own window length; no absorbing acceptance.",
+  "uncertainty": "Sampling-only union bound across 5 frozen pairs and all common anchors; no cell correction.",
+  "caveats": [
+    "Reused fit/development paths, fresh conditional successors; no untouched final validation.",
+    "Common anchor union is enriched by all monitors, not a natural rollout sample.",
+    "Small pilot, one seed pair, no statistical significance or causal bottleneck conclusion.",
+    "Always-safe behavior satisfies recurrence; no mandatory hazard between windows."
+  ],
+  "anchors": {
+    "fit": [
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0000.npz",
+        "sha256": "4947f15ba95735b71d91256a2d258b5e51ecb471b82f23fd34287a3099cc0dc3",
+        "times": [
+          1,
+          8,
+          26,
+          39,
+          84,
+          141,
+          144,
+          155,
+          169,
+          179
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0002.npz",
+        "sha256": "414a0c474d867998ba56b51062e14154c4d7ba2fcad06c939d2177c6ed0110bb",
+        "times": [
+          2,
+          3,
+          15,
+          25,
+          33,
+          55,
+          101,
+          114,
+          152,
+          178
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0003.npz",
+        "sha256": "0ade381fb2d523348d1073b703e977dff6c80124b86b1faf89a57e0ebe7fdd82",
+        "times": [
+          4,
+          16,
+          24,
+          41,
+          46,
+          80,
+          91,
+          109,
+          149,
+          180
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0005.npz",
+        "sha256": "bdb3c706526cc0342703b4d3eee94220c1d6c56885fdaa1132134923dffb2a91",
+        "times": [
+          2,
+          6,
+          13,
+          45,
+          46,
+          67,
+          106,
+          120,
+          170
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0006.npz",
+        "sha256": "4b02a6cc4946473f450669840d7991877278437adbae6a40a3486520914328d5",
+        "times": [
+          4,
+          5,
+          8,
+          10,
+          89,
+          102,
+          118,
+          136,
+          169
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0007.npz",
+        "sha256": "b8dcd4675e84562f2b0b16e7b50c139bb40117a4def21926292221c9cf2ebb54",
+        "times": [
+          4,
+          6,
+          13,
+          36,
+          97,
+          118,
+          134,
+          168
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0008.npz",
+        "sha256": "77673f34e754b667dd089a99212a2ecdb42f29a32cb028869f3ff3dbcc520ef1",
+        "times": [
+          4,
+          10,
+          20,
+          28,
+          34,
+          112,
+          131,
+          172
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0009.npz",
+        "sha256": "b2056e2e0c144f3cf2b785539143b70c89b411e446460e027e3ab60090fe66e0",
+        "times": [
+          6,
+          11,
+          15,
+          20,
+          26,
+          36,
+          68,
+          142
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0011.npz",
+        "sha256": "da7f9786f5678768bbcd14e5c375342017a180b9a3ba2a423b65f4fb9b63f2ff",
+        "times": [
+          5,
+          15,
+          26,
+          29,
+          31,
+          36,
+          49,
+          56,
+          74,
+          167
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0013.npz",
+        "sha256": "9ed7f19db14e28f3739e8ae0823088b9f77a4e0209e52200fa98d4141c6d6341",
+        "times": [
+          14,
+          15,
+          28,
+          32,
+          58,
+          83,
+          119,
+          128,
+          162,
+          165
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0014.npz",
+        "sha256": "aa574cc3d65e498704462a514f133a714ecd9504794a0479ccbcb62bdfa517ed",
+        "times": [
+          9,
+          10,
+          20,
+          43,
+          60,
+          78,
+          99,
+          134,
+          161,
+          170
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/fit/path_0016.npz",
+        "sha256": "caae5f7b5efd8ac43497ecf0e2f3bdbb3ebb3e810b58dd5ba17c5e880e181594",
+        "times": [
+          4,
+          5,
+          30,
+          42,
+          43,
+          108,
+          129,
+          165,
+          169
+        ]
+      }
+    ],
+    "development": [
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0000.npz",
+        "sha256": "1b3ac0b69ef86abcdcbadafe200d9bb5e4c106f449c2caefb661b27ba8f5f37f",
+        "times": [
+          3,
+          14,
+          17,
+          21,
+          29,
+          32,
+          76,
+          83,
+          157
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0002.npz",
+        "sha256": "f9d4078ef8afbae9d7f1f0be65d17641cbb4c03356ec8ba85176cd4a3112e4cc",
+        "times": [
+          2,
+          16,
+          30,
+          36,
+          68,
+          76,
+          79,
+          89,
+          107
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0003.npz",
+        "sha256": "4f2becacd2796692dc42d4dd4328de542631907d7bea2d3cf6e35d7217e1bea1",
+        "times": [
+          1,
+          3,
+          4,
+          11,
+          12,
+          22,
+          70,
+          90,
+          112,
+          125
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0004.npz",
+        "sha256": "2fbf4327e00bca70cfef7ce110798ee34562bcd63060fe0c36c9ccba53ac0ecd",
+        "times": [
+          3,
+          8,
+          53,
+          65,
+          92,
+          109,
+          122
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0005.npz",
+        "sha256": "dd595873513b098bdf159a003ae847819db554864213a6a0a2de82d3fe477be0",
+        "times": [
+          2,
+          5,
+          15,
+          24,
+          33,
+          48,
+          86,
+          88,
+          105,
+          119
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0006.npz",
+        "sha256": "445436b3419acb6a52de67e6ad2334ad06820ac8c36a2e0be0adeb36f57c6931",
+        "times": [
+          2,
+          11,
+          13,
+          16,
+          25,
+          38,
+          72,
+          101,
+          132,
+          177
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0007.npz",
+        "sha256": "2f0c06d5b7a25b655f160a680acca21c339cc635919541dcf8a8958f474310bc",
+        "times": [
+          4,
+          7,
+          10,
+          17,
+          27,
+          28,
+          61,
+          66,
+          87,
+          117
+        ]
+      },
+      {
+        "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_data_kappa_timing/development/path_0008.npz",
+        "sha256": "612164f81b983b8f20364495b724b86d12f4c72bc3364882b1cbd966010d3cab",
+        "times": [
+          6,
+          8,
+          21,
+          23,
+          49,
+          54,
+          61,
+          87,
+          101
+        ]
+      }
+    ]
+  },
+  "source_sha256": {
+    "experiments/l3_spec_ablation.py": "b4d342fb0ac722edc5ae830d98c15624da6d1a8eb75ef412500d320df2862a2c",
+    "experiments/l3_wu_data_ablation.py": "24d975b7f8e7c3313138c2f4e189befd265ce76c22f24df332dd57b0089772d4",
+    "experiments/l3_wu_search.py": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+    "experiments/l3_safedreamer_clear_pipeline.py": "3676129511a336a839622d6b407b8defc2d1549ac7f783778e875ea7274e97fb",
+    "wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+  }
+}

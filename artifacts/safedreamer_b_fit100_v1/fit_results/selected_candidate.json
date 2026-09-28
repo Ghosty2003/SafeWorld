@@ -1,0 +1,119 @@
+{
+  "selected": "2026-09-24T13:30:43.854080+00:00",
+  "name": "stratified",
+  "file": "stratified.pt",
+  "sha256": "270768ec1bde692a9da5b02c13e06471efa58c99f3aae461d1fe6a02134493bf",
+  "delta_fit": 1.8790088891983032,
+  "training": {
+    "name": "stratified",
+    "width": 64,
+    "weighted": true,
+    "under_weight": 3.0,
+    "magnitude": 0.01
+  },
+  "history": [
+    {
+      "step": 1,
+      "loss": 0.9771682620048523,
+      "target_loss": 0.9745441675186157,
+      "magnitude": 0.2624109983444214
+    },
+    {
+      "step": 200,
+      "loss": 0.19622281193733215,
+      "target_loss": 0.19336247444152832,
+      "magnitude": 0.2860333025455475
+    },
+    {
+      "step": 400,
+      "loss": 0.10002090781927109,
+      "target_loss": 0.09699792414903641,
+      "magnitude": 0.3022984266281128
+    },
+    {
+      "step": 600,
+      "loss": 0.08522682636976242,
+      "target_loss": 0.08245252817869186,
+      "magnitude": 0.2774294912815094
+    },
+    {
+      "step": 800,
+      "loss": 0.08462192863225937,
+      "target_loss": 0.08155182003974915,
+      "magnitude": 0.30701103806495667
+    },
+    {
+      "step": 1000,
+      "loss": 0.06953433156013489,
+      "target_loss": 0.06636238098144531,
+      "magnitude": 0.31719544529914856
+    },
+    {
+      "step": 1200,
+      "loss": 0.07661030441522598,
+      "target_loss": 0.07345923781394958,
+      "magnitude": 0.31510651111602783
+    }
+  ],
+  "sampled_bucket_counts": {
+    "2": 83957,
+    "3": 139221,
+    "1": 28023,
+    "0": 27908,
+    "4": 28091
+  },
+  "frozen": "2026-09-24T13:30:42.236758+00:00",
+  "selection": {
+    "criteria": [
+      "validation_mean_underestimation",
+      "validation_MAE",
+      "1-validation_certificate_pass"
+    ],
+    "values": [
+      [
+        0.1833299268164286,
+        0.6976204083896265,
+        0.44999999999999996
+      ],
+      [
+        0.11844975433698514,
+        0.8050228787922278,
+        0.35
+      ],
+      [
+        0.09858297542827886,
+        0.8310454805595119,
+        0.5
+      ]
+    ],
+    "pareto_candidates": [
+      "bounded_uniform",
+      "stratified",
+      "stratified_wide_penalty"
+    ],
+    "normalized_sums": [
+      1.6666666666666665,
+      1.0393893820887958,
+      2.0
+    ],
+    "chosen": "stratified"
+  },
+  "detector": {
+    "id": "clearance_q25_75",
+    "family": "clearance",
+    "signal": "clearance",
+    "semantic": "LOW clearance -> HIGH clearance; relative clearance recovery",
+    "d_low": 0.4735981774226446,
+    "d_high": 0.7910375755438274,
+    "M_MIN": 2,
+    "dwell": 1,
+    "refractory": 0,
+    "safety_required": false
+  },
+  "M_MIN": 2,
+  "budget_cap": 2.4,
+  "total_budget_rule": "min(2.4,g(x)+Delta_fit); realized debit .01 per step, reset only on legal event",
+  "formal_delta": null,
+  "confidence": null,
+  "status": "FIT_INTERNAL_SELECTION_ONLY_NOT_WARRANT"
+}

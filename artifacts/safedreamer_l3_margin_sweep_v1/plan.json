@@ -1,0 +1,50 @@
+{
+  "time": "2026-09-24T05:34:04.272727+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l3_spec_ablation_v1",
+  "source_report_sha256": "0a9aa1454a637ed334ede9909039cfad2352c9f9c43511084dbca6cdcbe0937a",
+  "selected_specs": [
+    "A_S48",
+    "B_S24",
+    "C_clearance"
+  ],
+  "training_margins": {
+    "W": [
+      0.01,
+      0.03,
+      0.05,
+      0.1,
+      0.15
+    ],
+    "U": [
+      0.0,
+      0.01,
+      0.03,
+      0.05
+    ]
+  },
+  "steps": 400,
+  "W_family": "wide",
+  "U_family": "sublevel",
+  "B": 1.0,
+  "ell": 0.8,
+  "W_verification_epsilon": 0.01,
+  "U_verification_epsilon": 0.0,
+  "fit_kappa": 32,
+  "dev_kappa": 256,
+  "fit_paths": 12,
+  "dev_paths": 8,
+  "fixed_reference_slack": 0.13694762955854156,
+  "scope": "ADAPTIVE_DEVELOPMENT_MARGIN_SWEEP",
+  "caveats": [
+    "No new samples or final validation; nominal fixed-slack passes are NOT confidence-valid after adaptive reuse.",
+    "Global strict U decrease on a forever-retained set is impossible for bounded nonnegative U.",
+    "Increasing W margin also restricts return-time bounds; it need not be feasible.",
+    "W and U independently fitted: no Cartesian training sweep, no region-exclusion reward."
+  ],
+  "code_sha256": {
+    "experiments/l3_margin_sweep.py": "2c710e1fc91dc3f83c51130a67825cb5e96a0c63f3c7ad0fe37bca5d3e226251",
+    "experiments/l3_wu_search.py": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+    "experiments/l3_spec_ablation.py": "b4d342fb0ac722edc5ae830d98c15624da6d1a8eb75ef412500d320df2862a2c",
+    "experiments/l3_spec_ablation_audit.py": "7d040e4d0f0a98e55b893a3ed27b824ae6eacd59d479b30e8315c4b6185ecef6"
+  }
+}

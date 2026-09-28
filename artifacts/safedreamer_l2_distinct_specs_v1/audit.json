@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-25T00:28:46.505302+00:00",
+  "candidate_path_replays": 7200,
+  "all_controls_replayed": true,
+  "independent_first_hit": true,
+  "independent_gate_AND": true,
+  "fit_internal_disjoint": true,
+  "thresholds_fit_only": true,
+  "calibration_accessed": false,
+  "test_accessed": false,
+  "code_sha256": "260c4118c383a7d9d4e467e66c5414e4d989c31c54c4ee97c31192aee6e38cf9",
+  "audit_sha256": "769981becd74405edef7dc9c1a5da9be8478c59e3745b852478d2fe919f59c96"
+}

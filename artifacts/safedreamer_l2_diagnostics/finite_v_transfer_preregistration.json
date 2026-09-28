@@ -1,0 +1,19 @@
+{
+  "status": "frozen_before_paired_collection",
+  "scope": "paired SafeDreamer-model versus real SafetyPointGoal1-v0 environment under random actions",
+  "spec": "ltl_hazard_avoidance",
+  "finite_horizon": 50,
+  "evaluated_time_indices": "0..49",
+  "candidate": "V_H(z,q,t) = (H-t) * eta_step",
+  "eta_required": 0.01,
+  "eta_step": 0.0101,
+  "gamma": 0.05,
+  "confidence": 0.95,
+  "warrant_threshold": 0.8,
+  "paired_rollouts": 200,
+  "paired_seed": 202,
+  "action_source": "random",
+  "same_initial_observation": true,
+  "same_action_sequence": true,
+  "selection_or_training_on_paired_split": false
+}

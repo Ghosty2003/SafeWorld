@@ -1,0 +1,12 @@
+[
+  {
+    "file": "draw_0000.npz",
+    "sha256": "7ccb9fde84bd1408887e5c5a3fd45627cf2fa8a2a9c6d8a28b1e8bb17481f243",
+    "reset_seed": 141000000,
+    "imagination_seed": 141000001,
+    "eligible": true,
+    "initial_goal": 1.1837704181671143,
+    "fingerprint": "b43b947d07c044bd3ac3a5170dda4903677f2968d9d812f093dad91fad169ddf",
+    "time": "2026-09-24T16:39:48.602304+00:00"
+  }
+]

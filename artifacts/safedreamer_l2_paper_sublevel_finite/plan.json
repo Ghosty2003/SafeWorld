@@ -1,0 +1,66 @@
+{
+  "created_at": "2026-09-23T00:48:16.218701+00:00",
+  "paper": "/home/sunyhg/Documents/_ICLR_27_SafeWorld.pdf",
+  "paper_equations": [
+    3,
+    4,
+    10,
+    11,
+    12
+  ],
+  "configs": [
+    {
+      "name": "paper_w128_s101",
+      "width": 128,
+      "seed": 101,
+      "lr": 0.0003,
+      "regularization": 1e-06
+    },
+    {
+      "name": "paper_w256_s102",
+      "width": 256,
+      "seed": 102,
+      "lr": 0.0003,
+      "regularization": 1e-06
+    },
+    {
+      "name": "paper_w128_reg_s103",
+      "width": 128,
+      "seed": 103,
+      "lr": 0.0003,
+      "regularization": 0.0001
+    }
+  ],
+  "updates_per_config": 2400,
+  "data_sources": {
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/train.npz": "470f43559b32560e274af1ff02218b67b3319c1b6b353edb5c67cbaff606e8d9",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/validation.npz": "19b32fab3922bf8aa2ccc7c3f1f261b235b022fd5cd51f072f89bbaff6bfc9ce",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_train.npz": "b36ace4da6a3e612bce6ca5e39614c486a335d41a1529b392f8970ae9a70937a",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_validation.npz": "211764c4417cdab7fa027c9b80b15d79aa09b4d34e6c939fc63642c30cd87f1b"
+  },
+  "training_paths": 180,
+  "development_paths": 100,
+  "spec_automaton": "F(goal), q consumes current label; done absorbing",
+  "evaluated_property": "F_[0,50](decoded goal_dist < 0)",
+  "horizon": 50,
+  "latent_dim": 512,
+  "q_input": "one-hot waiting/done",
+  "eta": 0.01,
+  "learned_sublevel": "V(z,q) < eta, WITHOUT a done gate",
+  "constraints": "P1 on all transitions; P2 additionally on waiting-source transitions",
+  "objective": "mean(l1+l2) + lambda*mean(||grad_raw_z V||^2), paper Eq.12",
+  "selection": "minimum development mean(l1+l2), training residual breaks ties; no calibration/test selection",
+  "no_goal_shaping_loss": true,
+  "no_time_input": true,
+  "no_output_floor": true,
+  "no_forced_accepting_zero": true,
+  "no_synthetic_tail": true,
+  "calibration_paths": 100,
+  "test_paths": 100,
+  "seeds": {
+    "calibration": 15301,
+    "test": 15302
+  },
+  "action_source": "random",
+  "claims": "finite-prefix sampled evidence only; no support-wide validity or infinite-horizon guarantee"
+}

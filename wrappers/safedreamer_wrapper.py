@@ -243,7 +243,7 @@ class SafeDreamerWrapper(WorldModelWrapper):
     Quick start
     -----------
     >>> cfg = RolloutConfig(
-    ...     horizon=50, n_rollouts=20, seed=0,
+    ...     horizon=64, n_rollouts=20, seed=0, action_source="policy",
     ...     extra={
     ...         "repo_root": "/home/user/Documents/SafeDreamer",
     ...         "checkpoint_path": "/home/user/Documents/SafeDreamer/checkpoint/"
@@ -251,7 +251,7 @@ class SafeDreamerWrapper(WorldModelWrapper):
     ...                             "SafetyPointGoal1-v0_0.ckpt",
     ...         "method": "osrp_vector",
     ...         "task": "safetygymcoor_SafetyPointGoal1-v0",
-    ...         "action_source": "random",   # or "policy"
+    ...         "action_source": "policy",  # must agree with RolloutConfig
     ...     },
     ... )
     >>> with SafeDreamerWrapper(cfg) as w:
@@ -269,6 +269,7 @@ class SafeDreamerWrapper(WorldModelWrapper):
 
         self.last_z_array: np.ndarray | None = None
         """Raw (N, T, D) latent array (deter concat stoch) from the last sample_rollouts()."""
+        self.last_rssm_arrays: dict[str, np.ndarray] | None = None
 
         if self._sim_mode:
             warnings.warn(
@@ -319,6 +320,7 @@ class SafeDreamerWrapper(WorldModelWrapper):
         logger.info(f"SafeDreamerWrapper: loaded checkpoint {checkpoint_path}")
 
         self._agent = agent
+        self._imagine_jit_cache = {}
         self._loaded = True
 
     # ── rollout sampling ──────────────────────────────────────────────────────
@@ -335,7 +337,27 @@ class SafeDreamerWrapper(WorldModelWrapper):
         self.last_z_array = z_array
         return self._decode_to_trajectories(obs_array)
 
-    def _imagine(self, cfg: RolloutConfig):
+    def sample_latent_rollouts(self, config: RolloutConfig | None = None) -> dict:
+        """Return H+1 aligned RSSM states and decoded APs for H real model steps.
+
+        Unlike the legacy AP-only API, this retains the actual final successor.
+        Initial states are encoded simulator resets; subsequent states are all
+        imagined. ``latent`` is the sufficient RSSM state (deter + stoch), and
+        ``rssm`` also preserves distribution parameters supplied by the model.
+        """
+        cfg = config or self.config
+        if not self._loaded:
+            self.load()
+        z, obs = self._imagine(cfg, include_terminal=True)
+        self.last_z_array = z
+        if z.shape[1] != cfg.horizon + 1 or obs.shape[:2] != z.shape[:2]:
+            raise ValueError("Expected H+1 aligned actual RSSM/decoded states")
+        return {"latent": z, "decoded": obs, "rssm": self.last_rssm_arrays,
+                "aps": self._decode_to_trajectories(obs),
+                "actions": self.last_action_array, "policy_state": self.last_policy_arrays,
+                "action_source": self.last_action_source}
+
+    def _imagine(self, cfg: RolloutConfig, *, include_terminal: bool = False):
         """
         Runs `self._agent.agent.wm.imagine(policy, start, horizon)` under
         nj.pure + jax.jit, and decodes every step through the vector decoder
@@ -343,8 +365,9 @@ class SafeDreamerWrapper(WorldModelWrapper):
 
         Returns
         -------
-        z_array   : (N, T, D) float32   deter concat stoch, D = 256 + 16*16
-        obs_array : (N, T, 29) float32  decoded 'observation' vectors
+        z_array   : (N, L, D) float32   deter concat stoch, D = 256 + 16*16
+        obs_array : (N, L, 29) float32  decoded 'observation' vectors
+        L = T+1 for include_terminal=True, otherwise the legacy T states.
         """
         import jax
         import numpy as np
@@ -375,6 +398,15 @@ class SafeDreamerWrapper(WorldModelWrapper):
 
         T = cfg.horizon
         action_source = cfg.extra.get("action_source", cfg.action_source)
+        if action_source not in ("random", "policy"):
+            raise ValueError(f"Unknown SafeDreamer action_source: {action_source!r}")
+        if action_source != cfg.action_source:
+            raise ValueError("Conflicting rollout.action_source and extra.action_source")
+        if T < 1:
+            raise ValueError("Imagination horizon must be positive")
+        if action_source == "policy" and self._config.expl_behavior != "CCEPlanner":
+            raise NotImplementedError("Policy imagination currently supports deployed CCEPlanner only")
+        self.last_action_source = action_source
         act_space = self._env.act_space
         # 'action' is the only key task_behavior policies use; reset/log_* keys excluded.
         act_key = "action"
@@ -430,22 +462,38 @@ class SafeDreamerWrapper(WorldModelWrapper):
             # internally to score candidate action sequences and returns only
             # the first action of the refined plan, plus an updated
             # planner_state (action_mean/action_std) to warm-start the next
-            # call. This carried state has no place in wm.imagine()'s own
-            # scan-based unroll, so we drive the outer T-step rollout with a
-            # plain Python loop instead, calling img_step by hand -- this
+            # call. wm.imagine() does not carry this state, so the outer
+            # rollout uses an explicit (latent, planner_state) scan -- this
             # mirrors what Agent.policy() does per real step (minus the real
             # observation encoding, which -- unlike the random-action path
             # above -- IS now grounded via _encode_start() too).
             latent = _encode_start(obs0_np)
             planner = raw_agent.expl_behavior
-            planner_state = planner.initial(1)
-            latents = [latent]
-            for _ in range(T):
-                outs, planner_state = planner.policy(latent, planner_state)
-                latent = wm.rssm.img_step(latent, outs["action"])
-                latents.append(latent)
-            keys = latents[0].keys()
-            traj = {k: jax.numpy.stack([lat[k] for lat in latents], 0) for k in keys}
+            # The first call has an empty planner carry; subsequent calls carry
+            # action_mean/std. Handle it separately so the compiled scan has a
+            # fixed pytree, instead of unrolling 64 nested planners in Python.
+            outs, state1 = planner.policy(latent, planner.initial(1))
+            next_latent = wm.rssm.img_step(latent, outs["action"])
+            traj = {k: jax.numpy.stack([latent[k], next_latent[k]], 0) for k in latent}
+            actions = outs["action"][None]
+            states = {k:v[None] for k,v in state1.items()}
+            if T > 1:
+                def step(carry, unused):
+                    z, state = carry
+                    output, state = planner.policy(z, state)
+                    z = wm.rssm.img_step(z, output["action"])
+                    return (z, state), (z, state, output["action"])
+                _, (tail, state_tail, action_tail) = nj.scan(
+                    step, (next_latent, state1), jax.numpy.arange(T-1))
+                traj = {k:jax.numpy.concatenate([v, tail[k]], 0) for k,v in traj.items()}
+                states = {k:jax.numpy.concatenate([v, state_tail[k]], 0) for k,v in states.items()}
+                actions = jax.numpy.concatenate([actions, action_tail], 0)
+            # Final action is padding only; exported actions retain exactly T.
+            traj["action"] = jax.numpy.concatenate([actions, jax.numpy.zeros_like(actions[:1])], 0)
+            for k,v in states.items():
+                traj['planner_'+k] = jax.numpy.concatenate([jax.numpy.zeros_like(v[:1]), v], 0)[:,None]
+            traj['planner_initialized'] = jax.numpy.concatenate([
+                jax.numpy.zeros((1,1,1)),jax.numpy.ones((T,1,1))],0)
             decoded = wm.heads["decoder"](traj)
             obs = decoded["observation"].mode()
             return traj, obs
@@ -463,11 +511,16 @@ class SafeDreamerWrapper(WorldModelWrapper):
         # here raises "Wrap impure functions in pure() before running them" from
         # inside wm.rssm.initial()). This mirrors jaxagent.py:_transform()'s own
         # `nj.jit(nj.pure(self.agent.policy))` pattern exactly.
-        imagine_jit = nj.jit(nj.pure(_imagine_fn))
+        cache_key = (T, action_source)
+        if cache_key not in self._imagine_jit_cache:
+            self._imagine_jit_cache[cache_key] = nj.jit(nj.pure(_imagine_fn))
+        imagine_jit = self._imagine_jit_cache[cache_key]
 
         rng = np.random.default_rng(cfg.seed)
         zero_action = np.zeros(act_space[act_key].shape, dtype=np.float32)
         z_list, obs_list = [], []
+        rssm_lists = {}
+        action_list, policy_lists = [], {}
         for i in range(cfg.n_rollouts):
             # Real env reset -> encoder bridge start point (see _encode_start()
             # above). Each of the N rollouts gets its OWN fresh real starting
@@ -485,6 +538,10 @@ class SafeDreamerWrapper(WorldModelWrapper):
             ))
             (traj, obs), _ = imagine_jit(params, seed_i, obs0_dp)
             traj_host = jax.device_get(traj)
+            action_list.append(np.asarray(traj_host['action'])[:T,0])
+            for key in ('planner_action_mean','planner_action_std','planner_initialized'):
+                if key in traj_host:
+                    policy_lists.setdefault(key,[]).append(np.asarray(traj_host[key])[:,0])
             obs_raw = np.asarray(jax.device_get(obs))
             # WorldModel.imagine() builds traj via jaxutils.scan(), which stacks
             # along a NEW LEADING axis -- so every field in `traj` (and anything
@@ -501,18 +558,25 @@ class SafeDreamerWrapper(WorldModelWrapper):
             T_actual = deter.shape[0]
             z = np.concatenate([deter, stoch.reshape(T_actual, -1)], axis=-1)
 
-            # traj has T+1 steps: index 0 is the (deterministic/learned) RSSM
-            # initial state z0 ~ rho, indices 1..T are the T imagined steps.
-            # We keep [:T] -> [z0, imagined_1, ..., imagined_{T-1}], i.e. T
-            # steps starting from z0, matching the paper's tau=(z0,...,z_{T-1})
-            # -- NOTE this z0 is a fixed/learned point, not a sampled
-            # distribution; see module docstring deviations.
-            z_list.append(z[:T])
-            obs_list.append(obs_host[:T])
+            # Index 0 is the reset-observation-encoded RSSM state; 1..T are
+            # actual imagined successors. The full-latent API retains all
+            # T+1 states so that T dynamics edges require no fabricated tail.
+            # The legacy AP-only API preserves its original T-state shape.
+            count = T + 1 if include_terminal else T
+            z_list.append(z[:count])
+            obs_list.append(obs_host[:count])
+            if include_terminal:
+                for key in ("deter", "stoch", "logit", "mean", "std"):
+                    if key in traj_host:
+                        value = np.asarray(traj_host[key])[:, 0]
+                        rssm_lists.setdefault(key, []).append(value[:count])
 
-            if (i + 1) % 10 == 0 or (i + 1) == cfg.n_rollouts:
+            if action_source == "policy" or (i + 1) % 10 == 0 or (i + 1) == cfg.n_rollouts:
                 logger.info(f"SafeDreamerWrapper: imagined {i + 1}/{cfg.n_rollouts}")
 
+        self.last_rssm_arrays = {k: np.stack(v) for k, v in rssm_lists.items()} if include_terminal else None
+        self.last_action_array = np.stack(action_list)
+        self.last_policy_arrays = {k:np.stack(v) for k,v in policy_lists.items()}
         return np.stack(z_list), np.stack(obs_list)
 
     def _decode_to_trajectories(self, obs_array: np.ndarray) -> list[list[dict[str, float]]]:

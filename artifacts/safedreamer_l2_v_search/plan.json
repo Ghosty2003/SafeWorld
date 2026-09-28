@@ -1,0 +1,56 @@
+{
+  "configs": [
+    {
+      "name": "continued_tanh",
+      "width": 128,
+      "activation": "tanh",
+      "view": "all",
+      "seed": 0,
+      "lr": 0.0002,
+      "decay": 0.0,
+      "init": true
+    },
+    {
+      "name": "silu_full",
+      "width": 256,
+      "activation": "silu",
+      "view": "all",
+      "seed": 11,
+      "lr": 0.0005,
+      "decay": 1e-05,
+      "init": false
+    },
+    {
+      "name": "silu_deter",
+      "width": 256,
+      "activation": "silu",
+      "view": "deter",
+      "seed": 12,
+      "lr": 0.0005,
+      "decay": 0.0001,
+      "init": false
+    },
+    {
+      "name": "tanh_deter",
+      "width": 128,
+      "activation": "tanh",
+      "view": "deter",
+      "seed": 13,
+      "lr": 0.0005,
+      "decay": 1e-05,
+      "init": false
+    }
+  ],
+  "max_epochs": 2000,
+  "evaluate_every": 200,
+  "eta": 0.01,
+  "margin_target": 0.015,
+  "selection": "prefer <=1% training P2 violations; then validation noninitial certificate successes, validation P2 pass rate, train P2 pass rate",
+  "validation_reused": true,
+  "inference": "no time or trajectory id",
+  "fresh_test": {
+    "n": 100,
+    "horizon": 50,
+    "seed": 9307
+  }
+}

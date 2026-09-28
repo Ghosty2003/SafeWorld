@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-25T02:02:25.235333+00:00",
+  "verdict": "ABSTAIN",
+  "cp_lower95": 0.8664140846095996,
+  "threshold": 0.95,
+  "calibration_report_sha256": "c3a17f01cb0a691dbab1d9144474c94c874af9d92d39eb03560ebd8e5e615990",
+  "model_sha256": "a3e8da79013b39cb22cd076117bb52e8677eab60f495f7183d15836199d4ccbe",
+  "plan_sha256": "0899c2a0873be7a5c4f20397b8de7fc73db6a91f1fa9f2abdc42ab7bb87bbb2b",
+  "scope": "Statistical finite-model certificate event ONLY; internal double100 NOT met"
+}

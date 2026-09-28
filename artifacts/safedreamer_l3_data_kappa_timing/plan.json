@@ -1,0 +1,62 @@
+{
+  "time": "2026-09-24T05:09:21.877839+00:00",
+  "signature": {
+    "fit_counts": [
+      12
+    ],
+    "dev_paths": 8,
+    "kappas": [
+      8,
+      16,
+      32,
+      64,
+      128,
+      256
+    ],
+    "steps": 400,
+    "seed_base": 47500000,
+    "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+    "policy": {
+      "action_source": "policy",
+      "expl_behavior": "CCEPlanner",
+      "planner": {
+        "horizon": 15,
+        "num_samples": 500,
+        "num_elites": 50,
+        "iterations": 6,
+        "mixture_coef": 0.05,
+        "momentum": 0.1,
+        "init_std": 1.0
+      },
+      "cost_limit": 0.0,
+      "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+      "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+    },
+    "code_sha256": {
+      "experiments/l3_wu_data_ablation.py": "24d975b7f8e7c3313138c2f4e189befd265ce76c22f24df332dd57b0089772d4",
+      "experiments/l3_wu_search.py": "8f06bfde57411ab2792ba0501a7c057dcbb925ff8a94d7531b388b5426e1adac",
+      "experiments/l3_safedreamer_clear_pipeline.py": "3676129511a336a839622d6b407b8defc2d1549ac7f783778e875ea7274e97fb",
+      "wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e"
+    }
+  },
+  "spec": "GF G[0,47](decoded_hazard_margin>=0)",
+  "horizon": 192,
+  "fit_kappa": 32,
+  "W_family": "wide",
+  "U_family": "sublevel",
+  "eps_W": 0.01,
+  "ell": 0.8,
+  "B": 1.0,
+  "scope": "DEVELOPMENT_ABLATION_NOT_FINAL_VALIDATION",
+  "anchors": "One uniform nonaccepting and one uniform accepting t in [1,191] per path when available.",
+  "sampling": "All kappa prefixes use same saved max-kappa successors; full RSSM and planner carry reset per draw.",
+  "freeze": "All compared weights and dev anchors frozen before fresh dev successor queries.",
+  "independence": "Conditional successor draws; path anchors are clustered, not iid rollout success trials.",
+  "initial_condition": "decoded initial goal distance>=1.0 only; no success filtering",
+  "caveats": [
+    "Simulator reset RNG not fully controlled by explicit imagination seeds.",
+    "No final holdout touched; development outcomes may inform future choices.",
+    "Sampling-only UCB is not cellwise correction or an infinite-horizon warrant.",
+    "Failure to certify does not prove no W/U exists."
+  ]
+}

@@ -32,9 +32,15 @@ class LPPMResult:
     # the narrower, Theorem-5.4-exact question. See
     # core/lppm/verifier.py::verify_zfree_closure()'s docstring.
     zfree_closure: ZFreeClosureResult | None = None
+    # A collapsed candidate can still produce a superficially high binary
+    # event rate (for example V==0 labels every even state as Z_free).  The
+    # trainer's post-fit audit marks that case explicitly; calibration keeps
+    # the raw statistics for diagnosis but must not issue a warrant from it.
+    candidate_rejected: bool = False
+    candidate_rejection_reason: str | None = None
 
     def is_warranted(self) -> bool:
-        return self.p_hat_gamma >= self.warrant_threshold
+        return (not self.candidate_rejected) and self.p_hat_gamma >= self.warrant_threshold
 
     def summary(self) -> str:
         status = "WARRANT ✓" if self.is_warranted() else "NOT WARRANTED"
@@ -58,6 +64,11 @@ class LPPMResult:
                     "in Z_free; p̂_γ above remains valid only against the stronger "
                     "whole-trajectory event, not Theorem 5.4's minimal premise"
                 )
+        if self.candidate_rejected:
+            lines.append(
+                "[V_phi candidate] REJECTED -- "
+                + (self.candidate_rejection_reason or "post-fit audit failed")
+            )
         return "\n".join(lines)
 
 
@@ -136,6 +147,14 @@ def calibrate_lppm(
     zfree_closure = verify_zfree_closure(
         trajectories, dpa, spec, gamma=gamma, eta=eta, lppm_params=lppm_params, p1_tol=p1_tol,
     )
+    candidate_rejected = bool(
+        lppm_params is not None and lppm_params.get("collapse_detected", False)
+    )
+    candidate_rejection_reason = (
+        lppm_params.get("failure_reason")
+        if candidate_rejected and lppm_params is not None
+        else None
+    )
     return LPPMResult(
         pathwise=pathwise_results,
         p_hat_gamma=p_hat,
@@ -144,6 +163,8 @@ def calibrate_lppm(
         warrant_threshold=warrant_threshold,
         p1_tolerance=p1_tol,
         zfree_closure=zfree_closure,
+        candidate_rejected=candidate_rejected,
+        candidate_rejection_reason=candidate_rejection_reason,
     )
 
 

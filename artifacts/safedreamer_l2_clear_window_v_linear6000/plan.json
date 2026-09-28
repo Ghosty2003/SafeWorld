@@ -1,0 +1,51 @@
+{
+  "created_at": "2026-09-24T01:39:10.312506+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_more_data",
+  "data": {
+    "train": {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_more_data/train.npz",
+      "sha256": "0cf15ffdaa064df25140d3a35dfea7bde4cba745fbe11b6654147bcb23b752a1",
+      "n": 300,
+      "completed": 300
+    },
+    "validation": {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_more_data/validation.npz",
+      "sha256": "cf658865c06c37e82fafa5e88b695c2ad4041047adf03bb713a4d4523204f77f",
+      "n": 100,
+      "completed": 100
+    }
+  },
+  "spec": "F[1,17] G[0,47](decoded hazard_margin>=0)",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy_config_sha256": "8a5e0449b4bdc6ad330f820802d9dcd3fd87fbe7dc3378deeba98297980f0037",
+  "initial_condition": "norm(decoded initial goal vector)>=1.0",
+  "horizon": 64,
+  "eta": 0.01,
+  "value_inputs": "577 latent/planner features plus causal clear-run counter/48; absorbing accepting branch. No elapsed/remaining time or future input.",
+  "monitor": "Ignore t0, increment clear run at t1..64, reset on hazard, accept after 48 clear states; completion absorbing. Unaccepted at64 fails.",
+  "bad_states": "All not-yet-accepting monitor states, including failed finite prefixes",
+  "objective": "Mean/worst-path hinge, training margin 2*eta, learned accepting scalar anchor, waiting sublevel penalty 10; evaluation exact eta=.01.",
+  "selection": "Whole-path P1P2 then complete certificate then fewer pending sublevel states",
+  "candidates": [
+    {
+      "name": "linear_max0",
+      "family": "linear",
+      "width": 128,
+      "seed": 28500,
+      "path_weight": 0
+    },
+    {
+      "name": "linear_max4",
+      "family": "linear",
+      "width": 128,
+      "seed": 28501,
+      "path_weight": 4
+    }
+  ],
+  "updates": 6000,
+  "training_device": "cpu",
+  "warrant_threshold": 0.95,
+  "future_confidence": 0.95,
+  "scope": "DEVELOPMENT_ONLY; adaptively chosen finite specification, no deductive claim"
+}

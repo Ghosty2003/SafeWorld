@@ -1,0 +1,76 @@
+{
+  "created": "2026-09-24T11:54:27.833995+00:00",
+  "stage": "FIT_ONLY",
+  "backend": "SafeDreamer",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy": {
+    "action_source": "policy",
+    "expl_behavior": "CCEPlanner",
+    "planner": {
+      "horizon": 15,
+      "num_samples": 500,
+      "num_elites": 50,
+      "iterations": 6,
+      "mixture_coef": 0.05,
+      "momentum": 0.1,
+      "init_std": 1.0
+    },
+    "cost_limit": 0.0,
+    "planner_source_sha256": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74",
+    "note": "Local reconstructed evaluation planner; no claim of exact historical training config."
+  },
+  "horizon": 300,
+  "window": 48,
+  "eta": 0.01,
+  "detector": "Decoded nearest-hazard distance >=0.2; consume states1..300; nonoverlapping completion pulses",
+  "budget_reset": "Only completed events; hazard resets counter but NOT progress budget",
+  "start_distribution": "fresh independently seeded environment reset, encoded initial goal distance>=1.0",
+  "fit_count": 16,
+  "fit_internal_train": 12,
+  "fit_internal_check": 4,
+  "updates": 400,
+  "M_MIN": null,
+  "M_MIN_candidates": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "CV": "DISABLED_FOR_PILOT",
+  "sliding": "DISABLED_FOR_PILOT",
+  "false_positive_deduction": "NOT_APPLICABLE: event defined on decoded observation; no real-world detector claim",
+  "region": "FIT_TRAIN_ENVELOPE: normalized full-state L2 ball containing training states; NOT support-wide validated",
+  "delta": "NOT_CALIBRATED: show zero and max training-path residual as explicitly biased fit previews only",
+  "certificate_event": null,
+  "confidence": null,
+  "roles": {
+    "fit": {
+      "seed_base": 121000000,
+      "status": "FIT_ONLY",
+      "count": 16
+    },
+    "cal_delta": {
+      "seed_base": 122000000,
+      "status": "LOCKED_NOT_COLLECTED",
+      "count": 0
+    },
+    "cal_CP": {
+      "seed_base": 123000000,
+      "status": "LOCKED_NOT_COLLECTED",
+      "count": 0
+    },
+    "test": {
+      "seed_base": 124000000,
+      "status": "LOCKED_NOT_COLLECTED",
+      "count": 0
+    }
+  },
+  "scope": "FINITE_MODEL_ONLY_RESET_BUDGET_PILOT_NOT_THEOREM_5_6",
+  "code_sha256": {
+    "/home/sunyhg/Documents/SafeWorld/experiments/safedreamer_finite_recurrence_pilot.py": "fbafe2c3c21bcce61b60150746b697c4177580b5f148304a7dc43e0482938b96",
+    "/home/sunyhg/Documents/SafeWorld/core/finite_recurrence.py": "58389ec358175df96a3bb245ee4f1ad502f9af4939085917248143129fe010e6",
+    "/home/sunyhg/Documents/SafeWorld/wrappers/safedreamer_wrapper.py": "c8f1784aa74bae58367efad592151696f34efafacef919d4521e0a2cc98d4d0e",
+    "/home/sunyhg/Documents/SafeDreamer/SafeDreamer/behaviors.py": "70889c088a46f51dbd2e16b873152edf35e2b5abdaa25129b3208930ae4e6b74"
+  }
+}

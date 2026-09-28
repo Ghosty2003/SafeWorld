@@ -1,7 +1,7 @@
 """
 specs/ltl_specs.py
 
-SAFEWORLD-BENCH: 15 LTL specifications across 8 complexity levels.
+SAFEWORLD-BENCH: 18 LTL specifications across 8 complexity levels.
 (Definition 3.2 + Table 18 from the SAFEWORLD paper)
 
 Formula node schema (unbounded operators use b=INF):
@@ -14,10 +14,11 @@ Formula node schema (unbounded operators use b=INF):
     until(a, b, left, right)   ->  left U[a,b] right
     next(child)                ->  ○ child
 
-Manna-Pnueli classes covered across all 15 specs:
+Manna-Pnueli classes covered across all 18 specs:
     Safety      (L1, L7)
     Guarantee   (L2, L3)
     Obligation  (L2)
+    Persistence (L6)
     Recurrence  (L4, L5, L6, L8)
 
 AP key convention (must match wrapper output and formula "dim" fields):
@@ -73,7 +74,7 @@ def X(child: dict) -> dict:
     return {"type": "next", "child": child}
 
 
-# ── 15 LTL specifications ─────────────────────────────────────────────────────
+# ── 18 LTL specifications ─────────────────────────────────────────────────────
 
 LTL_SPECS: list[dict] = [
 
@@ -107,9 +108,40 @@ LTL_SPECS: list[dict] = [
         "min_preds":   1,
     },
 
+    # Canonical co-Buchi Persistence instance used by the L2 absorption
+    # experiment.  Unlike strict Safety G(!hazard), an early hazard visit is
+    # not an absorbing rejection: the run may recover, but violations must
+    # eventually stop forever.
+    {
+        "id":          "ltl_eventual_hazard_avoidance",
+        "level":       6,
+        "name":        "Eventual permanent hazard avoidance",
+        "mp_class":    "Persistence",
+        "ltl_str":     "F(G(!hazard))",
+        "formula":     F(G(atom("hazard_dist", 0.0, ">"))),
+        "horizon":     50,
+        "description": "After a finite transient, remain outside hazard zones forever: ♢□(¬hazard).",
+        "aps":         ["hazard_dist"],
+        "dpa_size":    2,
+        "min_preds":   1,
+    },
+
     # ═══════════════════════════════════════════════════════════════════════════
-    # Level 2 – Obligation  (Safety ∩ Guarantee)
+    # Level 2 – Guarantee / Obligation
     # ═══════════════════════════════════════════════════════════════════════════
+    {
+        "id":          "ltl_goal_reach",
+        "level":       2,
+        "name":        "Goal reach",
+        "mp_class":    "Guarantee",
+        "ltl_str":     "F(goal)",
+        "formula":     F(atom("goal_dist", 0.0, "<")),
+        "horizon":     50,
+        "description": "Eventually enter the physical goal region: ♢(goal).",
+        "aps":         ["goal_dist"],
+        "dpa_size":    2,
+        "min_preds":   1,
+    },
     {
         "id":          "ltl_safe_goal",
         "level":       2,

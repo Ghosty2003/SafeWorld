@@ -1,0 +1,36 @@
+{
+  "time": "2026-09-24T11:56:58.799265+00:00",
+  "sha256": "33278faaeb9c3faaa5612f39e62f665c4a95788cfc125a03edc5031b25c74fe0",
+  "training": {
+    "history": [
+      {
+        "step": 1,
+        "loss": 0.3150269389152527
+      },
+      {
+        "step": 100,
+        "loss": 0.010623101145029068
+      },
+      {
+        "step": 200,
+        "loss": 0.007769770920276642
+      },
+      {
+        "step": 300,
+        "loss": 0.0038585492875427008
+      },
+      {
+        "step": 400,
+        "loss": 0.0015948857180774212
+      }
+    ],
+    "completed_targets": 3461,
+    "censored_lower_targets": 139,
+    "note": "Right-censored targets bound observed tail only, not an unobserved return time"
+  },
+  "region_radius": 55.514984130859375,
+  "delta_fit_preview": 0.13169090032577513,
+  "calibrated_delta": null,
+  "M_MIN": null,
+  "not_a_final_freeze": true
+}

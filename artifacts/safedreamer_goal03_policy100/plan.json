@@ -1,0 +1,20 @@
+{
+  "created_at": "2026-09-24T02:56:27.817974+00:00",
+  "source_config": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_clear_window_holdout",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "policy_config_sha256": "8a5e0449b4bdc6ad330f820802d9dcd3fd87fbe7dc3378deeba98297980f0037",
+  "horizon": 100,
+  "count": 100,
+  "batch_size": 20,
+  "max_batches": 50,
+  "seed_base": 29505000,
+  "spec": "F[0,100](norm(decoded goal vector)<0.30)",
+  "initial_condition": "norm(decoded initial goal vector)>=1.0",
+  "action_source": "policy",
+  "planner": "unchanged local CCEPlanner",
+  "comparison": "First 64 versus full 100 transitions of the same accepted trajectories",
+  "selection": "First eligible paths in draw order; t0-only condition; no future-success filtering",
+  "scope": "EXPLORATORY_MODEL_ONLY_GOAL_RATE; no V fitting/evaluation, no certificate/warrant",
+  "seed_note": "Explicit imagination seeds; simulator reset randomness not completely controlled by them"
+}

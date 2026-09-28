@@ -1,0 +1,9 @@
+{
+  "scope": "Affine V finite sampled pending-to-pending edges only",
+  "n_edges": 5494,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+  "feasible": null,
+  "max_residual": null,
+  "warning": "Affine infeasibility does not imply nonlinear V infeasibility; near-coincident states may require steep functions"
+}

@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 import statistics
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Tuple
 
 
 # ─── predicate ────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ class Predicate:
 
 # ─── abstract state key ───────────────────────────────────────────────────────
 
-AbstractStateKey = tuple[bool, ...]   # one bit per predicate
+AbstractStateKey = Tuple[bool, ...]   # one bit per predicate
 
 
 # ─── abstract system ──────────────────────────────────────────────────────────

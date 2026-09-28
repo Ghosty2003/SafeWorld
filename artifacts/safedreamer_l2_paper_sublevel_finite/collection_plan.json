@@ -1,0 +1,31 @@
+{
+  "created_at": "2026-09-23T00:49:47.763043+00:00",
+  "model_sha256": "b9186fc17711779db85ff38a8fb0c91defe04b2828e3499bbd6cd04fb4eaa66a",
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "horizon": 50,
+  "n_calibration": 100,
+  "n_test": 100,
+  "seeds": {
+    "calibration": 15301,
+    "test": 15302
+  },
+  "action_source": "random",
+  "config_seed": 15300,
+  "prior_fingerprint_sources": [
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/calibration.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/test.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/train.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/validation.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latest_prediction_check/calibration.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latest_prediction_check/test.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_prediction_check/calibration.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_prediction_check/test.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_ensemble/fresh_test.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_train.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_validation.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/fresh_test.npz",
+    "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_search/fresh_test.npz"
+  ],
+  "note": "Reset observations seed the imagination; no real environment trajectories evaluated."
+}

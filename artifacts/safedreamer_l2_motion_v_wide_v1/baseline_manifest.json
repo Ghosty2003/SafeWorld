@@ -1,0 +1,98 @@
+{
+  "at": "2026-09-25T00:48:32.608374+00:00",
+  "primitives": [
+    {
+      "kind": "old",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_distinct_specs_v1/motion_burst_elu128.pt",
+      "sha256": "dc93cd61991dd6de5d7c0c0c3744b3c9473fec052daa1664b929e7f5a131ceb3",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/full128.pt",
+      "sha256": "19d923171cde50582822a4facc8dfea8a5cbbace52cfe5663118b75fe5248461",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/full256.pt",
+      "sha256": "e75e1bff9582c8d75363d2656a73cb06df3744e772102663bd555d536f5a71fc",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/deter128.pt",
+      "sha256": "b387407f539bd5e02f30fc65965062a14e32be10d023e189392266849db8aff7",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/full_max4.pt",
+      "sha256": "3d449f9feae223e27f510b9be89182c135a0f20d3cf2115b999137817150ac37",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/full_residual.pt",
+      "sha256": "a4ab9e87f41aff62c76e9fb06a56e183c5c9d248c798cdaebaf0f69ffa8aabd4",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/full128_rank.pt",
+      "sha256": "b5e802c93905a7551fecc108eeb244dbe9d85c913a0ef6319296be8d86022013",
+      "scale": 4.0
+    },
+    {
+      "kind": "new",
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_motion_v_refine_v1/deter128_rank.pt",
+      "sha256": "a0dd1b4e42fdf87a4be382cc118d7d8948024bd64a9bca4da23703d4501be23f",
+      "scale": 4.0
+    }
+  ],
+  "aggregation": {
+    "id": "blend5_0.75",
+    "op": "weighted",
+    "members": [
+      0,
+      5
+    ],
+    "weights": [
+      0.75,
+      0.25
+    ]
+  },
+  "spec": {
+    "id": "motion_burst",
+    "name": "\u4f4e\u901f\u540e\u8fdb\u5165\u9ad8\u901f",
+    "stages": [
+      {
+        "signal": "speed",
+        "op": "le",
+        "threshold": 0.22450116704240514
+      },
+      {
+        "signal": "speed",
+        "op": "ge",
+        "threshold": 0.7390221068978473
+      }
+    ],
+    "safety_until_completion": false,
+    "n_states": 3,
+    "accepting": 2,
+    "reject": null,
+    "bad_set": [
+      0,
+      1
+    ],
+    "mp_class": "Guarantee (bounded)",
+    "H": 300,
+    "specification": "ordered events within [0,300]: [{\"signal\": \"speed\", \"op\": \"le\", \"threshold\": 0.22450116704240514}, {\"signal\": \"speed\", \"op\": \"ge\", \"threshold\": 0.7390221068978473}]",
+    "automaton": "q counts completed predicates; at most one stage per state; accept absorbing; safety rejection absorbing if enabled",
+    "completion": "all ordered stages consumed by t=300",
+    "interpretation": "Decoded-model event only, not real-world task achievement or infinite recurrence"
+  },
+  "eta": 0.01,
+  "H": 300,
+  "scope": "Development only; V(x) uses the stored aggregation of scaled primitive predictions"
+}

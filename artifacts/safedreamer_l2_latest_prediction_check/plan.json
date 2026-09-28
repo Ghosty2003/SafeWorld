@@ -1,0 +1,68 @@
+{
+  "created_at": "2026-09-23T00:21:02.138512+00:00",
+  "source_model": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_validation_search/selected.pt",
+  "model_sha256": "e482d833f99798036d0bf51bc6f0826ad5366e034298c316daebdb881ba6fb1c",
+  "candidate_name": "previous_frozen+deter_multistep_1200_x8:mean",
+  "world_model_checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "world_model_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "n_calibration": 100,
+  "n_test": 100,
+  "horizon": 50,
+  "eta": 0.01,
+  "seeds": {
+    "calibration": 14301,
+    "test": 14302
+  },
+  "environment_config_seed": 14300,
+  "action_source": "random",
+  "scope": "Same frozen SafeDreamer checkpoint; reset-encoded starts, random-action imagination only; no environment trajectory comparison.",
+  "goal": "decoded goal_dist < 0, radius 0.30; includes initial state",
+  "acceptance_threshold": 0.8,
+  "prior_fingerprint_sources": [
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/calibration.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/test.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/train.npz",
+      "paths": 60
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_latent_trial/validation.npz",
+      "paths": 40
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_prediction_check/calibration.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_prediction_check/test.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_ensemble/fresh_test.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_train.npz",
+      "paths": 120
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/extra_validation.npz",
+      "paths": 60
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_refine/fresh_test.npz",
+      "paths": 100
+    },
+    {
+      "path": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_v_search/fresh_test.npz",
+      "paths": 100
+    }
+  ],
+  "protocol": "Fixed sizes; calibration prediction saved before any test collection; no refitting or selection."
+}

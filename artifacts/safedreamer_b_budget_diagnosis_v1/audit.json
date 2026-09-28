@@ -1,0 +1,16 @@
+{
+  "time": "2026-09-24T12:39:46.764906+00:00",
+  "source_hashes_verified": true,
+  "baseline_flags_exact_replay": true,
+  "baseline_decisions_match": true,
+  "models_and_sources_unchanged": true,
+  "report_sha256": "a05112d49221f901eca8a1ea85e7242d1054fef4998015187f9956efb2b2dd77",
+  "rows": 448,
+  "segments": 50,
+  "split_counts": {
+    "fit": 16,
+    "cal_delta": 0,
+    "cal_CP": 0,
+    "test": 0
+  }
+}

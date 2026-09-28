@@ -1,0 +1,11 @@
+{
+  "completed": "2026-09-25T00:10:33.269852+00:00",
+  "candidate_paths_replayed": 1600,
+  "exact_replay": true,
+  "manual_window_replay": true,
+  "fit_internal_hashes_disjoint": true,
+  "code_sha256": "cd0bcc5d780e70cd4bdc6cd9b8ba46e7ed373c7bf73c3f5171644dfb6233b60a",
+  "audit_code_sha256": "5a824479815b22eb2fd35c535eb13854528a1a07cd61009ddd42c02da9dd65d5",
+  "formal_calibration_accessed": false,
+  "formal_test_accessed": false
+}

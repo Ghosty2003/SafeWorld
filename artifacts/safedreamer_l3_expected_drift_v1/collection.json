@@ -1,0 +1,7 @@
+{
+  "time": "2026-09-24T05:55:02.023560+00:00",
+  "elapsed_seconds": 147.66445671813563,
+  "query_chunks": 333,
+  "successors": 10656,
+  "sampling_device": "JAX_GPU"
+}

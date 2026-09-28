@@ -1,0 +1,472 @@
+{
+  "candidate": {
+    "formula": "V_H(z,q,t) = (H-t) * eta_step",
+    "horizon": 50,
+    "eta_required": 0.01,
+    "eta_step": 0.0101,
+    "v_initial": 0.505,
+    "v_terminal": 0.0
+  },
+  "p1_p2": {
+    "p1_violations": 0,
+    "p1_checked": 1246,
+    "p2_violations": 0,
+    "p2_checked": 754,
+    "trajectory_successes": 40,
+    "n": 40,
+    "cp_lower": 0.9278424754944854
+  },
+  "terminal": {
+    "accepting_even": 19,
+    "odd_trap": 21,
+    "terminal_zfree_h_successes": 19,
+    "n": 40
+  },
+  "full_certificate": {
+    "successes": 19,
+    "n": 40,
+    "p_hat_gamma": 0.3376963727543528
+  },
+  "per_trajectory": [
+    {
+      "index": 0,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 1,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 2,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 3,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 4,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 5,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 6,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 7,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 8,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 9,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 10,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 11,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 12,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 13,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 14,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 15,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 16,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 17,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 18,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 19,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 20,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 21,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 22,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 23,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 24,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 25,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 26,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 27,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 28,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 29,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 30,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 31,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "trap",
+      "terminal_priority": 1,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": false,
+      "certificate_satisfied": false
+    },
+    {
+      "index": 32,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 33,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 34,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 35,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 36,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 37,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 38,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    },
+    {
+      "index": 39,
+      "p1_violations": 0,
+      "p2_violations": 0,
+      "p1p2_satisfied": true,
+      "terminal_q": "ok",
+      "terminal_priority": 0,
+      "terminal_v": 0.0,
+      "terminal_in_zfree_h": true,
+      "certificate_satisfied": true
+    }
+  ]
+}

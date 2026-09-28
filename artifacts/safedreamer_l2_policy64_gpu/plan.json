@@ -1,0 +1,41 @@
+{
+  "created_at": "2026-09-23T03:38:25.991210+00:00",
+  "horizon": 64,
+  "eta": 0.01,
+  "radii": [
+    0.3
+  ],
+  "counts": {
+    "train": 120,
+    "validation": 60,
+    "calibration": 100,
+    "test": 100
+  },
+  "seeds": {
+    "train": 21501,
+    "validation": 21502,
+    "calibration": 21503,
+    "test": 21504
+  },
+  "updates_per_candidate": 1500,
+  "variants": [
+    "paper",
+    "anchored_accepting_scalar"
+  ],
+  "checkpoint": "/home/sunyhg/Documents/SafeDreamer/checkpoint/20240307-010600_osrp_vector_safetygymcoor_SafetyPointGoal1-v0_0.ckpt",
+  "checkpoint_sha256": "09d9f094417a29e2a37dd7cc6fdafebca927416dc2c89da8d7de6939d1255bfa",
+  "spec": "F_[0,64](norm(decoded goal vector) < radius), label includes t=0 and t=64",
+  "action_source": "policy",
+  "device": "gpu",
+  "certificate_training_device": "cpu",
+  "initial_distribution": "encoded independent simulator resets",
+  "value_inputs": "latent + planner mean/std/initialized + q",
+  "policy_scope": "Local CCEPlanner in latent imagination, not real-observation-feedback deployment",
+  "reset_rng_note": "Imagination seeds explicit; simulator reset RNG is not fully specified by these seeds.",
+  "paper_objective": "Eq12 with gradient regularization 1e-6, original ProductValue",
+  "extension": "Learned latent-independent accepting scalar; add 0.1*mean_done(log(V/(eta/4))^2) + mean_waiting(ReLU(2*eta-V)); no output floor, no forced zero, no time input",
+  "selection": "max(validation noninitial C&goal count, clean observed region path count, C&goal count, -pending sublevel states, -mean paper transition loss)",
+  "candidate_updates": "evaluate every 300 updates; radius and variant selected on development only",
+  "inference": "Only selected candidate calibrated and tested after freeze; no infinite-horizon proof",
+  "baseline": "0.3 is original goal, 0.6 and 1.0 are relaxed approach tasks, NOT original success"
+}

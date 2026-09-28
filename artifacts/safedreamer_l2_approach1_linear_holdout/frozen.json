@@ -1,0 +1,8 @@
+{
+  "frozen_at": "2026-09-23T05:38:12.191886+00:00",
+  "source_run": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_l2_approach1_function_search",
+  "source_plan_sha256": "6b26fe51d9c0a7fee666c06df59a566ae447be374bf10e9b1727910f8a4e60e4",
+  "model_sha256": "70b3a8a122cfc65a8a11e4f0da584824cd0675909da70ea78576df8ec9b47090",
+  "selected_candidate": "linear_v1",
+  "step": 1200
+}

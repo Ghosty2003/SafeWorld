@@ -1,0 +1,21 @@
+{
+  "time": "2026-09-24T04:26:15.966760+00:00",
+  "certificate_sha256": "8d395112a4a26818cb95946de22d2bf10066cd0ce7d0ebe1ae2c2070b62e62e9",
+  "plan_sha256": "0a8de3e762c84e953a4110433aa2c3093064f1c06eba89740bb4ecd26e44e757",
+  "loss_history": [
+    {
+      "epoch": 1,
+      "loss": 0.06094609200954437,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.01241991575807333,
+      "shaping_loss": 0.19410470128059387
+    },
+    {
+      "epoch": 5,
+      "loss": 0.03287341073155403,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.13149364292621613
+    }
+  ]
+}

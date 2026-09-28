@@ -1,0 +1,42 @@
+{
+  "started": "2026-09-24T13:30:40.491534+00:00",
+  "source": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_b_fit100_v1",
+  "source_plan_sha256": "4649ce5ea34415324e04a69905d940fcae9463a551d1d9c2fa9bb157e7452acb",
+  "source_collection_sha256": "93d143d417f528a848d22ed895c1273e31f93e1fb23d26e76a0c63093cfdbbc6",
+  "code_sha256": "0aff49d9d25a3febcc25256cb398da18162a99278c5118aca6faf937053a44e1",
+  "validation_not_loaded": true,
+  "candidates": [
+    {
+      "name": "bounded_uniform",
+      "width": 64,
+      "weighted": false,
+      "under_weight": 1.0,
+      "magnitude": 0.01
+    },
+    {
+      "name": "stratified",
+      "width": 64,
+      "weighted": true,
+      "under_weight": 3.0,
+      "magnitude": 0.01
+    },
+    {
+      "name": "stratified_wide_penalty",
+      "width": 128,
+      "weighted": true,
+      "under_weight": 3.0,
+      "magnitude": 0.05
+    }
+  ],
+  "updates": 1200,
+  "stratification": "LOW->HIGH completed episode latency bins <=48,49..120,121..240,>240, plus separate censored bin",
+  "sampling_refinement": "Collection plan sketched remaining-latency bins; before training use actual LOW->HIGH latency as requested, target remains e-t",
+  "cap": 2.4,
+  "split_counts": {
+    "train_fit": 80,
+    "internal_validation": 20,
+    "cal_delta": 0,
+    "cal_CP": 0,
+    "test": 0
+  }
+}

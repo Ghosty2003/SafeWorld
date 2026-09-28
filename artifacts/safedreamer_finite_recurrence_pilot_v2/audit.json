@@ -1,0 +1,17 @@
+{
+  "time": "2026-09-24T11:57:33.502697+00:00",
+  "exact_replay": true,
+  "fit_paths": 16,
+  "all_raw_draws": 27,
+  "transitions_checked_per_path": 300,
+  "event_timestamp_reference_match": true,
+  "fit_only_delta_recomputed": true,
+  "source_model_data_hashes_checked": true,
+  "cal_delta_count": 0,
+  "cal_CP_count": 0,
+  "test_count": 0,
+  "M_MIN": null,
+  "seed_replay_exact": true,
+  "report_sha256": "9dfff54e62fbae0608719d24cacc62fa42803766faa0582db9d835a204ebeedc",
+  "scope": "FIT_ONLY_NO_CONFIDENCE_NO_WARRANT"
+}

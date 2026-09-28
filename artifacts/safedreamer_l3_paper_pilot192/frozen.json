@@ -1,0 +1,84 @@
+{
+  "time": "2026-09-24T04:29:24.700618+00:00",
+  "certificate_sha256": "0ff094a8e6bac9cb638e29a375ebc4259d77e4a2c4d17f6b19771d151c0651d0",
+  "plan_sha256": "38f40b9ebad30482bdc839029759224f43f6455e1e449a8a5a43b7f275417c4c",
+  "loss_history": [
+    {
+      "epoch": 1,
+      "loss": 0.09524116665124893,
+      "W_drift_loss": 0.010002977214753628,
+      "U_drift_loss": 0.007733385544270277,
+      "shaping_loss": 0.31001922488212585
+    },
+    {
+      "epoch": 50,
+      "loss": 0.011078769341111183,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.04431507736444473
+    },
+    {
+      "epoch": 100,
+      "loss": 0.004017811268568039,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.016071245074272156
+    },
+    {
+      "epoch": 150,
+      "loss": 0.0012879259884357452,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.005151703953742981
+    },
+    {
+      "epoch": 200,
+      "loss": 0.0012569301761686802,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.005027720704674721
+    },
+    {
+      "epoch": 250,
+      "loss": 0.0007678495603613555,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.003071398241445422
+    },
+    {
+      "epoch": 300,
+      "loss": 0.0004152886394876987,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.0016611545579507947
+    },
+    {
+      "epoch": 350,
+      "loss": 0.0002633773838169873,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.001053509535267949
+    },
+    {
+      "epoch": 400,
+      "loss": 0.0008440655074082315,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.003376262029632926
+    },
+    {
+      "epoch": 450,
+      "loss": 0.00043521885527297854,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.0017408754210919142
+    },
+    {
+      "epoch": 500,
+      "loss": 0.0001948092394741252,
+      "W_drift_loss": 0.0,
+      "U_drift_loss": 0.0,
+      "shaping_loss": 0.0007792369578965008
+    }
+  ]
+}

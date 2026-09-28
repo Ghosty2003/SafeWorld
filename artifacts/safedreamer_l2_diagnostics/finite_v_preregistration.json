@@ -1,0 +1,16 @@
+{
+  "status": "frozen_before_confirmatory_collection",
+  "scope": "SafeDreamer model rollouts under the existing random-action distribution",
+  "spec": "ltl_hazard_avoidance",
+  "finite_horizon": 50,
+  "candidate": "V_H(z,q,t) = (H-t) * eta_step",
+  "eta_required": 0.01,
+  "eta_step": 0.0101,
+  "gamma": 0.05,
+  "confidence": 0.95,
+  "warrant_threshold": 0.8,
+  "calibration_rollouts": 200,
+  "calibration_seed": 101,
+  "action_source": "random",
+  "selection_or_training_on_confirmatory_split": false
+}

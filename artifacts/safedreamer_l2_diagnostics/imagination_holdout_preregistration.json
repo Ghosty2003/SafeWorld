@@ -1,0 +1,29 @@
+{
+  "registered_before_collection": true,
+  "purpose": "SafeDreamer model-only LPPM train/calibration/independent-test experiment",
+  "specification": "ltl_hazard_avoidance",
+  "specification_semantics": "unbounded LTL Safety; finite rollouts are sampled evidence, not a bounded replacement spec",
+  "horizon": 50,
+  "splits": {
+    "training": {"n_rollouts": 60, "seed": 303},
+    "calibration": {"n_rollouts": 100, "seed": 304},
+    "independent_test": {"n_rollouts": 100, "seed": 305}
+  },
+  "source": "SafeDreamer world-model imagination only",
+  "action_source": "random",
+  "environment_rollouts": 0,
+  "training": {
+    "epochs": 300,
+    "torch_seed": 0,
+    "eta": 0.01
+  },
+  "calibration": {
+    "gamma": 0.05,
+    "confidence": 0.95,
+    "warrant_threshold": 0.8
+  },
+  "zfree_definition": "automaton priority is even and V_phi(z,q,r) < eta for every odd-priority head r",
+  "primary_event": "P1/P2 hold over the rollout, Z_free is reached, and every subsequently observed product state through the finite horizon remains in Z_free",
+  "test_policy": "freeze V_phi, eta, Z_free definition, event definition, and threshold before collecting the independent test split",
+  "interpretation_limit": "sampled model-scope evidence over the observed horizon; not support-wide or infinite-time deductive closure"
+}

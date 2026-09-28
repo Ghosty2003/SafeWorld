@@ -1,0 +1,36 @@
+{
+  "registered_before_persistence_calibration_evaluation": true,
+  "selection_rule": "Select using the training split only; do not inspect persistence outcomes on calibration or test before freezing the spec and evaluation rule.",
+  "selected_specification": "ltl_eventual_hazard_avoidance",
+  "formula": "F(G(!hazard))",
+  "mp_class": "Persistence",
+  "selection_evidence_from_training_only": {
+    "n_train": 60,
+    "strict_G_not_hazard_safe": 34,
+    "safe_at_final_observed_step": 55,
+    "safe_through_final_10_observed_steps": 49
+  },
+  "rollout_cache": "artifacts/safedreamer_l2_diagnostics/imagination_holdout_rollouts.json",
+  "source": "SafeDreamer world-model imagination only",
+  "action_source": "random",
+  "environment_rollouts": 0,
+  "horizon": 50,
+  "splits": {
+    "training": {"n_rollouts": 60, "seed": 303},
+    "calibration": {"n_rollouts": 100, "seed": 304},
+    "independent_test": {"n_rollouts": 100, "seed": 305}
+  },
+  "training": {
+    "epochs": 300,
+    "torch_seed": 0,
+    "eta": 0.01
+  },
+  "calibration": {
+    "gamma": 0.05,
+    "confidence": 0.95,
+    "warrant_threshold": 0.8
+  },
+  "primary_event": "P1/P2 hold over the rollout, candidate Z_free is reached, and every subsequently observed product state through the finite horizon remains in candidate Z_free",
+  "collapse_policy": "Reject the V_phi candidate and establish no Z_free if the post-fit collapse audit fails.",
+  "interpretation_limit": "sampled model-scope evidence over the observed horizon; not support-wide or infinite-time deductive closure"
+}

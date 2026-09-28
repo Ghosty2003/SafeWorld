@@ -147,6 +147,65 @@ def fit_lppm(
         if loss_value < 1e-6:
             break
 
+    # A small training loss is not by itself evidence that a useful ranking
+    # function was learned.  In particular, P1 admits every constant
+    # function, and the nonnegative softplus head can saturate at zero.  If
+    # P2 examples are present, a candidate whose *entire sampled value range*
+    # is narrower than eta cannot possibly realize even one eta-sized drop.
+    # Record an explicit post-fit audit so downstream calibration cannot
+    # mistake this degenerate numerical solution for a meaningful V_phi.
+    with torch.no_grad():
+        v_curr_final = model(z_curr, q_curr)
+        v_next_final = model(z_next, q_next)
+
+    p1_checked = p1_violations = 0
+    p2_checked = p2_violations = 0
+    for odd_priority, head_index in odd_to_idx.items():
+        p1_mask = curr_priorities < odd_priority
+        if torch.any(p1_mask):
+            p1_gaps = v_next_final[p1_mask, head_index] - v_curr_final[p1_mask, head_index]
+            p1_checked += int(p1_gaps.numel())
+            p1_violations += int((p1_gaps > 0.0).sum().item())
+
+        p2_mask = curr_priorities == odd_priority
+        if torch.any(p2_mask):
+            p2_margins = v_curr_final[p2_mask, head_index] - v_next_final[p2_mask, head_index]
+            p2_checked += int(p2_margins.numel())
+            p2_violations += int((p2_margins < eta).sum().item())
+
+    sampled_values = torch.cat((v_curr_final.reshape(-1), v_next_final.reshape(-1)))
+    value_min = float(sampled_values.min().cpu().item())
+    value_max = float(sampled_values.max().cpu().item())
+    value_mean = float(sampled_values.mean().cpu().item())
+    value_std = float(sampled_values.std(unbiased=False).cpu().item())
+    value_span = value_max - value_min
+    collapse_detected = bool(
+        p2_checked > 0
+        and p2_violations == p2_checked
+        and value_span + 1e-12 < eta
+    )
+    if collapse_detected:
+        training_status = "collapsed_invalid"
+        failure_reason = (
+            "All sampled P2 checks fail and the fitted V_phi value span is smaller "
+            "than eta, so the candidate cannot realize one required P2 descent."
+        )
+    elif p1_violations or p2_violations:
+        training_status = "residual_violations"
+        failure_reason = (
+            "The fitted candidate retains sampled P1/P2 violations; held-out "
+            "validation is required and no deductive claim is available."
+        )
+    elif p2_checked == 0:
+        training_status = "no_p2_coverage"
+        failure_reason = (
+            "The training split contains no P2-triggering transition, so it provides "
+            "no empirical evidence that the required bad-state descent was learned."
+        )
+    else:
+        training_status = "sampled_fit_pass"
+        failure_reason = None
+
     return {
         "loss_history": loss_history,
         "final_loss": loss_history[-1] if loss_history else 0.0,
@@ -161,6 +220,19 @@ def fit_lppm(
         "odd_to_idx": odd_to_idx,
         "hidden_dim": hidden_dim,
         "q_embed_dim": q_embed_dim,
+        "training_status": training_status,
+        "failure_reason": failure_reason,
+        "collapse_detected": collapse_detected,
+        "candidate_valid_on_training_sample": p1_violations == 0 and p2_violations == 0,
+        "train_p1_checked": p1_checked,
+        "train_p1_violations": p1_violations,
+        "train_p2_checked": p2_checked,
+        "train_p2_violations": p2_violations,
+        "train_value_min": value_min,
+        "train_value_max": value_max,
+        "train_value_mean": value_mean,
+        "train_value_std": value_std,
+        "train_value_span": value_span,
     }
 
 

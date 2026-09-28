@@ -1,0 +1,111 @@
+{
+  "completed": "2026-09-24T12:24:02.667428+00:00",
+  "original_raw_hashes_verified": true,
+  "audited_source_report_sha256": "9dfff54e62fbae0608719d24cacc62fa42803766faa0582db9d835a204ebeedc",
+  "raw_paths": [
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0000.npz",
+      "sha256": "1632de6a17e6216dfb06c32bc724b79bd856a48d2c43664163ead53b544a3112",
+      "seed": 121000001
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0002.npz",
+      "sha256": "37102e83b7f5ac6b9aa9aca854c5a1849f004f852f33ff603abccf01c1eab3c8",
+      "seed": 121000005
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0004.npz",
+      "sha256": "4eb25e4a25adf5758fe6a18e790dd2bc048f1f2aaff63c06a7918a35cee44e5a",
+      "seed": 121000009
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0007.npz",
+      "sha256": "f4227b1f3f8395920f6051db9c49475e4ea4e0ba0c1c03dc0f4b3a53deee33a8",
+      "seed": 121000015
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0008.npz",
+      "sha256": "8382917e4bab1f523837af81eab900482c6b1f7cbcb39c8acc0fc4da6925cdfa",
+      "seed": 121000017
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0009.npz",
+      "sha256": "5c02ed54218850a1454bab0e764d77b7ed2d06c028264191d09d2e7cc9b45d11",
+      "seed": 121000019
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0012.npz",
+      "sha256": "1c65945184af5fadd3390db2ddf676f3f4c6f51f5fe907988c16cb3344cf5f80",
+      "seed": 121000025
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0014.npz",
+      "sha256": "76b2ad40c5b507162d41f4d54842dd3af2afb144cc135c64584c7c62eb76a2e7",
+      "seed": 121000029
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0015.npz",
+      "sha256": "b473bffac591fef81c28800e59b34c82debb0848f76256e0b750356a9202bcf6",
+      "seed": 121000031
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0017.npz",
+      "sha256": "b5696a0b5d1b3a8bc106ae791daccb017d5ca751f0e0de3a91dab6fb47df346f",
+      "seed": 121000035
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0019.npz",
+      "sha256": "f5d4766cab631a035ca47b1cb65a54415aabd914768203b78cfe60465b66424a",
+      "seed": 121000039
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0021.npz",
+      "sha256": "2dcc782656ecc790ca0b1cbcd1c5a0641d82fce5184189e922e20c1d54ce55c3",
+      "seed": 121000043
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0022.npz",
+      "sha256": "26c04053015508e698cf591c213226d3389e06178b7aecfc53c77e8b546bfb91",
+      "seed": 121000045
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0023.npz",
+      "sha256": "698918541960598c3fe659736b78607b991c3363bc23e1117e00e8a298323259",
+      "seed": 121000047
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0025.npz",
+      "sha256": "0c4bf70f116a287b9e5ded0fe5da5fcd7ac7e47f1319e0bce1ab72a79a968985",
+      "seed": 121000051
+    },
+    {
+      "file": "/home/sunyhg/Documents/SafeWorld/artifacts/safedreamer_finite_recurrence_pilot_v2/fit/path_0026.npz",
+      "sha256": "8a7f3f8c4e092fb1cabf0891d76588ee9b0a3be46d7e6c1db4a3a32ff0d7b68c",
+      "seed": 121000053
+    }
+  ],
+  "independent_timestamp_reference_matches": true,
+  "states_per_path": 301,
+  "transitions_per_path": 300,
+  "report_sha256": "2550586edac7aa94e47160ec2adfdc2de88232fdfbefc5052bea776f1082b077",
+  "split_counts": {
+    "fit": 16,
+    "cal_delta": 0,
+    "cal_CP": 0,
+    "test": 0
+  },
+  "outputs": {
+    "g_init_A.pt": "c84fa8bc0a939b95af62de535c5e0aa5dce043395bac3a4cf6883703cca60693",
+    "traces.json": "b6ba69343d8c9ecc16da30e17a041fd7ddbbc9f4b54380460b5bf0e65f9e1a65",
+    "report.json": "2550586edac7aa94e47160ec2adfdc2de88232fdfbefc5052bea776f1082b077",
+    "g_init_C.pt": "af5398ee87c395e66f1700152d5b765809c057dfc7db686b40d9cc9d031c6d11",
+    "rollout_event_counts.csv": "9ca7d5704457edd63e56d549627e543b432e933ff4a38353eaa158163b6a92ad",
+    "g_init_B.pt": "b6d7b65fb3a9ea8ed7451e32e470a611254f70cb3f8e7e6dfe507532fa3bf70e",
+    "plan.json": "4298173ef067c053ca329ac3ef477d2473f66f8e3b4318bae806eaf666c138da",
+    "failure_breakdown.csv": "e7dace866d744126144e91c9c5fa4167b542886b4fd1a450e96d322ced1af779",
+    "rollout_certificate_results.csv": "25e509db82bb72f6af497c1a55bee7d2e848a42aac3739e56c16b612c7266126",
+    "clearance_distribution.json": "0f99be6554252368528debd70ee1d02e94989f1c6d5067c2faf3cf75735e86f4",
+    "g_init_D.pt": "cc0d6c413283cf78286cb20a3cca561b0ac5e447cb92f4dae9c53a66e96f107d",
+    "threshold_candidates.csv": "c1a08b97773fbcfe5a1a3359668395269e63ec07c60c6812e1798d34b267f4b2"
+  }
+}
